@@ -1,0 +1,36 @@
+# This YAML file is a declarative manifest that describes the setup
+# of an autokitteh project that uses Slack (https://slack.com).
+#
+# Before applying this file:
+# 1. Open a browser, and go to the autokitteh server's URL
+# 2. Go to the integrations page, and choose Slack
+# 3. Create a connection, and copy the resulting token
+# 4. Paste it in the designated line below
+
+version: v1
+
+projects:
+  - name: slack_sample
+    root_path: ./samples/slack
+    paths:
+      - program.star
+    connections:
+      - name: slack
+        integration: slack
+        token: "*** REPLACE WITH AUTOKITTEH CONNECTION TOKEN ***"
+    envs:
+      - name: prod
+        mappings:
+          - name: slack
+            connection: slack_sample/slack
+            events:
+              - type: app_mention
+                entrypoint: program.star:on_slack_app_mention
+              - type: interaction
+                entrypoint: program.star:on_slack_interaction
+              - type: message
+                entrypoint: program.star:on_slack_message
+              - type: reaction_added
+                entrypoint: program.star:on_slack_reaction_added
+              - type: slash_command
+                entrypoint: program.star:on_slack_slash_command
