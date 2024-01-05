@@ -17,8 +17,9 @@ environment in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file.
 3. Create connections for them, and copy the resulting tokens
 4. Paste them in the designated lines in the
    [`autokitteh.yaml`](./autokitteh.yaml) manifest file
-5. Apply the `autokitteh.yaml` file - via the `ak` CLI, or VSCode extension
-6. Build and deploy [`program.star`](./program.star)
+5. Set the `FROM_NUMBER` environment constant value
+6. Apply the `autokitteh.yaml` file - via the `ak` CLI, or VSCode extension
+7. Build and deploy [`program.star`](./program.star)
 
 ## Connection Notes
 

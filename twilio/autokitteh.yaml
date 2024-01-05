@@ -6,6 +6,7 @@
 # 2. Go to the integrations page, and choose Twilio and Slack
 # 3. Create connections for them, and copy the resulting tokens
 # 4. Paste them in the designated lines below
+# 5. Set the `FROM_NUMBER` environment constant value
 
 version: v1
 
