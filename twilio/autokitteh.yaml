@@ -34,5 +34,3 @@ projects:
                 entrypoint: program.star:on_slack_app_mention
               - type: slash_command
                 entrypoint: program.star:on_slack_slash_command
-          - name: twilio
-            connection: twilio_sample/twilio

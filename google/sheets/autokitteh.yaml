@@ -24,8 +24,6 @@ projects:
     envs:
       - name: prod
         mappings:
-          - name: google
-            connection: google_sheets_sample/google
           - name: slack
             connection: google_sheets_sample/slack
             events:
