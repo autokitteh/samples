@@ -1,0 +1,27 @@
+# This YAML file is a declarative manifest that describes the setup
+# of an autokitteh project that uses GitHub (https://github.com).
+#
+# Before applying this file:
+# 1. Open a browser, and go to the autokitteh server's URL
+# 2. Go to the integrations page, and choose GitHub
+# 3. Create a connection, and copy the resulting token
+# 4. Paste it in the designated line below
+
+version: v1
+
+projects:
+  - name: github_sample
+    paths:
+      - program.star
+    connections:
+      - name: github
+        integration: github
+        token: "*** REPLACE WITH AUTOKITTEH CONNECTION TOKEN ***"
+    envs:
+      - name: prod
+        mappings:
+          - name: github
+            connection: github_sample/github
+            events:
+              - type: issue_comment
+                entrypoint: program.star:on_github_issue_comment
