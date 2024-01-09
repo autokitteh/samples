@@ -12,7 +12,6 @@ version: v1
 
 projects:
   - name: twilio_sample
-    root_path: ./samples/twilio
     paths:
       - program.star
     connections:

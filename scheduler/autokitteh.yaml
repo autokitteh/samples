@@ -12,7 +12,6 @@ version: v1
 
 projects:
   - name: scheduler_sample
-    root_path: ./samples/scheduler
     paths:
       - program.star
     connections:

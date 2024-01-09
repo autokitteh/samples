@@ -11,7 +11,6 @@ version: v1
 
 projects:
   - name: slack_sample
-    root_path: ./samples/slack
     paths:
       - program.star
     connections:
