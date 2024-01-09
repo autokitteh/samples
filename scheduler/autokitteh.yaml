@@ -32,5 +32,3 @@ projects:
             events:
               - type: cron_trigger
                 entrypoint: program.star:on_cron_trigger
-          - name: slack
-            connection: scheduler_sample/slack
