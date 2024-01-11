@@ -29,7 +29,6 @@ load(
     # https://api.slack.com/methods/users.info
     "users_info",
 )
-load("time", "sleep")
 
 def on_slack_app_mention(data):
     """https://api.slack.com/events/app_mention
