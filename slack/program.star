@@ -29,7 +29,6 @@ load(
     # https://api.slack.com/methods/users.info
     "users_info",
 )
-load("time", "sleep")
 
 def on_slack_app_mention(data):
     """https://api.slack.com/events/app_mention
@@ -48,17 +47,17 @@ def on_slack_app_mention(data):
     resp = chat_post_message("#slack-test", text)
 
     # Update the last sent message.
-    sleep(seconds = 10)
+    sleep(10)
     text = "After update :smiley_cat:"
     resp = chat_update(channel = resp.channel, ts = resp.ts, text = text)
 
     # Reply to the message's thread.
-    sleep(seconds = 5)
+    sleep(5)
     text = "Reply before update :crying_cat_face:"
     resp = chat_post_message(resp.channel, resp.ts, text)
 
     # Update the threaded reply message.
-    sleep(seconds = 5)
+    sleep(5)
     text = "Reply after update :smiley_cat:"
     chat_update(resp.channel, resp.ts, text)
 
