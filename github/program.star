@@ -14,11 +14,7 @@ mapped entry-point functions.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load(
-    "github",
-    # https://docs.github.com/en/rest/reactions/reactions#create-reaction-for-an-issue-comment
-    "create_reaction_for_issue_comment",
-)
+load("@github", "github")
 load(
     "rand",
     # https://pkg.go.dev/math/rand#Rand.Intn
@@ -36,7 +32,7 @@ def on_github_issue_comment(data):
     if data.action == "created":
         # Add to each new issue comment a random reaction.
         reaction = REACTIONS[intn(len(REACTIONS))]
-        create_reaction_for_issue_comment(
+        github.create_reaction_for_issue_comment(
             owner = data.organization.login,
             repo = data.repo.name,
             id = data.comment.id,
