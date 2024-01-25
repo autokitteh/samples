@@ -18,18 +18,14 @@ load(
     # See the value in the "autokitteh.yaml" manifest file.
     "FROM_NUMBER",
 )
-load(
-    "twilio",
-    # https://www.twilio.com/docs/messaging/api/message-resource#create-a-message-resource
-    "create_message",
-)
+load("@twilio", "twilio")
 
 def on_slack_app_mention(data):
     """https://api.slack.com/events/app_mention"""
 
     # Convert data.text from "<@UserID> message" to "message".
     text = data.text.split(" ")[-1]
-    send_twilio_message_to_given_phone(text)
+    twilio.send_twilio_message_to_given_phone(text)
 
 def on_slack_slash_command(data):
     """https://api.slack.com/interactivity/slash-commands"""
@@ -37,7 +33,7 @@ def on_slack_slash_command(data):
 
 def send_twilio_message_to_given_phone(target_phone_number):
     """Send an SMS text via Twilio to a phone number ("+12345556789")."""
-    resp = create_message(
+    resp = twilio.create_message(
         from_number = FROM_NUMBER,
         to = target_phone_number,
         body = "Meow!",

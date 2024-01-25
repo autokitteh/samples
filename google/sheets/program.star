@@ -16,23 +16,8 @@ mapped entry-point functions.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load(
-    "google",
-    # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
-    "sheets_read_cell",
-    "sheets_read_range",
-    # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells#CellFormat
-    "sheets_set_background_color",
-    "sheets_set_text_format",
-    # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
-    "sheets_write_cell",
-    "sheets_write_range",
-)
-load(
-    "slack",
-    # https://api.slack.com/methods/chat.postMessage
-    "chat_post_message",
-)
+load("@google", "google")
+load("@slack", "slack")
 
 def on_slack_app_mention(data):
     """https://api.slack.com/events/app_mention"""
@@ -52,13 +37,13 @@ def read_and_write_google_sheet(spreadsheet_id, slack_channel):
         spreadsheet_id: Google Sheet ID, from its URL.
         slack_channel: Slack channel ID/name to post messages to.
     """
-    sheets_write_cell(spreadsheet_id, row_index = 0, col_index = 0, value = "s")
+    google.sheets_write_cell(spreadsheet_id, row_index = 0, col_index = 0, value = "s")
     value = sheets_read_cell(spreadsheet_id, row_index = 0, col_index = 0)
-    chat_post_message(slack_channel, "Value at cell A1: `%s`" % value)
+    google.chat_post_message(slack_channel, "Value at cell A1: `%s`" % value)
 
-    sheets_write_cell(spreadsheet_id, row_index = 0, col_index = 1, value = 1)
+    google.sheets_write_cell(spreadsheet_id, row_index = 0, col_index = 1, value = 1)
     value = sheets_read_cell(spreadsheet_id, row_index = 0, col_index = 1)
-    chat_post_message(slack_channel, "Value at cell B1: `%s`" % value)
+    google.chat_post_message(slack_channel, "Value at cell B1: `%s`" % value)
 
     # Explanation of the A1 notation for cell ranges:
     # https://developers.google.com/sheets/api/guides/concepts#expandable-1
@@ -70,19 +55,19 @@ def read_and_write_google_sheet(spreadsheet_id, slack_channel):
         ["string", "foo"],
         ["image", '=IMAGE("%s")' % url],
     ]
-    sheets_write_range(spreadsheet_id, a1_range, data)
+    google.sheets_write_range(spreadsheet_id, a1_range, data)
 
     data = sheets_read_range(spreadsheet_id, a1_range)
     for i, row in enumerate(data):
         if row[1] == "":
-            row[1] = sheets_read_cell(
+            row[1] = google.sheets_read_cell(
                 spreadsheet_id,
                 row_index = i,
                 col_index = 1,
                 value_render_option = "FORMULA",
             )
         msg = "Row %d: `%s` = `%s`" % (i + 1, row[0], row[1])
-        chat_post_message(slack_channel, msg)
+        slack.chat_post_message(slack_channel, msg)
 
     # https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets
     sheets_set_background_color(spreadsheet_id, "A1:B1", 0xea4335)

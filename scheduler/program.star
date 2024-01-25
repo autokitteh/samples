@@ -15,11 +15,7 @@ load(
     # See the value in the "autokitteh.yaml" manifest file.
     "SLACK_CHANNEL",
 )
-load(
-    "slack",
-    # https://api.slack.com/methods/chat.postMessage
-    "chat_post_message",
-)
+load("@slack", "slack")
 
 def on_cron_trigger(data):
     """An autokitteh cron schedule was triggered.
@@ -47,4 +43,4 @@ def on_cron_trigger(data):
     msg += "Minute: `%d`\n" % data.minute
     msg += "Second: `%d`" % data.second
 
-    chat_post_message(SLACK_CHANNEL, msg)
+    slack.chat_post_message(SLACK_CHANNEL, msg)
