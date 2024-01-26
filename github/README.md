@@ -3,16 +3,21 @@
 This project demonstrates autokitteh's integration with
 [GitHub](https://github.com).
 
+The file [`program.star`](./program.star) implements multiple entry-point
+functions that are mapped to various GitHub webhook events in the
+[`autokitteh.yaml`](./autokitteh.yaml) manifest file. It also executes various
+GitHub API calls.
+
 API details:
 
 - [GitHub REST API documentation](https://docs.github.com/en/rest)
 - [Go client library documentation](https://pkg.go.dev/github.com/google/go-github/v57/github)
 
-This project isn't meant to cover all available functions and events, it
-merely showcases a few illustrative and annotated examples.
-
 It also demonstrates using a custom builtin function (`rand.intn`) to generate
 random integer numbers, based on <https://pkg.go.dev/math/rand#Rand.Intn>.
+
+This project isn't meant to cover all available functions and events, it
+merely showcases a few illustrative and annotated examples.
 
 ## Instructions
 

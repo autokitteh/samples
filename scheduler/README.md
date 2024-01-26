@@ -2,11 +2,12 @@
 
 This project demonstrates autokitteh's integration with a cron-like scheduler.
 
+The file [`program.star`](./program.star) implements a single entry-point
+function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
+manifest file as the receiver of `"cron_trigger"` events.
+
 It also demonstrates using constant values which are set for each autokitteh
 environment in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file.
-
-This project isn't meant to cover all available functions and events, it
-merely showcases a few illustrative and annotated examples.
 
 ## Instructions
 

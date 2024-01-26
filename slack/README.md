@@ -3,6 +3,11 @@
 This project demonstrates autokitteh's integration with
 [Slack](https://slack.com).
 
+The file [`program.star`](./program.star) implements multiple entry-point
+functions that are mapped to various Slack webhook events in the
+[`autokitteh.yaml`](./autokitteh.yaml) manifest file. It also executes various
+Slack API calls.
+
 API details:
 
 - [Slack Events API](https://api.slack.com/apis/connections/events-api)

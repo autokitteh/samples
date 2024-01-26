@@ -3,6 +3,11 @@
 This project demonstrates autokitteh's integration with
 [Google Sheets](https://www.google.com/sheets/about/).
 
+The file [`program.star`](./program.star) implements single entry-point
+function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
+manifest file. Once triggered by a Slack user, it reads and writes in a
+Google Sheet.
+
 API details:
 
 - [Google Sheets REST API](https://developers.google.com/sheets/api/reference/rest)
