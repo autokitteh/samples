@@ -5,13 +5,24 @@ This project demonstrates autokitteh's integration with
 
 The file [`program.star`](./program.star) implements single entry-point
 function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
-manifest file. Once triggered by a Slack user, it reads and writes in a
-Google Sheet.
+manifest file as the receiver of `"on_slack_slash_command"` events. Once
+triggered by a Slack user, it reads and writes in a Google Sheet.
 
 API details:
 
 - [Google Sheets REST API](https://developers.google.com/sheets/api/reference/rest)
 - [Go client library documentation](https://pkg.go.dev/google.golang.org/api/sheets/v4)
+
+In this sample, we expect the slash command's text to be either:
+
+- A Google Spreadsheet ID
+  (see definition [here](https://developers.google.com/sheets/api/guides/concepts))
+- A full Google Spreadsheet URL
+  (which we parse with a regular expression)
+
+It also demonstrates using a custom builtin module (`re`) to extract the
+Google Spreadsheet ID from a URL with a
+[regular expression](https://qri.io/docs/reference/starlark-packages/re).
 
 This project isn't meant to cover all available functions and events, it
 merely showcases a few illustrative and annotated examples.
