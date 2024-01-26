@@ -5,7 +5,7 @@
 # 1. Open a browser, and go to the autokitteh server's URL
 # 2. Go to the integrations page, and choose Slack
 # 3. Create a connection, and copy the resulting token
-# 4. Paste it in the designated line below
+# 4. Paste it in the designated "TODO" line below
 
 version: v1
 
@@ -16,7 +16,7 @@ projects:
     connections:
       - name: slack
         integration: slack
-        token: "*** REPLACE WITH AUTOKITTEH CONNECTION TOKEN ***"
+        token: TODO # Replace this with an autokitteh connection token
     envs:
       - name: prod
         mappings:
