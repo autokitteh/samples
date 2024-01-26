@@ -33,5 +33,6 @@ Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
 
 ## Connection Notes
 
-autokitteh connects to Slack via an OAuth-based Slack app, which is installed
-and authorized in a Slack workspace in step 3 above.
+autokitteh connects to Slack via an
+[OAuth-based Slack app](https://api.slack.com/authentication/oauth-v2), which
+is installed and authorized in a Slack workspace in step 3 above.
