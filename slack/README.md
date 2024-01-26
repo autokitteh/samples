@@ -8,18 +8,23 @@ API details:
 - [Slack Events API](https://api.slack.com/apis/connections/events-api)
 - [Slack Web API](https://api.slack.com/web)
 
-It also demonstrates using a helper module to sleep for a specified number of
-seconds, or a specified duration (`"12h34m56s"``).
+It also demonstrates using a custom builtin function (`sleep`) to sleep for a specified number of seconds.
+
+This project isn't meant to cover all available functions and events, it
+merely showcases a few illustrative and annotated examples.
 
 ## Instructions
 
 1. Open a browser, and go to the autokitteh server's URL
 2. Go to the integrations page, and choose Slack
 3. Create a connection, and copy the resulting token
-4. Paste it in the designated line in the
+4. Paste it in the designated "TODO" line in the
    [`autokitteh.yaml`](./autokitteh.yaml) manifest file
-5. Apply the `autokitteh.yaml` file - via the `ak` CLI, or VSCode extension
-6. Build and deploy [`program.star`](./program.star)
+
+Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
+
+1. Apply the `autokitteh.yaml` manifest file
+2. Build and deploy [`program.star`](./program.star)
 
 ## Connection Notes
 

@@ -8,18 +8,24 @@ API details:
 - [GitHub REST API documentation](https://docs.github.com/en/rest)
 - [Go client library documentation](https://pkg.go.dev/github.com/google/go-github/v57/github)
 
-It also demonstrates using a helper module to generate random integer
-numbers, based on <https://pkg.go.dev/math/rand#Rand.Intn>.
+This project isn't meant to cover all available functions and events, it
+merely showcases a few illustrative and annotated examples.
+
+It also demonstrates using a custom builtin function (`rand.intn`) to generate
+random integer numbers, based on <https://pkg.go.dev/math/rand#Rand.Intn>.
 
 ## Instructions
 
 1. Open a browser, and go to the autokitteh server's URL
 2. Go to the integrations page, and choose GitHub
 3. Create a connection, and copy the resulting token
-4. Paste it in the designated line in the
+4. Paste it in the designated `TODO` line in the
    [`autokitteh.yaml`](./autokitteh.yaml) manifest file
-5. Apply the `autokitteh.yaml` file - via the `ak` CLI, or VSCode extension
-6. Build and deploy [`program.star`](./program.star)
+
+Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
+
+1. Apply the `autokitteh.yaml` manifest file
+2. Build and deploy [`program.star`](./program.star)
 
 ## Connection Notes
 
