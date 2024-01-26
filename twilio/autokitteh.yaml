@@ -25,12 +25,10 @@ projects:
       - name: prod
         vars:
           - name: FROM_NUMBER
-            value: "+1 234 555 6789" # Replace this with a Twilio phone number
+            value: "+12345556789" # Replace this with a Twilio phone number
         mappings:
           - name: slack
             connection: twilio_sample/slack
             events:
-              - type: app_mention
-                entrypoint: program.star:on_slack_app_mention
               - type: slash_command
                 entrypoint: program.star:on_slack_slash_command
