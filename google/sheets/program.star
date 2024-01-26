@@ -19,7 +19,7 @@ In this sample, we expect the slash command's text to be either:
 
 It also demonstrates using a custom builtin module
 (re) to extract the Google Spreadsheet ID from a URL with a
-[regular expression](https://qri.io/docs/reference/starlark-packages/re).
+regular expression (https://qri.io/docs/reference/starlark-packages/re).
 
 When the project has an active deployment, and autokitteh receives
 trigger events from its Slack connections, it starts runtime
@@ -76,13 +76,13 @@ def _write_and_read_single_cell(id, slack_channel):
         slack_channel: Slack channel name/ID to post debug messages to.
     """
 
-    # FYI - REST API documentation for writing data:
+    # API documentation for writing data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
     google.sheets_write_cell(id, row_index = 0, col_index = 0, value = "s")
     value = google.sheets_read_cell(id, row_index = 0, col_index = 0)
     slack.chat_post_message(slack_channel, "Value at cell A1: `%s`" % value)
 
-    # FYI - REST API documentation for reading data:
+    # API documentation for reading data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
     google.sheets_write_cell(id, row_index = 0, col_index = 1, value = 1)
     value = google.sheets_read_cell(id, row_index = 0, col_index = 1)
@@ -108,8 +108,13 @@ def _write_and_read_cell_range(id, slack_channel):
         ["string", "foo"],  # String
         ["image", '=IMAGE("%s")' % url],  # Formula
     ]
+
+    # API documentation for writing data:
+    # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
     google.sheets_write_range(id, a1_range, data)
 
+    # API documentation for reading data:
+    # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
     data = google.sheets_read_range(id, a1_range)
     for i, row in enumerate(data):
         if row[1] == "":
@@ -130,7 +135,7 @@ def _set_cell_range_formatting(id):
         id: Google Sheet ID, from its URL.
     """
 
-    # FYI - REST API documentation for cell formatting:
+    # API documentation for cell formatting:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells#CellFormat
 
     # FYI - reference for color codes:
