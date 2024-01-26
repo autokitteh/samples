@@ -27,7 +27,5 @@ projects:
           - name: slack
             connection: google_sheets_sample/slack
             events:
-              - type: app_mention
-                entrypoint: program.star:on_slack_app_mention
               - type: slash_command
                 entrypoint: program.star:on_slack_slash_command
