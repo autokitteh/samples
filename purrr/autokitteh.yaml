@@ -1,0 +1,47 @@
+version: v1
+
+projects:
+  - name: purrr
+    paths:
+      - github_pr.star
+      - github_pr_review.star
+      - github_review_comment.star
+      - github_issue_comment.star
+      - github_thread.star
+      - slack_cmd.star
+      - slack_helpers.star
+      - markdown.star
+      - user_helpers.star
+      - debug.star
+    connections:
+      - name: github
+        integration: github
+        token: TODO # Replace this with an autokitteh connection token
+      - name: slack
+        integration: slack
+        token: TODO # Replace this with an autokitteh connection token
+    envs:
+      - name: prod
+        vars:
+          # Create this channel / replace with your own / "" to disable it
+          - name: SLACK_DEBUG_CHANNEL
+            value: purrr-debug
+        mappings:
+          - name: github
+            connection: purrr/github
+            events:
+              - type: pull_request
+                entrypoint: github_pr.star:on_github_pull_request
+              - type: pull_request_review
+                entrypoint: github_pr_review.star:on_github_pull_request_review
+              - type: pull_request_review_comment
+                entrypoint: github_review_comment.star:on_github_pull_request_review_comment
+              - type: issue_comment
+                entrypoint: github_issue_comment.star:on_github_issue_comment
+              - type: pull_request_review_thread
+                entrypoint: github_thread.star:on_github_pull_request_review_thread
+          - name: slack
+            connection: purrr/slack
+            events:
+              - type: slash_command
+                entrypoint: slack_cmd.star:on_slack_slash_command
