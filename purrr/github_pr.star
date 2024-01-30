@@ -92,12 +92,6 @@ def _on_pr_opened(data):
         msg += "\n\n" + github_markdown_to_slack(pr.body, pr.htmlurl)
     mention_user_in_message(channel_id, data.sender.login, msg)
 
-    # Remember the ID of the channel we just created, for other events.
-    # See: https://redis.io/commands/set/
-    resp = store.set(pr.htmlurl, channel_id)
-    if resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
-
     # TODO: Also post a message summarizing check states (updated
     # later based on "worklfow_job" and "workflow_run" events).
 
@@ -109,6 +103,14 @@ def _on_pr_opened(data):
     slack.bookmarks_add(channel_id, "Checks (0)", pr.htmlurl + "/checks")
     title = "Files changed (%d)" % pr.changed_files
     slack.bookmarks_add(channel_id, title, pr.htmlurl + "/files")
+    title = "Diffs (+%d -%d)" % (pr.additions, pr.deletions)
+    slack.bookmarks_add(channel_id, title, pr.htmlurl + ".diff")
+
+    # Remember the ID of the channel we just created, for other events.
+    # See: https://redis.io/commands/set/
+    resp = store.set(pr.htmlurl, channel_id)
+    if resp != "OK":
+        debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
 
     # In case this is a replacement Slack channel, say so.
     msg = "Note: this is not a new PR, %%s %s now"
@@ -445,8 +447,32 @@ def _on_pr_synchronized(data):
         data: GitHub event data.
     """
 
-    # TODO: Update the bookmarks, post a message.
-    print(data.sender.login)
-    print(data.before)
-    print(data.after)
-    print(data.pull_request.head)
+    # Don't do anything if there isn't an active Slack channel anyway.
+    if data.pull_request.draft or data.pull_request.state != "open":
+        return
+
+    channel_id = lookup_pr_channel(data.pull_request.htmlurl, data.action)
+    if not channel_id:
+        return  # Unrecoverable error.
+
+    msg = "%s updated the PR's head branch"
+    mention_user_in_message(channel_id, data.sender.login, msg)
+
+    # TODO: Update channel bookmark titles.
+    pr = data.pull_request
+
+    bookmark_id = "TODO"
+    title = "Conversation (%d)" % (pr.comments + pr.review_comments)
+    slack.bookmarks_edit(bookmark_id, channel_id, title = title)
+
+    bookmark_id = "TODO"
+    title = "Commits (%d)" % pr.commits
+    slack.bookmarks_edit(bookmark_id, channel_id, title = title)
+
+    bookmark_id = "TODO"
+    title = "Files changed (%d)" % pr.changed_files
+    slack.bookmarks_edit(bookmark_id, channel_id, title = title)
+
+    bookmark_id = "TODO"
+    title = "Diffs (+%d -%d)" % (pr.additions, pr.deletions)
+    slack.bookmarks_edit(bookmark_id, channel_id, title = title)
