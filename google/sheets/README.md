@@ -3,20 +3,42 @@
 This project demonstrates autokitteh's integration with
 [Google Sheets](https://www.google.com/sheets/about/).
 
+The file [`program.star`](./program.star) implements single entry-point
+function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
+manifest file as the receiver of `"on_slack_slash_command"` events. Once
+triggered by a Slack user, it reads and writes in a Google Sheet.
+
 API details:
 
 - [Google Sheets REST API](https://developers.google.com/sheets/api/reference/rest)
 - [Go client library documentation](https://pkg.go.dev/google.golang.org/api/sheets/v4)
+
+In this sample, we expect the slash command's text to be either:
+
+- A Google Spreadsheet ID
+  (see definition [here](https://developers.google.com/sheets/api/guides/concepts))
+- A full Google Spreadsheet URL
+  (which we parse with a regular expression)
+
+It also demonstrates using a custom builtin module (`re`) to extract the
+Google Spreadsheet ID from a URL with a
+[regular expression](https://qri.io/docs/reference/starlark-packages/re).
+
+This project isn't meant to cover all available functions and events, it
+merely showcases a few illustrative and annotated examples.
 
 ## Instructions
 
 1. Open a browser, and go to the autokitteh server's URL
 2. Go to the integrations page, and choose Google and Slack
 3. Create connections for them, and copy the resulting tokens
-4. Paste them in the designated lines in the
+4. Paste them in the designated `TODO` lines in the
    [`autokitteh.yaml`](./autokitteh.yaml) manifest file
-5. Apply the `autokitteh.yaml` file - via the `ak` CLI, or VSCode extension
-6. Build and deploy [`program.star`](./program.star)
+
+Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
+
+1. Apply the `autokitteh.yaml` manifest file
+2. Build and deploy [`program.star`](./program.star)
 
 ## Connection Notes
 

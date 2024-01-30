@@ -5,8 +5,8 @@
 # 1. Open a browser, and go to the autokitteh server's URL
 # 2. Go to the integrations page, and choose Twilio and Slack
 # 3. Create connections for them, and copy the resulting tokens
-# 4. Paste them in the designated lines below
-# 5. Set the `FROM_NUMBER` environment constant value
+# 4. Paste them in the designated "TODO" lines below
+# 5. Set the "FROM_NUMBER" environment value
 
 version: v1
 
@@ -17,15 +17,15 @@ projects:
     connections:
       - name: slack
         integration: slack
-        token: "*** REPLACE WITH AUTOKITTEH CONNECTION TOKEN ***"
+        token: TODO # Replace this with an autokitteh connection token
       - name: twilio
         integration: twilio
-        token: "*** REPLACE WITH AUTOKITTEH CONNECTION TOKEN ***"
+        token: TODO # Replace this with an autokitteh connection token
     envs:
       - name: prod
         vars:
           - name: FROM_NUMBER
-            value: "+1 234 555 6789"
+            value: "+1 234 555 6789" # Replace this with a Twilio phone number
         mappings:
           - name: slack
             connection: twilio_sample/slack

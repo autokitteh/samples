@@ -5,8 +5,8 @@
 # 1. Open a browser, and go to the autokitteh server's URL
 # 2. Go to the integrations page, and choose Scheduler (Cron) and Slack
 # 3. Create connections for them, and copy the resulting tokens
-# 4. Paste them in the designated lines below
-# 5. Set the `SLACK_CHANNEL` environment constant value
+# 4. Paste them in the designated "TODO" lines below
+# 5. Set the "SLACK_CHANNEL" environment value
 
 version: v1
 
@@ -17,15 +17,15 @@ projects:
     connections:
       - name: scheduler
         integration: scheduler
-        token: "*** REPLACE WITH AUTOKITTEH CONNECTION TOKEN ***"
+        token: TODO # Replace this with an autokitteh connection token
       - name: slack
         integration: slack
-        token: "*** REPLACE WITH AUTOKITTEH CONNECTION TOKEN ***"
+        token: TODO # Replace this with an autokitteh connection token
     envs:
       - name: prod
         vars:
           - name: SLACK_CHANNEL
-            value: "*** REPLACE WITH SLACK CHANNEL ID OR NAME ***"
+            value: TODO # Replace this with a Slack channel name or ID
         mappings:
           - name: scheduler
             connection: scheduler_sample/scheduler

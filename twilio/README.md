@@ -3,6 +3,11 @@
 This project demonstrates autokitteh's integration with
 [Twilio](https://www.twilio.com).
 
+The file [`program.star`](./program.star) implements two entry-point functions
+that are mapped to trigger events in the [`autokitteh.yaml`](./autokitteh.yaml)
+manifest file. One is a Slack trigger to initiate sending Twilio messages, and
+the other is a webhook receiving status reports from Twilio.
+
 API details:
 
 - [Messaging API Overview](https://www.twilio.com/docs/messaging/api)
@@ -17,9 +22,12 @@ environment in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file.
 3. Create connections for them, and copy the resulting tokens
 4. Paste them in the designated lines in the
    [`autokitteh.yaml`](./autokitteh.yaml) manifest file
-5. Set the `FROM_NUMBER` environment constant value
-6. Apply the `autokitteh.yaml` file - via the `ak` CLI, or VSCode extension
-7. Build and deploy [`program.star`](./program.star)
+5. Set the `FROM_NUMBER` environment value
+
+Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
+
+1. Apply the `autokitteh.yaml` manifest file
+2. Build and deploy [`program.star`](./program.star)
 
 ## Connection Notes
 
