@@ -29,7 +29,7 @@ def add_users_to_channel(channel_id, users):
 
     # Now check if it's fatal or not.
     # See: https://api.slack.com/methods/conversations.members
-    resp = slack.conversations_members(channel_id)
+    resp = slack.conversations_members(channel_id, limit = 100)
     if resp.ok and len(resp.members) > 1:  # At least some users were added.
         for user_id in resp.members:
             debug("Member: <@%s>" % user_id)

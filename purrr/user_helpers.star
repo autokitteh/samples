@@ -19,7 +19,7 @@ def email_to_slack_user_id(email):
     if resp.ok:
         return resp.user.id
     else:
-        debug('Look-up Slack user by email %s: `%s`' % (email, resp.error))
+        debug("Look-up Slack user by email %s: `%s`" % (email, resp.error))
         return ""
 
 def github_pr_participants(pr):
@@ -117,7 +117,7 @@ def slack_users(cursor = ""):
     """
 
     # See: https://api.slack.com/methods/users.list
-    resp = slack.users_list(cursor)
+    resp = slack.users_list(cursor, limit = 100)
     if resp.ok:
         users = resp.members
         if resp.response_metadata.next_cursor:
