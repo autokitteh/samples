@@ -424,6 +424,7 @@ def _on_pr_edited(data):
     if not channel_id:
         return  # Unrecoverable error.
 
+    # Update the first message if the PR description was changed.
     if data.changes.body:
         if data.pull_request.body:
             pass  # TODO: Update the first message.
@@ -432,10 +433,14 @@ def _on_pr_edited(data):
         msg = "%s edited the PR description"
         mention_user_in_message(channel_id, data.sender.login, msg)
 
+    # Rename the channel if the PR was renamed.
     if data.changes.title:
-        # TODO: Rename the channel - data.pull_request.title
-        msg = "%%s edited the PR title to `%s`" % data.pull_request.title
+        pr = data.pull_request
+        msg = "%%s edited the PR title to `%s`" % pr.title
         mention_user_in_message(channel_id, data.sender.login, msg)
+
+        name = "%d_%s" % (pr.number, normalize_channel_name(pr.title))
+        rename_channel(channel_id, name)
 
 def _on_pr_synchronized(data):
     """A pull request's head branch was updated.

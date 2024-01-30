@@ -208,6 +208,34 @@ def normalize_channel_name(name):
     # leave room for a PR number prefix and a uniqueness suffix.
     return name[:50]
 
+def rename_channel(channel_id, name, suffix = 1):
+    """Rename a Slack channel.
+
+    Args:
+        channel_id: Slack channel ID.
+        name: Desired (and valid) name of the channel.
+        suffix: Optional suffix to append to the channel name.
+    """
+
+    # Optional suffix to make the channel name unique.
+    # We could add a recursion stop condition, but it's not necessary.
+    n = name
+    if suffix > 1:
+        n += "_%d" % suffix
+
+    # Rename the channel.
+    # See: https://api.slack.com/methods/conversations.rename
+    resp = slack.conversations_rename(channel_id, n)
+    if not resp.ok:
+        if resp.error == "name_taken":
+            # If a channel with the same name already exists,
+            # try again recursively with a numeric suffix.
+            rename_channel(channel_id, name, suffix + 1)
+            return
+        else:
+            debug('Rename Slack channel to "%s": `%s`' % (n, resp.error))
+            return
+
 def _set_channel_description(channel_id, data):
     """Set the description of a Slack channel to a GitHub PR title.
 
