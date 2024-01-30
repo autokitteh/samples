@@ -41,7 +41,7 @@ def _on_pr_review_submitted(data):
     msg = "%%s submitted a <%s|review>" % data.review.htmlurl
     if data.review.body:
         msg += ":\n" + github_markdown_to_slack(data.review.body, pr_url)
-    thread_ts = mention_user_in_message(channel_id, data.sender.login, msg)
+    thread_ts = mention_user_in_message(channel_id, data.sender, msg)
 
     # Remember the thread timestamp (message ID) of the message we posted.
     # See: https://redis.io/commands/set/

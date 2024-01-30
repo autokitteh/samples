@@ -35,9 +35,11 @@ def github_markdown_to_slack(text, pr_url):
     text = re.sub(r"\[(.*?)\]\((.*?)\)", "<$2|$1>", text)
     text = re.sub(r"!<(.*?)>", "Image: <$1>", text)
 
-    # "@..." --> "<@U...>" or "<https://github.com/...|@...>".
+    # "@..." --> "<@U...>" or "<https://github.com/...|...>".
     for github_user in re.findall(r"@[\w-]+", text):
-        slack_user = resolve_github_user(github_user[1:])
+        profile_link = "https://github.com/" + github_user[1:]
+        user_obj = struct(login = github_user[1:], htmlurl = profile_link)
+        slack_user = resolve_github_user(user_obj)
         text = text.replace(github_user, slack_user)
 
     # "#123" --> "<PR URL|#123>".

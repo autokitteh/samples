@@ -84,23 +84,23 @@ def github_username_to_slack_user_id(username):
     debug("GitHub user %s: email & name not found in Slack" % link)
     return ""
 
-def resolve_github_user(github_username):
+def resolve_github_user(github_user):
     """Convert a GitHub username to a linkified user reference in Slack.
 
     Args:
-        github_username: GitHub username.
+        github_user: GitHub user object.
 
     Returns:
-        Slack user reference, or GitHub user link.
+        Slack user reference, or GitHub profile link.
         Used for mentioning users in Slack messages.
     """
-    id = github_username_to_slack_user_id(github_username)
+    id = github_username_to_slack_user_id(github_user.login)
     if id:
         # Mention the user by their Slack ID, if possible.
         return "<@%s>" % id
     else:
-        # Otherwise, fall-back to their (linkified) GitHub username.
-        return "<https://github.com/%s|%s>" % ((github_username,) * 2)
+        # Otherwise, fall-back to their GitHub profile link.
+        return "<%s|%s>" % (github_user.htmlurl, github_user.login)
 
 def slack_users(cursor = ""):
     """Return a list of all Slack users in the workspace.

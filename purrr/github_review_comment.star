@@ -45,7 +45,7 @@ def _on_pr_review_comment_created(data):
     msg = "%%s created a <%s|%s comment> in the file `%s`:\n"
     msg %= (comment.htmlurl, comment.subject_type, comment.path)
     msg += github_markdown_to_slack(data.comment.body, pr_url)
-    mention_user_in_reply(channel_id, review_url, data.sender.login, msg)
+    mention_user_in_reply(channel_id, review_url, data.sender, msg)
 
 def _on_pr_review_comment_edited(data):
     """The content of a comment on a pull request diff was changed.

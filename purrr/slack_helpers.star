@@ -153,37 +153,31 @@ def _lookup_review_message(review_url):
     debug("Message mapping for %s not found" % review_url)
     return ""
 
-def mention_user_in_message(channel_id, github_username, msg):
+def mention_user_in_message(channel_id, github_user, msg):
     """Post a message to a Slack channel, mentioning a user.
-
-    TODO: What if the user is a bot? Any other special cases?
-    Is that reflected in sender.type (!= "User") and sender.htmlurl?
 
     Args:
         channel_id: ID of the channel to send the message to.
-        github_username: GitHub username of the mentioned user.
+        github_user: GitHub user object of the mentioned user.
         msg: Message to send, containing a single "%s" placeholder.
 
     Returns:
         Message's thread timestamp, or "" on errors.
     """
-    msg %= resolve_github_user(github_username)
+    msg %= resolve_github_user(github_user)
     resp = slack.chat_post_message(channel_id, msg)
     return resp.ts if resp.ok else ""
 
-def mention_user_in_reply(channel_id, review_url, github_username, msg):
+def mention_user_in_reply(channel_id, review_url, github_user, msg):
     """Post a reply (comment) to a Slack message (review), mentioning a user.
-
-    TODO: What if the user is a bot? Any other special cases?
-    Is that reflected in sender.type (!= "User") and sender.htmlurl?
 
     Args:
         channel_id: ID of the channel to send the message to.
         review_url: URL of the GitHub PR review to comment on.
-        github_username: GitHub username of the mentioned user.
+        github_user: GitHub user object of the mentioned user.
         msg: Message to send, containing a single "%s" placeholder.
     """
-    msg %= resolve_github_user(github_username)
+    msg %= resolve_github_user(github_user)
     thread_ts = _lookup_review_message(review_url)
     if thread_ts:
         slack.chat_post_message(channel_id, msg, thread_ts = thread_ts)
