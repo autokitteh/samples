@@ -93,7 +93,6 @@ def _on_pr_opened(data):
     mention_user_in_message(channel_id, data.sender.login, msg)
 
     # Remember the ID of the channel we just created, for other events.
-    # TODO: Use persistent Redis/NoSQL integration.
     # See: https://redis.io/commands/set/
     resp = store.set(pr.htmlurl, channel_id)
     if resp != "OK":

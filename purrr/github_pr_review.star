@@ -44,7 +44,6 @@ def _on_pr_review_submitted(data):
     thread_ts = mention_user_in_message(channel_id, data.sender.login, msg)
 
     # Remember the thread timestamp (message ID) of the message we posted.
-    # TODO: Use persistent Redis/NoSQL integration.
     # See: https://redis.io/commands/set/
     resp = store.set(data.review.htmlurl, thread_ts)
     if resp != "OK":

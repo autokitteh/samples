@@ -115,7 +115,6 @@ def lookup_pr_channel(pr_url, state, wait = False):
     """
     attempts = _CHANNEL_LOOKUP_TIMEOUT if wait else 1
     for _ in range(attempts):
-        # TODO: Use persistent Redis/NoSQL integration.
         # See: https://redis.io/commands/get/
         channel_id = store.get(pr_url)
         if channel_id:
@@ -142,7 +141,6 @@ def _lookup_review_message(review_url):
         Message's thread timestamp, or "" if not found.
     """
     for _ in range(_MESSAGE_LOOKUP_TIMEOUT):
-        # TODO: Use persistent Redis/NoSQL integration.
         # See: https://redis.io/commands/get/
         thread_ts = store.get(review_url)
         if thread_ts:
