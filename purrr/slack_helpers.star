@@ -194,6 +194,7 @@ def normalize_channel_name(name):
     name = name.lower().strip()
 
     # https://qri.io/docs/reference/starlark-packages/re
+    name = re.sub(r"'\"", "", name)
     name = re.sub(r"[^a-z0-9_-]", "-", name)
     name = re.sub(r"[_-]{2,}", "-", name)
 

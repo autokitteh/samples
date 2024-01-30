@@ -2,6 +2,7 @@
 
 load("@slack", "slack")
 load("debug.star", "debug")
+load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
 load(
     "slack_helpers.star",
@@ -11,6 +12,7 @@ load(
     "lookup_pr_channel",
     "mention_user_in_message",
     "normalize_channel_name",
+    "rename_channel",
     "unarchive_channel",
 )
 load(
@@ -108,7 +110,7 @@ def _on_pr_opened(data):
 
     # Remember the ID of the channel we just created, for other events.
     # See: https://redis.io/commands/set/
-    resp = store.set(pr.htmlurl, channel_id)
+    resp = store.set(pr.htmlurl, channel_id, REDIS_TTL)
     if resp != "OK":
         debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
 
