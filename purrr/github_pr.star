@@ -2,6 +2,7 @@
 
 load("@slack", "slack")
 load("debug.star", "debug")
+load("markdown.star", "github_markdown_to_slack")
 load(
     "slack_helpers.star",
     "add_users_to_channel",
@@ -72,23 +73,11 @@ def _on_pr_opened(data):
     Args:
         data: GitHub event data.
     """
-
-    # Collect all the participants in this PR.
     pr = data.pull_request
-    github_usernames = github_pr_participants(pr)
 
-    slack_user_ids = []
-    for name in github_usernames:
-        user_id = github_username_to_slack_user_id(name)
-        if user_id:
-            slack_user_ids.append(user_id)
-
-    # Create a dedicated private Slack channel for them.
-    channel_id = create_private_channel(
-        data = data,
-        name = "%d_%s" % (pr.number, normalize_channel_name(pr.title)),
-        users = ",".join(slack_user_ids),
-    )
+    # Create a dedicated private Slack channel for the PR.
+    name = "%d_%s" % (pr.number, normalize_channel_name(pr.title))
+    channel_id = create_private_channel(data, name)
     if not channel_id:
         user_id = github_username_to_slack_user_id(data.sender.login)
         msg = "Failed to create a Slack channel for %s" % pr.htmlurl
@@ -96,18 +85,31 @@ def _on_pr_opened(data):
         debug(msg)
         return
 
-    # TODO: Create channel bookmarks corresponding to PR view/links.
-    # - Commits (n) - pr.commits
-    # - Checks (n)
-    # - Files changed (n) - pr.changed_files
-    # - Diffs (+n -n) - pr.additions, pr.deletions
+    # Post an introduction message to it, describing the PR (updated
+    # later based on "pull_request" events with the "edited" action).
+    msg = "%%s opened %s: `%s`" % (pr.htmlurl, pr.title)
+    if pr.body:
+        msg += "\n\n" + github_markdown_to_slack(pr.body, pr.htmlurl)
+    mention_user_in_message(channel_id, data.sender.login, msg)
 
-    # Remember the ID of the channel we created for this PR.
+    # Remember the ID of the channel we just created, for other events.
     # TODO: Use persistent Redis/NoSQL integration.
     # See: https://redis.io/commands/set/
     resp = store.set(pr.htmlurl, channel_id)
     if resp != "OK":
         debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
+
+    # TODO: Also post a message summarizing check states (updated
+    # later based on "worklfow_job" and "workflow_run" events).
+
+    # Create channel bookmarks corresponding to important PR links
+    # (titles should be updated based on relevant GitHub events).
+    slack.bookmarks_add(channel_id, "Conversation (0)", pr.htmlurl)
+    title = "Commits (%d)" % pr.commits
+    slack.bookmarks_add(channel_id, title, pr.htmlurl + "/commits")
+    slack.bookmarks_add(channel_id, "Checks (0)", pr.htmlurl + "/checks")
+    title = "Files changed (%d)" % pr.changed_files
+    slack.bookmarks_add(channel_id, title, pr.htmlurl + "/files")
 
     # In case this is a replacement Slack channel, say so.
     msg = "Note: this is not a new PR, %%s %s now"
@@ -117,6 +119,14 @@ def _on_pr_opened(data):
     elif data.action == "ready_for_review":
         msg %= "marked it as ready for review"
         mention_user_in_message(channel_id, data.sender.login, msg)
+
+    # Finally, add all the participants in the PR to this channel.
+    slack_user_ids = []
+    for username in github_pr_participants(pr):
+        user_id = github_username_to_slack_user_id(username)
+        if user_id:
+            slack_user_ids.append(user_id)
+    add_users_to_channel(channel_id, ",".join(slack_user_ids))
 
 def _on_pr_closed(data):
     """A pull request (possibly a draft) was closed.
@@ -135,7 +145,7 @@ def _on_pr_closed(data):
 
     channel_id = lookup_pr_channel(data.pull_request.htmlurl, data.action)
     if not channel_id:
-        return
+        return  # Unrecoverable error.
 
     # Wait for a few seconds to handle other asynchronous events
     # (e.g. a PR closure comment) before archiving the channel.
@@ -184,7 +194,7 @@ def _on_pr_converted_to_draft(data):
     """
     channel_id = lookup_pr_channel(data.pull_request.htmlurl, data.action)
     if not channel_id:
-        return
+        return  # Unrecoverable error.
 
     msg = "%s converted this PR to a draft"
     mention_user_in_message(channel_id, data.sender.login, msg)
@@ -231,7 +241,7 @@ def _on_pr_review_requested(data):
     url = data.pull_request.htmlurl
     channel_id = lookup_pr_channel(url, data.action, wait = True)
     if not channel_id:
-        return
+        return  # Unrecoverable error.
 
     if data.requested_reviewer:
         _on_pr_review_requested_person(data, channel_id)
@@ -283,7 +293,7 @@ def _on_pr_review_request_removed(data):
 
     channel_id = lookup_pr_channel(data.pull_request.htmlurl, data.action)
     if not channel_id:
-        return
+        return  # Unrecoverable error.
 
     if data.requested_reviewer:
         _on_pr_review_request_removed_person(data, channel_id)
@@ -338,7 +348,7 @@ def _on_pr_assigned(data):
     url = data.pull_request.htmlurl
     channel_id = lookup_pr_channel(url, data.action, wait = True)
     if not channel_id:
-        return
+        return  # Unrecoverable error.
 
     assignee = resolve_github_user(data.assignee.login)
     self_assigned = assignee == resolve_github_user(data.sender.login)
@@ -374,7 +384,7 @@ def _on_pr_unassigned(data):
 
     channel_id = lookup_pr_channel(data.pull_request.htmlurl, data.action)
     if not channel_id:
-        return
+        return  # Unrecoverable error.
 
     assignee = resolve_github_user(data.assignee.login)
     self_unassigned = assignee == resolve_github_user(data.sender.login)
@@ -411,10 +421,13 @@ def _on_pr_edited(data):
 
     channel_id = lookup_pr_channel(data.pull_request.htmlurl, data.action)
     if not channel_id:
-        return
+        return  # Unrecoverable error.
 
     if data.changes.body:
-        # TODO: Update the first message - data.pull_request.body
+        if data.pull_request.body:
+            pass  # TODO: Update the first message.
+        else:
+            pass  # TODO: Same, but without a body.
         msg = "%s edited the PR description"
         mention_user_in_message(channel_id, data.sender.login, msg)
 

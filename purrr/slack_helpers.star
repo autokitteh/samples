@@ -2,7 +2,6 @@
 
 load("@slack", "slack")
 load("debug.star", "debug")
-load("markdown.star", "github_markdown_to_slack")
 load("user_helpers.star", "resolve_github_user")
 
 _CHANNEL_MAX_METADATA_LENGTH = 250  # Characters.
@@ -15,15 +14,12 @@ def add_users_to_channel(channel_id, users):
     Args:
         channel_id: Slack channel ID.
         users: Comma-separated list of (up to 1000) Slack user IDs.
-
-    Returns:
-        True on success, False on errors.
     """
 
     # See: https://api.slack.com/methods/conversations.invite
     resp = slack.conversations_invite(channel_id, users, force = True)
     if resp.ok or resp.error == "already_in_channel":
-        return True
+        return
 
     # An error occurred - first, report it.
     msg = "Add Slack users to channel <#%s>: `%s`"
@@ -37,14 +33,13 @@ def add_users_to_channel(channel_id, users):
     if resp.ok and len(resp.members) > 1:  # At least some users were added.
         for user_id in resp.members:
             debug("Member: <@%s>" % user_id)
-        return True
+        return
 
     # No members at all? Abort the channel.
     # See: https://api.slack.com/methods/conversations.archive
     resp = slack.conversations_archive(channel_id)
     if not resp.ok:
         debug("Archive DOA channel `%s`: `%s`" % (channel_id, resp.error))
-    return False
 
 def archive_channel(channel_id, data):
     """Archive a Slack channel.
@@ -67,19 +62,17 @@ def archive_channel(channel_id, data):
 
     return resp.ok
 
-def create_private_channel(data, name, users, suffix = 1):
+def create_private_channel(data, name, suffix = 1):
     """Create a private Slack channel.
 
     Args:
         data: GitHub event data.
         name: Desired (and valid) name of the channel.
-        users: Comma-separated list of (up to 1000) Slack user IDs to invite.
         suffix: Optional suffix to append to the channel name.
 
     Returns:
         Channel ID, or "" on errors.
     """
-    pr = data.pull_request
 
     # Optional suffix to make the channel name unique.
     # We could add a recursion stop condition, but it's not necessary.
@@ -94,22 +87,16 @@ def create_private_channel(data, name, users, suffix = 1):
         if resp.error == "name_taken":
             # If a channel with the same name already exists,
             # try again recursively with a numeric suffix.
-            return create_private_channel(data, name, users, suffix + 1)
+            return create_private_channel(data, name, suffix + 1)
         else:
             debug('Create private Slack channel "%s": `%s`' % (n, resp.error))
             return ""
 
+    # As long as the channel was created, these nice-to-haves aren't critical.
     channel_id = resp.channel.id
     _set_channel_description(channel_id, data)
     _set_channel_topic(channel_id, data)
-
-    # Post a message to the new channel, describing the PR.
-    msg = "%%s opened %s: `%s`" % (pr.htmlurl, pr.title)
-    mention_user_in_message(channel_id, data.sender.login, msg)
-    if pr.body:
-        msg += "\n" + github_markdown_to_slack(pr.body, pr.htmlurl)
-
-    return channel_id if add_users_to_channel(channel_id, users) else ""
+    return channel_id
 
 def lookup_pr_channel(pr_url, state, wait = False):
     """Return the ID of a Slack channel representing a GitHub PR.
