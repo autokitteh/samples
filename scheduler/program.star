@@ -1,21 +1,20 @@
 """This program demonstrates autokitteh's scheduler (cron) integration.
 
-This program implements various entry-point functions that are mapped to
-trigger events from autokitteh connections in the file "autokitteh.yaml".
+This program implements a single entry-point function, which is configured
+in the "autokitteh.yaml" file as the receiver of "cron_trigger" events.
 
-When the project has an active deployment, and autokitteh receives trigger
-events from its connections, it starts runtime sessions which execute the
-mapped entry-point functions.
+It also demonstrates using constant values which are set for each
+autokitteh environment in the "autokitteh.yaml" manifest file.
+
+When the project has an active deployment, and autokitteh receives
+trigger events from its scheduler (cron) connections, it starts
+runtime sessions to execute this mapped entry-point function.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load(
-    "env",
-    # See the value in the "autokitteh.yaml" manifest file.
-    "SLACK_CHANNEL",
-)
 load("@slack", "slack")
+load("env", "SLACK_CHANNEL")  # Set in "autokitteh.yaml".
 
 def on_cron_trigger(data):
     """An autokitteh cron schedule was triggered.
