@@ -4,6 +4,10 @@ load("@github", "github")
 load("@slack", "slack")
 load("debug.star", "debug")
 
+# Optimization: cache user lookup results for a day, to
+# reduce the amount of API calls, especially to Slack.
+_USER_CACHE_TTL = "24h"
+
 def email_to_slack_user_id(email):
     """Convert an email address into a Slack user ID.
 
@@ -49,7 +53,11 @@ def github_username_to_slack_user_id(username):
     """Convert a GitHub username into a Slack user ID.
 
     This function tries to match the email address first,
-    and then falls back to matching the user's full name.
+    and then falls back to matching the user's full name
+    (case-insensitive, ignoring spaces).
+
+    This function also caches successful results for a day,
+    to reduce the amount of API calls, especially to Slack.
 
     Args:
         username: GitHub username.
@@ -57,6 +65,15 @@ def github_username_to_slack_user_id(username):
     Returns:
         Slack user ID, or "" if not found.
     """
+
+    # Optimization: if we already have it cached, return it.
+    # See: https://redis.io/commands/get/
+    slack_id = store.get("github_user:" + username)
+    if slack_id:
+        # Optimization: extend the TTL after a cache hit.
+        # See: https://redis.io/commands/expire/
+        store.expire("github_user:" + username, _USER_CACHE_TTL)
+        return slack_id
 
     # See: https://docs.github.com/en/rest/users#get-a-user
     resp = github.get_user(username)
@@ -68,16 +85,23 @@ def github_username_to_slack_user_id(username):
     else:
         slack_id = email_to_slack_user_id(resp.email)
         if slack_id:
+            # Optimization: cache successful results for a day.
+            # See: https://redis.io/commands/set/
+            store.set("github_user:" + username, slack_id, _USER_CACHE_TTL)
             return slack_id
 
     # Otherwise, try to match by the user's full name.
-    gh_full_name = getattr(resp, "name", "").lower()  # May be None.
-    for user in slack_users():
+    gh_full_name = getattr(resp, "name", "")  # May be None.
+    gh_full_name = gh_full_name.lower().replace(" ", "")
+    for user in _slack_users():
         slack_names = (
-            user.profile.real_name.lower(),
-            user.profile.real_name_normalized.lower(),
+            user.profile.real_name.lower().replace(" ", ""),
+            user.profile.real_name_normalized.lower().replace(" ", ""),
         )
         if gh_full_name in slack_names:
+            # Optimization: cache successful results for a day.
+            # See: https://redis.io/commands/set/
+            store.set("github_user:" + username, user.id, _USER_CACHE_TTL)
             return user.id
 
     link = "<https://github.com/%s|%s>" % ((username,) * 2)
@@ -102,7 +126,7 @@ def resolve_github_user(github_user):
         # Otherwise, fall-back to their GitHub profile link.
         return "<%s|%s>" % (github_user.htmlurl, github_user.login)
 
-def slack_users(cursor = ""):
+def _slack_users(cursor = ""):
     """Return a list of all Slack users in the workspace.
 
     This function uses recursion for pagination because
@@ -121,7 +145,7 @@ def slack_users(cursor = ""):
     if resp.ok:
         users = resp.members
         if resp.response_metadata.next_cursor:
-            users += slack_users(resp.response_metadata.next_cursor)
+            users += _slack_users(resp.response_metadata.next_cursor)
         return users
     else:
         debug('List Slack users (cursor `"%s"`): `%s`' % (cursor, resp.error))
