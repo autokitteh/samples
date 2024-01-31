@@ -1,5 +1,8 @@
 """Handler for GitHub "pull_request" events."""
 
+# TODO: Refactor all handlers to mention even if PR channel not found
+# (to print to log channel at least - mention functions already implement this correctly).
+
 load("@slack", "slack")
 load("debug.star", "debug")
 load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
