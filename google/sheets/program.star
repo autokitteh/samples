@@ -8,7 +8,7 @@ it reads and writes in a Google Sheet.
 API details:
 - Google Sheets REST API:
   https://developers.google.com/sheets/api/reference/rest
-- Go client library documentation:
+- Go client library:
   https://pkg.go.dev/google.golang.org/api/sheets/v4
 
 In this sample, we expect the slash command's text to be either:

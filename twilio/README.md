@@ -10,7 +10,7 @@ the other is a webhook receiving status reports from Twilio.
 
 API details:
 
-- [Messaging API Overview](https://www.twilio.com/docs/messaging/api)
+- [Messaging API overview](https://www.twilio.com/docs/messaging/api)
 
 It also demonstrates using constant values which are set for each autokitteh
 environment in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file.
