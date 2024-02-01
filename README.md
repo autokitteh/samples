@@ -41,6 +41,7 @@ Capabilities and API details of specific autokitteh integrations:
 - [GitHub](./github/)
 - [Google](./google/)
   - [Sheets](./google/sheets/)
+- [OpenAPI ChatGPT](./openai_chatgpt/)
 - [Scheduler (Cron)](./scheduler/)
 - [Slack](./slack/)
 - [Twilio](./twilio/)
