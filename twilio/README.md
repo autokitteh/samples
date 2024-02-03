@@ -20,7 +20,7 @@ environment in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file.
 1. Open a browser, and go to the autokitteh server's URL
 2. Go to the integrations page, and choose Twilio and Slack
 3. Create connections for them, and copy the resulting tokens
-4. Paste them in the designated lines in the
+4. Paste them in the designated `TODO` lines in the
    [`autokitteh.yaml`](./autokitteh.yaml) manifest file
 5. Set the `FROM_NUMBER` environment value
 
