@@ -5,7 +5,7 @@ This project demonstrates autokitteh's integration with
 
 The file [`program.star`](./program.star) implements single entry-point
 function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
-manifest file as the receiver of `"on_slack_slash_command"` events. Once
+manifest file as the receiver of `"slack_slash_command"` events. Once
 triggered by a Slack user, it reads and writes in a Google Sheet.
 
 API details:
