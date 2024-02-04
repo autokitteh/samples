@@ -2,13 +2,13 @@
 
 This program implements a single entry-point function, which is
 configured in the "autokitteh.yaml" manifest file as the receiver
-of "on_slack_slash_command" events. Once triggered by a Slack user,
+of "slack_slash_command" events. Once triggered by a Slack user,
 it reads and writes in a Google Sheet.
 
 API details:
 - Google Sheets REST API:
   https://developers.google.com/sheets/api/reference/rest
-- Go client library documentation:
+- Go client library:
   https://pkg.go.dev/google.golang.org/api/sheets/v4
 
 In this sample, we expect the slash command's text to be either:

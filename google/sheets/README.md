@@ -5,13 +5,13 @@ This project demonstrates autokitteh's integration with
 
 The file [`program.star`](./program.star) implements single entry-point
 function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
-manifest file as the receiver of `"on_slack_slash_command"` events. Once
+manifest file as the receiver of `"slack_slash_command"` events. Once
 triggered by a Slack user, it reads and writes in a Google Sheet.
 
 API details:
 
 - [Google Sheets REST API](https://developers.google.com/sheets/api/reference/rest)
-- [Go client library documentation](https://pkg.go.dev/google.golang.org/api/sheets/v4)
+- [Go client library](https://pkg.go.dev/google.golang.org/api/sheets/v4)
 
 In this sample, we expect the slash command's text to be either:
 
@@ -54,7 +54,3 @@ autokitteh supports 2 connection modes with Google APIs:
   - [Service account credentials](https://cloud.google.com/iam/docs/service-account-creds)
   - [Create and delete service account keys](https://cloud.google.com/iam/docs/keys-create-delete)
   - [Best practices for managing service account keys](https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys)
-
-autokitteh supports connecting to Twilio using either an auth token or an
-[API key](https://www.twilio.com/docs/glossary/what-is-an-api-key), which are
-configured in step 3 above.
