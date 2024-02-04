@@ -54,7 +54,3 @@ autokitteh supports 2 connection modes with Google APIs:
   - [Service account credentials](https://cloud.google.com/iam/docs/service-account-creds)
   - [Create and delete service account keys](https://cloud.google.com/iam/docs/keys-create-delete)
   - [Best practices for managing service account keys](https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys)
-
-autokitteh supports connecting to Twilio using either an auth token or an
-[API key](https://www.twilio.com/docs/glossary/what-is-an-api-key), which are
-configured in step 3 above.
