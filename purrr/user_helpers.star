@@ -52,9 +52,8 @@ def github_pr_participants(pr):
 def github_username_to_slack_user_id(username):
     """Convert a GitHub username into a Slack user ID.
 
-    This function tries to match the email address first,
-    and then falls back to matching the user's full name
-    (case-insensitive, ignoring spaces).
+    This function tries to match the email address first, and then
+    falls back to matching the user's full name (case-insensitive).
 
     This function also caches successful results for a day,
     to reduce the amount of API calls, especially to Slack.
@@ -70,10 +69,14 @@ def github_username_to_slack_user_id(username):
     # See: https://redis.io/commands/get/
     slack_id = store.get("github_user:" + username)
     if slack_id:
-        # Optimization: extend the TTL after a cache hit.
+        # Optimization: extend the TTL after a successful cache hit.
         # See: https://redis.io/commands/expire/
         store.expire("github_user:" + username, _USER_CACHE_TTL)
         return slack_id
+    if slack_id == "external user":
+        # Note: don't extend the TTL for external-user cache hits,
+        # in order to reevaluate them on a daily basis.
+        return ""
 
     # See: https://docs.github.com/en/rest/users#get-a-user
     resp = github.get_user(username)
@@ -92,20 +95,22 @@ def github_username_to_slack_user_id(username):
 
     # Otherwise, try to match by the user's full name.
     gh_full_name = getattr(resp, "name", "")  # May be None.
-    gh_full_name = gh_full_name.lower().replace(" ", "")
+    gh_full_name = gh_full_name.lower()
     for user in _slack_users():
         slack_names = (
-            user.profile.real_name.lower().replace(" ", ""),
-            user.profile.real_name_normalized.lower().replace(" ", ""),
+            user.profile.real_name.lower(),
+            user.profile.real_name_normalized.lower(),
         )
         if gh_full_name in slack_names:
             # Optimization: cache successful results for a day.
-            # See: https://redis.io/commands/set/
             store.set("github_user:" + username, user.id, _USER_CACHE_TTL)
             return user.id
 
     link = "<https://github.com/%s|%s>" % ((username,) * 2)
     debug("GitHub user %s: email & name not found in Slack" % link)
+
+    # Optimization: cache unsuccessful results too (i.e. external users).
+    store.set("github_user:" + username, "external user", _USER_CACHE_TTL)
     return ""
 
 def resolve_github_user(github_user):
