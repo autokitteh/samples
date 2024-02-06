@@ -6,7 +6,7 @@ This project demonstrates autokitteh's integration with
 The file [`program.star`](./program.star) implements single entry-point
 function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
 manifest file as the receiver of `"slack_slash_command"` events. Once
-triggered by a Slack user, it reads and writes in a Google Sheet.
+triggered by a Slack user, it reads and writes in a Google Spreadsheet.
 
 API details:
 
@@ -24,33 +24,10 @@ It also demonstrates using a custom builtin module (`re`) to extract the
 Google Spreadsheet ID from a URL with a
 [regular expression](https://qri.io/docs/reference/starlark-packages/re).
 
-This project isn't meant to cover all available functions and events, it
-merely showcases a few illustrative and annotated examples.
-
 ## Instructions
 
-1. Open a browser, and go to the autokitteh server's URL
-2. Go to the integrations page, and choose Google and Slack
-3. Create connections for them, and copy the resulting tokens
-4. Paste them in the designated `TODO` lines in the
-   [`autokitteh.yaml`](./autokitteh.yaml) manifest file
-
-Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
-
-1. Apply the `autokitteh.yaml` manifest file
-2. Build and deploy [`program.star`](./program.star)
+See [here](https://github.com/autokitteh/samples/tree/main/google#instructions).
 
 ## Connection Notes
 
-autokitteh supports 2 connection modes with Google APIs:
-
-- OAuth v2 (the user signs-in and authorizes autokitteh in step 3 above)
-
-  - [Google Identity - Using OAuth 2.0](https://developers.google.com/identity/protocols/oauth2/web-server)
-
-- GCP service account (JSON key)
-
-  - [GCP service accounts overview](https://cloud.google.com/iam/docs/service-account-overview)
-  - [Service account credentials](https://cloud.google.com/iam/docs/service-account-creds)
-  - [Create and delete service account keys](https://cloud.google.com/iam/docs/keys-create-delete)
-  - [Best practices for managing service account keys](https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys)
+See [here](https://github.com/autokitteh/samples/tree/main/google#connection-notes).

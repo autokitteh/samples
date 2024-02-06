@@ -3,7 +3,7 @@
 This program implements a single entry-point function, which is
 configured in the "autokitteh.yaml" manifest file as the receiver
 of "slack_slash_command" events. Once triggered by a Slack user,
-it reads and writes in a Google Sheet.
+it reads and writes in a Google Spreadsheet.
 
 API details:
 - Google Sheets REST API:
@@ -22,11 +22,8 @@ It also demonstrates using a custom builtin module
 regular expression (https://qri.io/docs/reference/starlark-packages/re).
 
 When the project has an active deployment, and autokitteh receives
-trigger events from its Slack connections, it starts runtime
-sessions which execute these mapped entry-point functions.
-
-This program isn't meant to cover all available functions and events,
-it merely showcases a few illustrative and annotated examples.
+trigger events from its connections, it starts runtime sessions
+which execute the mapped entry-point functions.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
