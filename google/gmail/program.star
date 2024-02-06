@@ -5,7 +5,7 @@ configured in the "autokitteh.yaml" manifest file as the receiver
 of "slack_slash_command" events.
 
 Once triggered by a Slack user, it executes various Gmail API calls
-depending on the user's input, and posts it back to the user.
+depending on the user's input, and posts the results back to the user.
 
 API details:
 - Gmail API overview: https://developers.google.com/gmail/api/guides
@@ -34,6 +34,7 @@ def on_slack_slash_command(data):
     - "gmail drafts get <draft ID>"
     - "gmail messages list [optional query]"
     - "gmail messages get <message ID>"
+    - "gmail messages send <short message to yourself>"
 
     Args:
         data: Slack event data.
@@ -204,10 +205,51 @@ def _messages_list(slack_channel, query):
         msg = "Next page token: `%s`" % resp.next_page_token
         slack.chat_post_message(slack_channel, msg)
 
+def _messages_send(slack_channel, text):
+    """https://developers.google.com/gmail/api/reference/rest/v1/users.messages/send
+
+    See also: https://developers.google.com/gmail/api/guides/sending
+
+    Args:
+        slack_channel: Slack channel name/ID to post debug messages to.
+        text: Short message to send to yourself.
+    """
+    resp = google.gmail_get_profile()
+    if resp.error:
+        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        return
+    if resp.http_status_code != 200:
+        msg = "Error: HTTP response code %d" % resp.http_status_code
+        slack.chat_post_message(slack_channel, msg)
+        slack.chat_post_message(slack_channel, str(resp))
+        return
+
+    # Raw text compliant with https://datatracker.ietf.org/doc/html/rfc5322.
+    # Using join() because we need "\r\n" as the line separator, but
+    # Starlark's multi-line strings use "\n" as the line separator.
+    resp = google.gmail_messages_send("\r\n".join([
+        "From: " + resp.email_address,
+        "To: " + resp.email_address,
+        "Subject: Test from autokitteh",
+        "",
+        text,
+    ]))
+    if resp.error:
+        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        return
+    if resp.http_status_code != 200:
+        msg = "Error: HTTP response code %d" % resp.http_status_code
+        slack.chat_post_message(slack_channel, msg)
+        slack.chat_post_message(slack_channel, str(resp))
+        return
+
+    slack.chat_post_message(slack_channel, "Sent!")
+
 COMMANDS = {
     "gmail get profile": _get_profile,
     "gmail drafts get": _drafts_get,
     "gmail drafts list": _drafts_list,
     "gmail messages get": _messages_get,
     "gmail messages list": _messages_list,
+    "gmail messages send": _messages_send,
 }

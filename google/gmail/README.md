@@ -8,13 +8,14 @@ function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
 manifest file as the receiver of `"slack_slash_command"` events.
 
 Once triggered by a Slack user, it executes various Gmail API calls depending
-on the user's input, and posts it back to the user:
+on the user's input, and posts the results back to the user:
 
 - `gmail get profile`
 - `gmail drafts list [optional query]`
 - `gmail drafts get <draft ID>`
 - `gmail messages list [optional query]`
 - `gmail messages get <message ID>`
+- `gmail messages send <short message to yourself>`
 
 API details:
 
