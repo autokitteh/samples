@@ -32,8 +32,8 @@ def on_slack_slash_command(data):
     # Example 1: trivial interaction with ChatGPT.
     resp = chatgpt.create_chat_completion(message = "Hello!")
 
-    # For educational and debugging purposes, print ChatGPT's
-    # response in the autokitteh session's history log.
+    # For educational and debugging purposes, print ChatGPT's response
+    # in the autokitteh session's log.
     print(resp)
 
     # Example 2: more verbose interaction with ChatGPT,

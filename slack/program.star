@@ -42,8 +42,8 @@ def on_slack_app_mention(data):
     text = "Before update :crying_cat_face:"
     resp = slack.chat_post_message("#slack-test", text)
 
-    # Encountered an error? Print debugging information in
-    # the autokitteh session's history log, and finish.
+    # Encountered an error? Print debugging information
+    # in the autokitteh session's log, and finish.
     if not resp.ok:
         print(resp.error)
         return
@@ -73,7 +73,7 @@ def on_slack_app_mention(data):
     resp = slack.conversations_replies(channel = resp.channel, ts = resp.ts)
 
     # For educational purposes, print all the reply objects
-    # in the autokitteh session's history log.
+    # in the autokitteh session's log.
     if resp.ok:
         for msg in resp.messages:
             print(msg)
@@ -116,8 +116,8 @@ def _on_slack_message_changed(data, user):
 def on_slack_reaction_added(data):
     """https://api.slack.com/events/reaction_added"""
 
-    # For educational purposes, print the fields of the event
-    # object in the autokitteh session's history log.
+    # For educational purposes, print the fields of the event object
+    # in the autokitteh session's log.
     print(data.user)
     print(data.reaction)
     print(data.item)
@@ -135,8 +135,8 @@ def on_slack_slash_command(data):
     # See: https://api.slack.com/methods/users.info
     user_info = slack.users_info(data.user_id)
 
-    # Encountered an error? Print debugging information in
-    # the autokitteh session's history log, and finish.
+    # Encountered an error? Print debugging information
+    # in the autokitteh session's log, and finish.
     if not resp.ok:
         print(resp.error)
         return

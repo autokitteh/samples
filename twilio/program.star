@@ -38,8 +38,8 @@ def on_slack_slash_command(data):
         body = "This is an autokitteh demo message, meow!",
     )
 
-    # For education and debugging purposes, print Twilio's
-    # response in the autokitteh session's history log.
+    # For education and debugging purposes, print Twilio's response
+    # in the autokitteh session's log.
     print(resp)
 
     # Also send a Whatsapp message to the same number.
