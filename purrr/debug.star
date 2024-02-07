@@ -12,8 +12,8 @@ def debug(msg):
     if not msg:
         return
 
-    # Print the message in the autokitteh session's history log.
-    # This appears in the "ak session history" command's output.
+    # Print the message in the autokitteh session's log.
+    # This appears in the "ak session log" command's output.
     print(msg)
 
     if not SLACK_DEBUG_CHANNEL:
