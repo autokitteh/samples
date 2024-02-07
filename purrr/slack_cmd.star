@@ -84,7 +84,19 @@ def _opt_in(data, args):
         _error(data, args[0], "this command doesn't accept extra arguments")
         return
 
-    slack.chat_post_ephemeral(data.channel_id, data.user_id, "TODO: implement me!")
+    # See: https://redis.io/commands/get/
+    key_prefix = "slack_opt_out:"
+    opt_out = store.get(key_prefix + data.user_id)
+    if not opt_out:
+        msg = ":bell: You're already opted into PuRRR"
+        slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
+        return
+
+    # See: https://redis.io/commands/del/
+    # TODO: store.del([key_prefix + data.user_id])
+    store.set(key_prefix + data.user_id, "")
+    msg = ":bell: You are now opted into PuRRR"
+    slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
 
 def _opt_out(data, args):
     """Opt-out command.
@@ -97,7 +109,18 @@ def _opt_out(data, args):
         _error(data, args[0], "this command doesn't accept extra arguments")
         return
 
-    slack.chat_post_ephemeral(data.channel_id, data.user_id, "TODO: implement me!")
+    # See: https://redis.io/commands/get/
+    key_prefix = "slack_opt_out:"
+    opt_out = store.get(key_prefix + data.user_id)
+    if opt_out:
+        msg = ":no_bell: You're already opted out of PuRRR since: " + opt_out
+        slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
+        return
+
+    # See: https://redis.io/commands/set/
+    store.set(key_prefix + data.user_id, time.now())
+    msg = ":no_bell: You are now opted out of PuRRR"
+    slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
 
 def _list(data, args):
     """List command.

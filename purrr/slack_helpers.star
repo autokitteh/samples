@@ -17,6 +17,15 @@ def add_users_to_channel(channel_id, users):
         users: Comma-separated list of (up to 1000) Slack user IDs.
     """
 
+    # Quietly ignore users who opted out of PuRRR. They will still be
+    # mentioned in the channel, but as non-members they won't know it.
+    opted_in = []
+    for user_id in users.split(","):
+        # See: https://redis.io/commands/get/
+        if not store.get("slack_opt_out:" + user_id):
+            opted_in.append(user_id)
+    users = ",".join(opted_in)
+
     # See: https://api.slack.com/methods/conversations.invite
     resp = slack.conversations_invite(channel_id, users, force = True)
     if resp.ok or resp.error == "already_in_channel":
