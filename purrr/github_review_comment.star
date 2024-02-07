@@ -36,7 +36,6 @@ def _on_pr_review_comment_created(data):
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
         debug("Can't announce this review comment: " + data.comment.htmlurl)
-        return
 
     # TODO: Use "comment.created_at" to enforce chronological order?
     comment = data.comment

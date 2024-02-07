@@ -2,6 +2,7 @@
 
 load("@slack", "slack")
 load("debug.star", "debug")
+load("env", "SLACK_LOG_CHANNEL")  # Set in "autokitteh.yaml".
 load("user_helpers.star", "resolve_github_user")
 
 _CHANNEL_MAX_METADATA_LENGTH = 250  # Characters.
@@ -57,8 +58,12 @@ def archive_channel(channel_id, data):
     if not resp.ok:
         pr_url = data.pull_request.htmlurl
         msg = "State of %s is `%s`, but <#%s> can't be archived: `%s`"
-        debug(msg % (pr_url, data.action, channel_id, resp.error))
+        msg %= (pr_url, data.action, channel_id, resp.error)
         slack.chat_post_message(channel_id, "Failed to archive this channel")
+
+        debug(msg)
+
+        # TODO: Also post a reply in the log channel.
 
     return resp.ok
 
@@ -96,6 +101,9 @@ def create_private_channel(data, name, suffix = 1):
     channel_id = resp.channel.id
     _set_channel_description(channel_id, data)
     _set_channel_topic(channel_id, data)
+
+    # TODO: Post a message in the log channel.
+
     return channel_id
 
 def lookup_pr_channel(pr_url, state, wait = False):
@@ -165,6 +173,12 @@ def mention_user_in_message(channel_id, github_user, msg):
         Message's thread timestamp, or "" on errors.
     """
     msg %= resolve_github_user(github_user)
+
+    # TODO: Also post a reply in the log channel.
+
+    if not channel_id:
+        return ""
+
     resp = slack.chat_post_message(channel_id, msg)
     return resp.ts if resp.ok else ""
 
@@ -179,8 +193,10 @@ def mention_user_in_reply(channel_id, review_url, github_user, msg):
     """
     msg %= resolve_github_user(github_user)
     thread_ts = _lookup_review_message(review_url)
-    if thread_ts:
+    if channel_id and thread_ts:
         slack.chat_post_message(channel_id, msg, thread_ts = thread_ts)
+
+    # TODO: Also post a reply in the log channel.
 
 def normalize_channel_name(name):
     """Convert arbitrary text into a valid Slack channel name.
@@ -284,5 +300,7 @@ def unarchive_channel(channel_id, data):
         pr_url = data.pull_request.htmlurl
         msg = "State of %s is `%s`, but <#%s> can't be unarchived: `%s`"
         debug(msg % (pr_url, data.action, channel_id, resp.error))
+
+    # TODO: Also post a reply in the log channel.
 
     return resp.ok

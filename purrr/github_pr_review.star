@@ -37,7 +37,6 @@ def _on_pr_review_submitted(data):
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
         debug("Can't announce this PR review: " + data.review.htmlurl)
-        return
 
     msg = "%%s submitted a <%s|review>" % data.review.htmlurl
     if data.review.body:
@@ -45,11 +44,12 @@ def _on_pr_review_submitted(data):
     thread_ts = mention_user_in_message(channel_id, data.sender, msg)
 
     # Remember the thread timestamp (message ID) of the message we posted.
-    # See: https://redis.io/commands/set/
-    resp = store.set(data.review.htmlurl, thread_ts, REDIS_TTL)
-    if resp != "OK":
-        msg = 'Redis "set %s %s" failed: %s'
-        debug(msg % (data.review.htmlurl, thread_ts, resp))
+    if thread_ts:
+        # See: https://redis.io/commands/set/
+        resp = store.set(data.review.htmlurl, thread_ts, REDIS_TTL)
+        if resp != "OK":
+            msg = 'Redis "set %s %s" failed: %s'
+            debug(msg % (data.review.htmlurl, thread_ts, resp))
 
 def _on_pr_review_edited(data):
     """The body comment on a pull request review was edited.

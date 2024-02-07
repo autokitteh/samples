@@ -23,12 +23,15 @@ projects:
     envs:
       - name: prod
         vars:
-          # Default TTL for Redis cache = 100 days (100 * 24 hours)
+          # Default TTL for Redis cache = 100 days
           - name: REDIS_TTL
             value: 2400h
           # Create this channel / replace with your own / "" to disable it
           - name: SLACK_DEBUG_CHANNEL
             value: purrr-debug
+          # Create this channel / replace with your own / "" to disable it
+          - name: SLACK_LOG_CHANNEL
+            value: purrr-log
         mappings:
           - name: github
             connection: purrr/github
