@@ -93,8 +93,7 @@ def _opt_in(data, args):
         return
 
     # See: https://redis.io/commands/del/
-    # TODO: store.del([key_prefix + data.user_id])
-    store.set(key_prefix + data.user_id, "")
+    store.delete(key_prefix + data.user_id)
     msg = ":bell: You are now opted into PuRRR"
     slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
 
