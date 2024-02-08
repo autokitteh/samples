@@ -11,22 +11,23 @@ No more:
 
 - Delays or stress due to missed requests, comments, and state changes
 - Notification fatigue due to updates that don't concern you
-- Qestions like "Who's turn is it?" or "What should I do now?"
+- Qestions like "Who's turn is it" or "What should I do now"
 
 All that - and more - is implemented in autokitteh with about ~500 lines of
 actual code!
 
 ## Slack Usage
 
-Slack private channels are created and archived automatically for each PR.
+Slack private channels are created automatically for each PR, and stakeholders
+are added automatically to them. GitHub-to-Slack user matching is based on
+email addresses and case-insensitive full names. These channels are also
+un/archived automatically when the PR is closed/reopened.
 
-PR participants are added automatically to these channels. GitHub-to-Slack
-user matching is based on email addresses and case-insensitive full names.
+Other channels that this system may use (if configured in the
+`autokitteh.yaml` manifest file):
 
-Other default channels (configurable in the `autokitteh.yaml` manifest file):
-
-- `#purrr-log`
-- `#purrr-debug`
+- `#purrr-log` - aggregated log of all PR activity
+- `#purrr-debug` - system warnings and errors
 
 Available Slack slash commands:
 
