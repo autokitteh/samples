@@ -11,11 +11,31 @@ No more:
 
 - Delays or stress due to missed requests, comments, and state changes
 - Notification fatigue due to updates that don't concern you
-- Qestions like "Who's turn is it?" or "What should I do now?"
+- Qestions like "Who's turn is it" or "What should I do now"
 
-All that - and more - is implemented in autokitteh with about 500 lines of
-code! (Not including comments, whitespaces, and multi-line wrapping for
-readability)
+All that - and more - is implemented in autokitteh with about ~500 lines of
+actual code!
+
+## Slack Usage
+
+Slack private channels are created automatically for each PR, and stakeholders
+are added automatically to them. GitHub-to-Slack user matching is based on
+email addresses and case-insensitive full names. These channels are also
+un/archived automatically when the PR is closed/reopened.
+
+Other channels that this system may use (if configured in the
+`autokitteh.yaml` manifest file):
+
+- `#purrr-log` - aggregated log of all PR activity
+- `#purrr-debug` - system warnings and errors
+
+Available Slack slash commands:
+
+- `/ak purrr help`
+- `/ak purrr opt-in`
+- `/ak purrr opt-out`
+- `/ak purrr list`
+- `/ak purrr status <PR>`
 
 ## Cache Considerations
 
@@ -24,9 +44,11 @@ This project uses [Redis](https://redis.io/) as a NoSQL cache for:
 1. Mapping PRs to Slack channel ID strings
 2. Mapping reviews to Slack message ID strings
 3. Caching user IDs (optimization to reduce API calls)
+4. User opt-out database
 
 Use-cases 1 and 2 use a TTL of 100 days (configurable in the `autokitteh.yaml`
-manifest file). Use-case 3 uses a TTL of a day since the last cache hit.
+manifest file). Use-case 3 uses a TTL of one day since the last cache hit.
+Use-case 4 is permanent (until the user opts back in).
 
 > [!NOTE]
 > For the purpose of the first two use-cases, PuRRR assumes that a PR's cache
