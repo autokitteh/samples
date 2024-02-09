@@ -12,11 +12,11 @@ It also demonstrates using a custom builtin function (sleep) to sleep
 for a specified number of seconds.
 
 When the project has an active deployment, and autokitteh receives
-trigger events from its Slack connections, it starts runtime
-sessions which execute these mapped entry-point functions.
+trigger events from its connections, it starts runtime sessions
+which execute the mapped entry-point functions.
 
-This program isn't meant to cover all available functions and events,
-it merely showcases a few illustrative and annotated examples.
+This program isn't meant to cover all available functions and events.
+It merely showcases various illustrative, annotated, reusable examples.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """

@@ -14,6 +14,9 @@ When the project has an active deployment, and autokitteh receives
 trigger events from its connections, it starts runtime sessions
 which execute the mapped entry-point function.
 
+This program isn't meant to cover all available functions and events.
+It merely showcases various illustrative, annotated, reusable examples.
+
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 

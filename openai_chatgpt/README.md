@@ -15,6 +15,9 @@ API details:
 - [OpenAI developer platform](https://platform.openai.com/)
 - [Go client API](https://pkg.go.dev/github.com/sashabaranov/go-openai)
 
+This project isn't meant to cover all available functions and events. it
+merely showcases a few illustrative, annotated, reusable examples.
+
 This project isn't meant to cover all available functions, it merely showcases
 a few illustrative and annotated examples.
 
