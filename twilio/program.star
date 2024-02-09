@@ -7,6 +7,7 @@ other is a webhook receiving status reports from Twilio.
 
 API details:
 - Messaging API overview: https://www.twilio.com/docs/messaging/api
+- Voice API overview: https://www.twilio.com/docs/voice/api
 
 In this sample, we expect the slash command's text to be a valid
 phone number to send messages to.

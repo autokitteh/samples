@@ -5,8 +5,8 @@ to various GitHub webhook events in the "autokitteh.yaml" manifest file.
 It also executes various GitHub API calls.
 
 API details:
-- GitHub REST API: https://docs.github.com/en/rest
-- Go client library: https://pkg.go.dev/github.com/google/go-github/v57/github
+- REST API referene: https://docs.github.com/en/rest
+- Go client API: https://pkg.go.dev/github.com/google/go-github/v57/github
 
 It also demonstrates using a custom builtin function (rand.intn) to generate
 random integer numbers (based on https://pkg.go.dev/math/rand#Rand.Intn).
@@ -15,8 +15,8 @@ When the project has an active deployment, and autokitteh receives
 trigger events from its connections, it starts runtime sessions
 which execute the mapped entry-point functions.
 
-This program isn't meant to cover all available functions and events, it
-merely showcases a few illustrative and annotated examples.
+This program isn't meant to cover all available functions and events.
+It merely showcases various illustrative, annotated, reusable examples.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """

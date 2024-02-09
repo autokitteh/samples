@@ -10,8 +10,8 @@ triggered by a Slack user, it reads and writes in a Google Spreadsheet.
 
 API details:
 
-- [Google Sheets REST API](https://developers.google.com/sheets/api/reference/rest)
-- [Go client library](https://pkg.go.dev/google.golang.org/api/sheets/v4)
+- [REST API reference](https://developers.google.com/sheets/api/reference/rest)
+- [Go client API](https://pkg.go.dev/google.golang.org/api/sheets/v4)
 
 In this sample, we expect the slash command's text to be either:
 

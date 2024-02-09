@@ -8,9 +8,9 @@ Once triggered by a Slack user, it executes various Gmail API calls
 depending on the user's input, and posts the results back to the user.
 
 API details:
-- Gmail API overview: https://developers.google.com/gmail/api/guides
-- Gmail REST API: https://developers.google.com/gmail/api/reference/rest
-- Go client library: https://pkg.go.dev/google.golang.org/api/gmail/v1
+- API overview: https://developers.google.com/gmail/api/guides
+- REST API reference: https://developers.google.com/gmail/api/reference/rest
+- Go client API: https://pkg.go.dev/google.golang.org/api/gmail/v1
 
 When the project has an active deployment, and autokitteh receives
 trigger events from its connections, it starts runtime sessions

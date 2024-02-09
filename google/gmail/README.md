@@ -19,9 +19,9 @@ on the user's input, and posts the results back to the user:
 
 API details:
 
-- [Gmail API overview](https://developers.google.com/gmail/api/guides)
-- [Gmail REST API](https://developers.google.com/gmail/api/reference/rest)
-- [Go client library](https://pkg.go.dev/google.golang.org/api/gmail/v1)
+- [API overview](https://developers.google.com/gmail/api/guides)
+- [REST API reference](https://developers.google.com/gmail/api/reference/rest)
+- [Go client API](https://pkg.go.dev/google.golang.org/api/gmail/v1)
 
 This project isn't meant to cover all available functions and events. It
 merely showcases various illustrative, annotated, reusable examples.
