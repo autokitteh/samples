@@ -7,8 +7,8 @@ It also demonstrates using constant values which are set for each
 autokitteh environment in the "autokitteh.yaml" manifest file.
 
 When the project has an active deployment, and autokitteh receives
-trigger events from its scheduler (cron) connections, it starts
-runtime sessions to execute this mapped entry-point function.
+trigger events from its connections, it starts runtime sessions
+which execute the mapped entry-point function.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """

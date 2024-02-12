@@ -6,10 +6,8 @@ of "slack_slash_command" events. Once triggered by a Slack user,
 it reads and writes in a Google Spreadsheet.
 
 API details:
-- Google Sheets REST API:
-  https://developers.google.com/sheets/api/reference/rest
-- Go client library:
-  https://pkg.go.dev/google.golang.org/api/sheets/v4
+- REST API reference: https://developers.google.com/sheets/api/reference/rest
+- Go client API: https://pkg.go.dev/google.golang.org/api/sheets/v4
 
 In this sample, we expect the slash command's text to be either:
 - A Google Spreadsheet ID
@@ -23,7 +21,7 @@ regular expression (https://qri.io/docs/reference/starlark-packages/re).
 
 When the project has an active deployment, and autokitteh receives
 trigger events from its connections, it starts runtime sessions
-which execute the mapped entry-point functions.
+which execute the mapped entry-point function.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """

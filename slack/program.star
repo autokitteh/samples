@@ -5,18 +5,18 @@ to various Slack webhook events in the "autokitteh.yaml" manifest file.
 It also executes various Slack API calls.
 
 API details:
-- Slack Events API: https://api.slack.com/apis/connections/events-api
-- Slack Web API: https://api.slack.com/web
+- Web API reference: https://api.slack.com/methods
+- Events API reference: https://api.slack.com/events?filter=Events
 
 It also demonstrates using a custom builtin function (sleep) to sleep
 for a specified number of seconds.
 
 When the project has an active deployment, and autokitteh receives
-trigger events from its Slack connections, it starts runtime
-sessions which execute these mapped entry-point functions.
+trigger events from its connections, it starts runtime sessions
+which execute the mapped entry-point functions.
 
-This program isn't meant to cover all available functions and events,
-it merely showcases a few illustrative and annotated examples.
+This program isn't meant to cover all available functions and events.
+It merely showcases various illustrative, annotated, reusable examples.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """

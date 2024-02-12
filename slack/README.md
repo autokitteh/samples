@@ -10,13 +10,14 @@ Slack API calls.
 
 API details:
 
-- [Slack Events API](https://api.slack.com/apis/connections/events-api)
-- [Slack Web API](https://api.slack.com/web)
+- [Web API reference](https://api.slack.com/methods)
+- [Events API reference](https://api.slack.com/events?filter=Events)
 
-It also demonstrates using a custom builtin function (`sleep`) to sleep for a specified number of seconds.
+It also demonstrates using a custom builtin function (`sleep`) to sleep for a
+specified number of seconds.
 
-This project isn't meant to cover all available functions and events, it
-merely showcases a few illustrative and annotated examples.
+This project isn't meant to cover all available functions and events. it
+merely showcases a few illustrative, annotated, reusable examples.
 
 ## Instructions
 

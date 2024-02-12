@@ -7,6 +7,7 @@ other is a webhook receiving status reports from Twilio.
 
 API details:
 - Messaging API overview: https://www.twilio.com/docs/messaging/api
+- Voice API overview: https://www.twilio.com/docs/voice/api
 
 In this sample, we expect the slash command's text to be a valid
 phone number to send messages to.
@@ -16,7 +17,7 @@ autokitteh environment in the "autokitteh.yaml" manifest file.
 
 When the project has an active deployment, and autokitteh receives
 trigger events from its connections, it starts runtime sessions
-which execute these mapped entry-point functions.
+which execute the mapped entry-point functions.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
