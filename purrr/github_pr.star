@@ -69,8 +69,6 @@ def on_github_pull_request(data):
     }
     if data.action in action_handlers:
         action_handlers[data.action](data)
-    else:
-        debug("Unrecognized GitHub PR action: `%s`" % data.action)
 
 def _on_pr_opened(data):
     """A new pull request was created.
