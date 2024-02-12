@@ -26,7 +26,7 @@ which execute the mapped entry-point function.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@google", "google")
+load("@sheets", "sheets")
 load("@slack", "slack")
 
 def on_slack_slash_command(data):
@@ -73,14 +73,14 @@ def _write_and_read_single_cell(id, slack_channel):
 
     # API documentation for writing data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
-    google.sheets_write_cell(id, row_index = 0, col_index = 0, value = "s")
-    value = google.sheets_read_cell(id, row_index = 0, col_index = 0)
+    sheets.write_cell(id, row_index = 0, col_index = 0, value = "s")
+    value = sheets.read_cell(id, row_index = 0, col_index = 0)
     slack.chat_post_message(slack_channel, "Value at cell A1: `%s`" % value)
 
     # API documentation for reading data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
-    google.sheets_write_cell(id, row_index = 0, col_index = 1, value = 1)
-    value = google.sheets_read_cell(id, row_index = 0, col_index = 1)
+    sheets.write_cell(id, row_index = 0, col_index = 1, value = 1)
+    value = sheets.read_cell(id, row_index = 0, col_index = 1)
     slack.chat_post_message(slack_channel, "Value at cell B1: `%s`" % value)
 
 def _write_and_read_cell_range(id, slack_channel):
@@ -106,15 +106,15 @@ def _write_and_read_cell_range(id, slack_channel):
 
     # API documentation for writing data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
-    google.sheets_write_range(id, a1_range, data)
+    sheets.write_range(id, a1_range, data)
 
     # API documentation for reading data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
-    data = google.sheets_read_range(id, a1_range)
+    data = sheets.read_range(id, a1_range)
     for i, row in enumerate(data):
         if row[1] == "":
             # Workaround to read formulas.
-            row[1] = google.sheets_read_cell(
+            row[1] = sheets.read_cell(
                 id,
                 row_index = i,
                 col_index = 1,
@@ -136,8 +136,8 @@ def _set_cell_range_formatting(id):
     # FYI - reference for color codes:
     # https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets
 
-    google.sheets_set_background_color(id, "A1:B1", 0xea4335)
-    google.sheets_set_background_color(id, "A2:B2", 0x34a853)
-    google.sheets_set_background_color(id, "A3:B3", 0x4285f4)
+    sheets.set_background_color(id, "A1:B1", 0xea4335)
+    sheets.set_background_color(id, "A2:B2", 0x34a853)
+    sheets.set_background_color(id, "A3:B3", 0x4285f4)
 
-    google.sheets_set_text_format(id, "A1:B3", color = 0xffffff)
+    sheets.set_text_format(id, "A1:B3", color = 0xffffff)

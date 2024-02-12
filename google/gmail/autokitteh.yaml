@@ -15,8 +15,8 @@ projects:
     paths:
       - program.star
     connections:
-      - name: google
-        integration: google
+      - name: gmail
+        integration: gmail
         token: TODO # Replace this with an autokitteh connection token
       - name: slack
         integration: slack

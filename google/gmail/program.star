@@ -22,7 +22,7 @@ It merely showcases various illustrative, annotated, reusable examples.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@google", "google")
+load("@gmail", "gmail")
 load("@slack", "slack")
 
 def on_slack_slash_command(data):
@@ -51,7 +51,7 @@ def _get_profile(slack_channel, _):
         slack_channel: Slack channel name/ID to post debug messages to.
         _: Unused suffix of the user's Slack command, if any.
     """
-    resp = google.gmail_get_profile()
+    resp = gmail.get_profile()
     if resp.error:
         slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
@@ -76,7 +76,7 @@ def _drafts_get(slack_channel, id):
         slack_channel: Slack channel name/ID to post debug messages to.
         id: Required ID of the draft to retrieve.
     """
-    resp = google.gmail_drafts_get(id)
+    resp = gmail.drafts_get(id)
     if resp.error:
         slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
@@ -116,7 +116,7 @@ def _drafts_list(slack_channel, query):
         slack_channel: Slack channel name/ID to post debug messages to.
         query: Optional query, e.g. "is:unread".
     """
-    resp = google.gmail_drafts_list(max_results = 10, q = query)
+    resp = gmail.drafts_list(max_results = 10, q = query)
     if resp.error:
         slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
@@ -145,7 +145,7 @@ def _messages_get(slack_channel, id):
         slack_channel: Slack channel name/ID to post debug messages to.
         id: Required ID of the message to retrieve.
     """
-    resp = google.gmail_messages_get(id)
+    resp = gmail.messages_get(id)
     if resp.error:
         slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
@@ -184,7 +184,7 @@ def _messages_list(slack_channel, query):
         slack_channel: Slack channel name/ID to post debug messages to.
         query: Optional query, e.g. "is:unread".
     """
-    resp = google.gmail_messages_list(max_results = 10, q = query)
+    resp = gmail.messages_list(max_results = 10, q = query)
     if resp.error:
         slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
@@ -214,7 +214,7 @@ def _messages_send(slack_channel, text):
         slack_channel: Slack channel name/ID to post debug messages to.
         text: Short message to send to yourself.
     """
-    resp = google.gmail_get_profile()
+    resp = gmail.get_profile()
     if resp.error:
         slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
@@ -227,7 +227,7 @@ def _messages_send(slack_channel, text):
     # Raw text compliant with https://datatracker.ietf.org/doc/html/rfc5322.
     # Using join() because we need "\r\n" as the line separator, but
     # Starlark's multi-line strings use "\n" as the line separator.
-    resp = google.gmail_messages_send("\r\n".join([
+    resp = gmail.messages_send("\r\n".join([
         "From: " + resp.email_address,
         "To: " + resp.email_address,
         "Subject: Test from autokitteh",
