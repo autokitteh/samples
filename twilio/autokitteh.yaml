@@ -1,34 +1,27 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an autokitteh project that uses Twilio (https://www.twilio.com).
+# This YAML file is a declarative manifest that describes the setup of an
+# autokitteh sample project that demonstrates autokitteh's integration with
+# Twilio (https://www.twilio.com).
 #
 # Before applying this file:
-# 1. Open a browser, and go to the autokitteh server's URL
-# 2. Go to the integrations page, and choose Twilio and Slack
-# 3. Create connections for them, and copy the resulting tokens
-# 4. Paste them in the designated "TODO" lines below
-# 5. Set the "FROM_NUMBER" environment value
+# - Set the "FROM_NUMBER" value in the "vars" section
+# - Create autokitteh connection tokens for Slack and Twilio,
+#   and replace the "TODO" lines below
 
 version: v1
 
-projects:
-  - name: twilio_sample
-    paths:
-      - program.star
-    connections:
-      - name: slack
-        integration: slack
-        token: TODO # Replace this with an autokitteh connection token
-      - name: twilio
-        integration: twilio
-        token: TODO # Replace this with an autokitteh connection token
-    envs:
-      - name: prod
-        vars:
-          - name: FROM_NUMBER
-            value: "+12345556789" # Replace this with a Twilio phone number
-        mappings:
-          - name: slack
-            connection: twilio_sample/slack
-            events:
-              - type: slash_command
-                entrypoint: program.star:on_slack_slash_command
+project:
+  name: twilio_sample
+  vars:
+    - name: FROM_NUMBER
+      value: "+12345556789" # Replace this with a Twilio phone number
+  connections:
+    - name: slack
+      integration: slack
+      token: TODO # Replace this with an autokitteh connection token
+    - name: twilio
+      integration: twilio
+      token: TODO # Replace this with an autokitteh connection token
+  triggers:
+    - connection: slack
+      event_type: slash_command
+      entrypoint: program.star:on_slack_slash_command
