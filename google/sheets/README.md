@@ -1,6 +1,6 @@
 # Google Sheets Sample Project
 
-This project demonstrates autokitteh's integration with
+This sample project demonstrates autokitteh's integration with
 [Google Sheets](https://www.google.com/sheets/about/).
 
 The file [`program.star`](./program.star) implements single entry-point

@@ -1,6 +1,6 @@
 # Google Sample Projects
 
-These projects demonstrate autokitteh's integration with Google APIs:
+These sample projects demonstrate autokitteh's integration with Google APIs:
 
 Google Workspace:
 
@@ -20,8 +20,8 @@ Google Cloud:
 1. Open a browser, and go to the autokitteh server's URL
 2. Go to the integrations page, and choose a Google service
 3. Create a connection for it, and copy the resulting token
-4. Paste it in the designated `TODO` line in the
-   [`autokitteh.yaml`](./autokitteh.yaml) manifest file
+4. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
+   manifest file
 
 Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
 
