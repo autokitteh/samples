@@ -4,7 +4,7 @@
 #
 # Before applying this file:
 # - Set the "SLACK_CHANNEL" value in the "vars" section
-# - Create autokitteh connection tokens for GitHub and Slack,
+# - Create autokitteh connection tokens for the Scheduler (Cron) and Slack,
 #   and replace the "TODO" lines below
 
 version: v1
