@@ -1,34 +1,27 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an autokitteh project that uses a cron-like scheduler.
+# This YAML file is a declarative manifest that describes the setup of an
+# autokitteh sample project that demonstrates autokitteh's integration with
+# a cron-like scheduler.
 #
 # Before applying this file:
-# 1. Open a browser, and go to the autokitteh server's URL
-# 2. Go to the integrations page, and choose Scheduler (Cron) and Slack
-# 3. Create connections for them, and copy the resulting tokens
-# 4. Paste them in the designated "TODO" lines below
-# 5. Set the "SLACK_CHANNEL" environment value
+# - Set the "SLACK_CHANNEL" value in the "vars" section
+# - Create autokitteh connection tokens for GitHub and Slack,
+#   and replace the "TODO" lines below
 
 version: v1
 
-projects:
-  - name: scheduler_sample
-    paths:
-      - program.star
-    connections:
-      - name: scheduler
-        integration: scheduler
-        token: TODO # Replace this with an autokitteh connection token
-      - name: slack
-        integration: slack
-        token: TODO # Replace this with an autokitteh connection token
-    envs:
-      - name: prod
-        vars:
-          - name: SLACK_CHANNEL
-            value: TODO # Replace this with a Slack channel name or ID
-        mappings:
-          - name: scheduler
-            connection: scheduler_sample/scheduler
-            events:
-              - type: cron_trigger
-                entrypoint: program.star:on_cron_trigger
+project:
+  name: scheduler_sample
+  vars:
+    - name: SLACK_CHANNEL
+      value: TODO # Replace this with a Slack channel name or ID
+  connections:
+    - name: scheduler
+      integration: scheduler
+      token: TODO # Replace this with an autokitteh connection token
+    - name: slack
+      integration: slack
+      token: TODO # Replace this with an autokitteh connection token
+  triggers:
+    - connection: scheduler
+      event_type: cron_trigger
+      entrypoint: program.star:on_cron_trigger

@@ -1,53 +1,45 @@
+# Before applying this file:
+# - Modify the values in the "vars" section, if desired
+# - Create autokitteh connection tokens for GitHub and Slack,
+#   and replace the "TODO" lines below
+
 version: v1
 
-projects:
-  - name: purrr
-    paths:
-      - github_pr.star
-      - github_pr_review.star
-      - github_review_comment.star
-      - github_issue_comment.star
-      - github_thread.star
-      - slack_cmd.star
-      - slack_helpers.star
-      - markdown.star
-      - user_helpers.star
-      - debug.star
-    connections:
-      - name: github
-        integration: github
-        token: TODO # Replace this with an autokitteh connection token
-      - name: slack
-        integration: slack
-        token: TODO # Replace this with an autokitteh connection token
-    envs:
-      - name: prod
-        vars:
-          # Default TTL for Redis cache = 100 days
-          - name: REDIS_TTL
-            value: 2400h
-          # Create this channel / replace with your own / "" to disable it
-          - name: SLACK_DEBUG_CHANNEL
-            value: purrr-debug
-          # Create this channel / replace with your own / "" to disable it
-          - name: SLACK_LOG_CHANNEL
-            value: purrr-log
-        mappings:
-          - name: github
-            connection: purrr/github
-            events:
-              - type: pull_request
-                entrypoint: github_pr.star:on_github_pull_request
-              - type: pull_request_review
-                entrypoint: github_pr_review.star:on_github_pull_request_review
-              - type: pull_request_review_comment
-                entrypoint: github_review_comment.star:on_github_pull_request_review_comment
-              - type: issue_comment
-                entrypoint: github_issue_comment.star:on_github_issue_comment
-              - type: pull_request_review_thread
-                entrypoint: github_thread.star:on_github_pull_request_review_thread
-          - name: slack
-            connection: purrr/slack
-            events:
-              - type: slash_command
-                entrypoint: slack_cmd.star:on_slack_slash_command
+project:
+  name: purrr
+  vars:
+    # Default TTL for Redis cache = 30 days (to forget stale PRs)
+    - name: REDIS_TTL
+      value: 720h
+    # Create this channel / replace with your own / specify "" to disable it
+    - name: SLACK_DEBUG_CHANNEL
+      value: purrr-debug
+    # Create this channel / replace with your own / specify "" to disable it
+    - name: SLACK_LOG_CHANNEL
+      value: purrr-log
+  connections:
+    - name: github
+      integration: github
+      token: TODO # Replace this with an autokitteh connection token
+    - name: slack
+      integration: slack
+      token: TODO # Replace this with an autokitteh connection token
+  triggers:
+    - connection: github
+      event_type: issue_comment
+      entrypoint: github_issue_comment.star:on_github_issue_comment
+    - connection: github
+      event_type: pull_request
+      entrypoint: github_pr.star:on_github_pull_request
+    - connection: github
+      event_type: pull_request_review
+      entrypoint: github_pr_review.star:on_github_pull_request_review
+    - connection: github
+      event_type: pull_request_review_comment
+      entrypoint: github_review_comment.star:on_github_pull_request_review_comment
+    - connection: github
+      event_type: pull_request_review_thread
+      entrypoint: github_thread.star:on_github_pull_request_review_thread
+    - connection: slack
+      event_type: slash_command
+      entrypoint: slack_cmd.star:on_slack_slash_command

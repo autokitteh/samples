@@ -1,35 +1,32 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an autokitteh project that uses Slack (https://slack.com).
+# This YAML file is a declarative manifest that describes the setup of an
+# autokitteh sample project that demonstrates autokitteh's integration with
+# Slack (https://slack.com).
 #
 # Before applying this file:
-# 1. Open a browser, and go to the autokitteh server's URL
-# 2. Go to the integrations page, and choose Slack
-# 3. Create a connection, and copy the resulting token
-# 4. Paste it in the designated "TODO" line below
+# - Create an autokitteh connection token for Slack,
+#   and replace the "TODO" line below
 
 version: v1
 
-projects:
-  - name: slack_sample
-    paths:
-      - program.star
-    connections:
-      - name: slack
-        integration: slack
-        token: TODO # Replace this with an autokitteh connection token
-    envs:
-      - name: prod
-        mappings:
-          - name: slack
-            connection: slack_sample/slack
-            events:
-              - type: app_mention
-                entrypoint: program.star:on_slack_app_mention
-              - type: interaction
-                entrypoint: program.star:on_slack_interaction
-              - type: message
-                entrypoint: program.star:on_slack_message
-              - type: reaction_added
-                entrypoint: program.star:on_slack_reaction_added
-              - type: slash_command
-                entrypoint: program.star:on_slack_slash_command
+project:
+  name: slack_sample
+  connections:
+    - name: slack
+      integration: slack
+      token: TODO # Replace this with an autokitteh connection token
+  triggers:
+    - connection: slack
+      event_type: app_mention
+      entrypoint: program.star:on_slack_app_mention
+    - connection: slack
+      event_type: interaction
+      entrypoint: program.star:on_slack_interaction
+    - connection: slack
+      event_type: message
+      entrypoint: program.star:on_slack_message
+    - connection: slack
+      event_type: reaction_added
+      entrypoint: program.star:on_slack_reaction_added
+    - connection: slack
+      event_type: slash_command
+      entrypoint: program.star:on_slack_slash_command

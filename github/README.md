@@ -1,6 +1,6 @@
 # GitHub Sample Project
 
-This project demonstrates autokitteh's integration with
+This sample project demonstrates autokitteh's integration with
 [GitHub](https://github.com).
 
 The file [`program.star`](./program.star) implements multiple entry-point
@@ -24,8 +24,8 @@ merely showcases a few illustrative, annotated, reusable examples.
 1. Open a browser, and go to the autokitteh server's URL
 2. Go to the integrations page, and choose GitHub
 3. Create a connection, and copy the resulting token
-4. Paste it in the designated `TODO` line in the
-   [`autokitteh.yaml`](./autokitteh.yaml) manifest file
+4. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
+   manifest file
 
 Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
 
