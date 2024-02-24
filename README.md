@@ -40,6 +40,7 @@ Capabilities and API details of specific autokitteh integrations:
 
 - [GitHub](./github/)
 - [Google](./google/)
+  - [Gmail](./google/gmail/)
   - [Sheets](./google/sheets/)
 - [OpenAPI ChatGPT](./openai_chatgpt/)
 - [Scheduler (Cron)](./scheduler/)

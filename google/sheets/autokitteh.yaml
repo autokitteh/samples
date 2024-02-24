@@ -1,31 +1,23 @@
-# This YAML file is a declarative manifest that describes the
-# setup of an autokitteh project that uses Google Sheets
-# (https://www.google.com/sheets/about/).
+# This YAML file is a declarative manifest that describes the setup of an
+# autokitteh sample project that demonstrates autokitteh's integration with
+# Google Sheets (https://www.google.com/sheets/about/).
 #
 # Before applying this file:
-# 1. Open a browser, and go to the autokitteh server's URL
-# 2. Go to the integrations page, and choose Google and Slack
-# 3. Create connections for them, and copy the resulting tokens
-# 4. Paste them in the designated "TODO" lines below
+# - Create autokitteh connection tokens for Gmail and Slack,
+#   and replace the "TODO" lines below
 
 version: v1
 
-projects:
-  - name: google_sheets_sample
-    paths:
-      - program.star
-    connections:
-      - name: google
-        integration: google
-        token: TODO # Replace this with an autokitteh connection token
-      - name: slack
-        integration: slack
-        token: TODO # Replace this with an autokitteh connection token
-    envs:
-      - name: prod
-        mappings:
-          - name: slack
-            connection: google_sheets_sample/slack
-            events:
-              - type: slash_command
-                entrypoint: program.star:on_slack_slash_command
+project:
+  name: google_sheets_sample
+  connections:
+    - name: sheets
+      integration: sheets
+      token: TODO # Replace this with an autokitteh connection token
+    - name: slack
+      integration: slack
+      token: TODO # Replace this with an autokitteh connection token
+  triggers:
+    - connection: slack
+      event_type: slash_command
+      entrypoint: program.star:on_slack_slash_command
