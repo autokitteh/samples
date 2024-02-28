@@ -12,7 +12,7 @@ project:
   name: google_sheets_sample
   connections:
     - name: sheets
-      integration: sheets
+      integration: googlesheets
       token: TODO # Replace this with an autokitteh connection token
     - name: slack
       integration: slack
