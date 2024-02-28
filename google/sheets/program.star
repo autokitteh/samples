@@ -26,7 +26,7 @@ which execute the mapped entry-point function.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@sheets", "sheets")
+load("@googlesheets", "sheets")
 load("@slack", "slack")
 
 def on_slack_slash_command(data):
