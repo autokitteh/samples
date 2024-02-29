@@ -1,0 +1,25 @@
+# This YAML file is a declarative manifest that describes the setup
+# of an autokitteh sample project which demonstrates autokitteh's
+# bidirectional integration with HTTP.
+
+version: v1
+
+project:
+  name: http_sample
+  connections:
+    - name: http
+      integration: http
+      token: trigger_url_path # http://<autokitteh address>/http/<token>
+  triggers:
+    # More HTTP methods are supported as event types:
+    # head, put, delete, options, and patch.
+    - connection: http
+      event_type: get
+      entrypoint: program.star:on_http_get
+    - connection: http
+      event_type: post
+      entrypoint: program.star:on_http_post
+  vars:
+    # Feel free to modify this when you run a local instance of httpbin.
+    - name: HTTPBIN_BASE_URL
+      value: https://httpbin.org
