@@ -1,0 +1,15 @@
+# This YAML file is a declarative manifest that describes
+# the minimal setup of an autokitteh project.
+
+version: v1
+
+project:
+  name: skeleton_project
+  connections:
+    - name: http
+      integration: http
+      token: trigger_url_path # http://<autokitteh address>/http/<token>
+  triggers:
+    - connection: http
+      event_type: get
+      entrypoint: program.star:on_http_get
