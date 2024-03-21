@@ -137,8 +137,8 @@ def on_slack_slash_command(data):
 
     # Encountered an error? Print debugging information
     # in the autokitteh session's log, and finish.
-    if not resp.ok:
-        print(resp.error)
+    if not user_info.ok:
+        print(user_info.error)
         return
 
     profile = user_info.user.profile
