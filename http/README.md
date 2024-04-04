@@ -35,12 +35,10 @@ with these HTTP methods:
 3. Trigger the project by sending HTTP requests to its webhook:
 
    ```shell
-   curl "http://<autokitteh address>/http/trigger_url_path"
+   curl "http://<autokitteh address>/http/http_sample/trigger_path"
    ```
 
    ```shell
-   curl -X POST "http://<autokitteh address>/http/trigger_url_path" \
+   curl -X POST "http://<autokitteh address>/http/http_sample/trigger_path" \
         --data key1=value1 --data key2=value2
    ```
-
-TODO: Support URL suffix (e.g. path, params)
