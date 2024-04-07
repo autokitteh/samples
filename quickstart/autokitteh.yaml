@@ -4,12 +4,12 @@
 version: v1
 
 project:
-  name: quickstart
+  name: quickstart_project
   connections:
-    - name: my_http
+    - name: http_conn
       integration: http
   triggers:
     - name: get
-      connection: my_http
+      connection: http_conn
       event_type: get
       call: program.star:on_http_get
