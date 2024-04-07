@@ -10,6 +10,7 @@ project:
       integration: http
       token: trigger_path # http://<autokitteh address>/http/<project name>/<token>
   triggers:
-    - connection: my_http
+    - name: get
+      connection: my_http
       event_type: get
-      entrypoint: program.star:on_http_get
+      call: program.star:on_http_get
