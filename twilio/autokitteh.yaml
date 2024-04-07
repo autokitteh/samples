@@ -15,13 +15,13 @@ project:
     - name: FROM_NUMBER
       value: "+12345556789" # Replace this with a Twilio phone number
   connections:
-    - name: slack
+    - name: my_slack
       integration: slack
       token: TODO # Replace this with an autokitteh connection token
-    - name: twilio
+    - name: my_twilio
       integration: twilio
       token: TODO # Replace this with an autokitteh connection token
   triggers:
-    - connection: slack
+    - connection: my_slack
       event_type: slash_command
       entrypoint: program.star:on_slack_slash_command

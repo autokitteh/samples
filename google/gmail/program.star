@@ -22,8 +22,8 @@ It merely showcases various illustrative, annotated, reusable examples.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@gmail", "gmail")
-load("@slack", "slack")
+load("@gmail", "my_gmail")
+load("@slack", "my_slack")
 
 def on_slack_slash_command(data):
     """https://api.slack.com/interactivity/slash-commands
@@ -51,23 +51,23 @@ def _get_profile(slack_channel, _):
         slack_channel: Slack channel name/ID to post debug messages to.
         _: Unused suffix of the user's Slack command, if any.
     """
-    resp = gmail.get_profile()
+    resp = my_gmail.get_profile()
     if resp.error:
-        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        my_slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
     if resp.http_status_code != 200:
         msg = "Error: HTTP response code %d" % resp.http_status_code
-        slack.chat_post_message(slack_channel, msg)
-        slack.chat_post_message(slack_channel, str(resp))
+        my_slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, str(resp))
         return
 
-    slack.chat_post_message(slack_channel, resp.email_address)
+    my_slack.chat_post_message(slack_channel, resp.email_address)
     msg = "Messages total: `%d`" % resp.messages_total
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = "Threads total: `%d`" % resp.threads_total
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = "Current History ID: `%s`" % resp.history_id
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
 
 def _drafts_get(slack_channel, id):
     """https://developers.google.com/gmail/api/reference/rest/v1/users.drafts/get
@@ -76,38 +76,38 @@ def _drafts_get(slack_channel, id):
         slack_channel: Slack channel name/ID to post debug messages to.
         id: Required ID of the draft to retrieve.
     """
-    resp = gmail.drafts_get(id)
+    resp = my_gmail.drafts_get(id)
     if resp.error:
-        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        my_slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
     if resp.http_status_code != 200:
         msg = "Error: HTTP response code %d" % resp.http_status_code
-        slack.chat_post_message(slack_channel, msg)
-        slack.chat_post_message(slack_channel, str(resp))
+        my_slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, str(resp))
         return
 
-    slack.chat_post_message(slack_channel, 'Draft ID: `"%s"`' % resp.id)
+    my_slack.chat_post_message(slack_channel, 'Draft ID: `"%s"`' % resp.id)
     msg = 'Draft message ID: `"%s"`' % resp.message.id
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = 'Draft message thread ID: `"%s"`' % resp.message.thread_id
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = 'Draft message history ID: `"%s"`' % resp.message.history_id
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     for id in resp.message.label_ids:
         msg = 'Draft message label ID: `"%s"`' % id
-        slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, msg)
 
     msg = "Draft message internal date: `%d`" % resp.message.internal_date
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = "Draft message size estimate: `%d`" % resp.message.size_estimate
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
 
     msg = "Draft message (snippet):\n`%s`" % resp.message.snippet
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = "Draft message (raw):\n`%s`" % resp.message.raw
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = "Draft message (payload):\n`%s`" % str(resp.message.payload)
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
 
 def _drafts_list(slack_channel, query):
     """https://developers.google.com/gmail/api/reference/rest/v1/users.drafts/list
@@ -116,27 +116,27 @@ def _drafts_list(slack_channel, query):
         slack_channel: Slack channel name/ID to post debug messages to.
         query: Optional query, e.g. "is:unread".
     """
-    resp = gmail.drafts_list(max_results = 10, q = query)
+    resp = my_gmail.drafts_list(max_results = 10, q = query)
     if resp.error:
-        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        my_slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
     if resp.http_status_code != 200:
         msg = "Error: HTTP response code %d" % resp.http_status_code
-        slack.chat_post_message(slack_channel, msg)
-        slack.chat_post_message(slack_channel, str(resp))
+        my_slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, str(resp))
         return
 
     msg = "Result size estimate: `%d`" % resp.result_size_estimate
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
 
     for i, d in enumerate(resp.drafts, 1):
         msg = 'Draft %d: ID `"%s"`, message ID `"%s"`, message thread ID `"%s"`'
         msg %= (i, d.id, d.message.id, d.message.thread_id)
-        slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, msg)
 
     if resp.next_page_token:
         msg = "Next page token: `%s`" % resp.next_page_token
-        slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, msg)
 
 def _messages_get(slack_channel, id):
     """https://developers.google.com/gmail/api/reference/rest/v1/users.messages/get
@@ -145,37 +145,37 @@ def _messages_get(slack_channel, id):
         slack_channel: Slack channel name/ID to post debug messages to.
         id: Required ID of the message to retrieve.
     """
-    resp = gmail.messages_get(id)
+    resp = my_gmail.messages_get(id)
     if resp.error:
-        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        my_slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
     if resp.http_status_code != 200:
         msg = "Error: HTTP response code %d" % resp.http_status_code
-        slack.chat_post_message(slack_channel, msg)
-        slack.chat_post_message(slack_channel, str(resp))
+        my_slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, str(resp))
         return
 
     msg = 'Message ID: `"%s"`' % resp.id
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = 'Message thread ID: `"%s"`' % resp.thread_id
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = 'Message history ID: `"%s"`' % resp.history_id
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     for id in resp.label_ids:
         msg = 'Message label ID: `"%s"`' % id
-        slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, msg)
 
     msg = "Message internal date: `%d`" % resp.internal_date
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = "Message size estimate: `%d`" % resp.size_estimate
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
 
     msg = "Message (snippet):\n`%s`" % resp.snippet
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = "Message (raw):\n`%s`" % resp.raw
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
     msg = "Message (payload):\n`%s`" % str(resp.payload)
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
 
 def _messages_list(slack_channel, query):
     """https://developers.google.com/gmail/api/reference/rest/v1/users.messages/list
@@ -184,26 +184,26 @@ def _messages_list(slack_channel, query):
         slack_channel: Slack channel name/ID to post debug messages to.
         query: Optional query, e.g. "is:unread".
     """
-    resp = gmail.messages_list(max_results = 10, q = query)
+    resp = my_gmail.messages_list(max_results = 10, q = query)
     if resp.error:
-        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        my_slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
     if resp.http_status_code != 200:
         msg = "Error: HTTP response code %d" % resp.http_status_code
-        slack.chat_post_message(slack_channel, msg)
-        slack.chat_post_message(slack_channel, str(resp))
+        my_slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, str(resp))
         return
 
     msg = "Result size estimate: `%d`" % resp.result_size_estimate
-    slack.chat_post_message(slack_channel, msg)
+    my_slack.chat_post_message(slack_channel, msg)
 
     for i, m in enumerate(resp.messages, 1):
         msg = 'Message %d: ID `"%s"`, thread ID `"%s"`'
-        slack.chat_post_message(slack_channel, msg % (i, m.id, m.thread_id))
+        my_slack.chat_post_message(slack_channel, msg % (i, m.id, m.thread_id))
 
     if resp.next_page_token:
         msg = "Next page token: `%s`" % resp.next_page_token
-        slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, msg)
 
 def _messages_send(slack_channel, text):
     """https://developers.google.com/gmail/api/reference/rest/v1/users.messages/send
@@ -214,20 +214,20 @@ def _messages_send(slack_channel, text):
         slack_channel: Slack channel name/ID to post debug messages to.
         text: Short message to send to yourself.
     """
-    resp = gmail.get_profile()
+    resp = my_gmail.get_profile()
     if resp.error:
-        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        my_slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
     if resp.http_status_code != 200:
         msg = "Error: HTTP response code %d" % resp.http_status_code
-        slack.chat_post_message(slack_channel, msg)
-        slack.chat_post_message(slack_channel, str(resp))
+        my_slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, str(resp))
         return
 
     # Raw text compliant with https://datatracker.ietf.org/doc/html/rfc5322.
     # Using join() because we need "\r\n" as the line separator, but
     # Starlark's multi-line strings use "\n" as the line separator.
-    resp = gmail.messages_send("\r\n".join([
+    resp = my_gmail.messages_send("\r\n".join([
         "From: " + resp.email_address,
         "To: " + resp.email_address,
         "Subject: Test from autokitteh",
@@ -235,15 +235,15 @@ def _messages_send(slack_channel, text):
         text,
     ]))
     if resp.error:
-        slack.chat_post_message(slack_channel, "Error: " + resp.error)
+        my_slack.chat_post_message(slack_channel, "Error: " + resp.error)
         return
     if resp.http_status_code != 200:
         msg = "Error: HTTP response code %d" % resp.http_status_code
-        slack.chat_post_message(slack_channel, msg)
-        slack.chat_post_message(slack_channel, str(resp))
+        my_slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, str(resp))
         return
 
-    slack.chat_post_message(slack_channel, "Sent!")
+    my_slack.chat_post_message(slack_channel, "Sent!")
 
 COMMANDS = {
     "gmail get profile": _get_profile,

@@ -21,7 +21,7 @@ It merely showcases various illustrative, annotated, reusable examples.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@github", "github")
+load("@github", "my_github")
 
 # https://docs.github.com/en/rest/reactions/reactions#about-reactions
 REACTIONS = ["+1", "-1", "laugh", "confused", "heart", "hooray", "rocket", "eyes"]
@@ -41,7 +41,7 @@ def on_github_issue_comment(data):
     # Add to each new issue comment a random reaction emoji.
     # rand.intn: https://pkg.go.dev/math/rand#Rand.Intn.
     reaction = REACTIONS[rand.intn(len(REACTIONS))]
-    github.create_reaction_for_issue_comment(
+    my_github.create_reaction_for_issue_comment(
         owner = data.organization.login,
         repo = data.repo.name,
         id = data.comment.id,

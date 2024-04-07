@@ -15,7 +15,7 @@ This sample is implemented in Starlark, which is a dialect of Python
 (see https://bazel.build/rules/language).
 """
 
-load("@http", "http")
+load("@http", "my_http")
 load("env", "HTTPBIN_BASE_URL")  # Set in "autokitteh.yaml".
 
 def on_http_get(data):
@@ -46,7 +46,7 @@ def get_echo_params():
 
     # Other optional dictionary argument: headers.
     params = {"key1": "value1", "key2": "value2"}
-    resp = http.get(HTTPBIN_BASE_URL + "/get", params = params)
+    resp = my_http.get(HTTPBIN_BASE_URL + "/get", params = params)
 
     print(resp.url)  # HTTPBIN_BASE_URL + "/get?key1=value1&key2=value2"
     print(resp.status_code)  # 200
@@ -73,7 +73,7 @@ def get_html():
     """
 
     # Optional dictionary arguments: headers, params.
-    resp = http.get(HTTPBIN_BASE_URL + "/html")
+    resp = my_http.get(HTTPBIN_BASE_URL + "/html")
 
     print(resp.url)  # HTTPBIN_BASE_URL + "/html"
     print(resp.status_code)  # 200
@@ -91,7 +91,7 @@ def get_json():
     """
 
     # Optional dictionary arguments: headers, params.
-    resp = http.get(HTTPBIN_BASE_URL + "/json")
+    resp = my_http.get(HTTPBIN_BASE_URL + "/json")
 
     print(resp.url)  # HTTPBIN_BASE_URL + "/json"
     print(resp.status_code)  # 200
@@ -140,7 +140,7 @@ def post_echo_form():
     # Alternative body arguments: raw_body (string), or json_body (struct).
     # TODO: Optional content-type argument: form_encoding (string).
     # TODO: form = {"key1": "value1", "key2": "value2"}
-    resp = http.post(HTTPBIN_BASE_URL + "/post")  # , form_body = form)
+    resp = my_http.post(HTTPBIN_BASE_URL + "/post")  # , form_body = form)
 
     print(resp.url)  # HTTPBIN_BASE_URL + "/post"
     print(resp.status_code)  # 200
