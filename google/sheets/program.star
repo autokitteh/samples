@@ -26,8 +26,8 @@ which execute the mapped entry-point function.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@googlesheets", "sheets")
-load("@slack", "slack")
+load("@googlesheets", "my_sheets")
+load("@slack", "my_slack")
 
 def on_slack_slash_command(data):
     """https://api.slack.com/interactivity/slash-commands
@@ -47,7 +47,7 @@ def on_slack_slash_command(data):
     match = re.match(r"(.*/d/)?([^/]*)", data.text)
     if not match:
         msg = "Invalid Google Spreadsheet URL/ID: `%s`" % data.text
-        slack.chat_post_message(data.user_id, msg)
+        my_slack.chat_post_message(data.user_id, msg)
         return
 
     # First match, second group.
@@ -73,15 +73,15 @@ def _write_and_read_single_cell(id, slack_channel):
 
     # API documentation for writing data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
-    sheets.write_cell(id, row_index = 0, col_index = 0, value = "s")
-    value = sheets.read_cell(id, row_index = 0, col_index = 0)
-    slack.chat_post_message(slack_channel, "Value at cell A1: `%s`" % value)
+    my_sheets.write_cell(id, row_index = 0, col_index = 0, value = "s")
+    value = my_sheets.read_cell(id, row_index = 0, col_index = 0)
+    my_slack.chat_post_message(slack_channel, "Value at cell A1: `%s`" % value)
 
     # API documentation for reading data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
-    sheets.write_cell(id, row_index = 0, col_index = 1, value = 1)
-    value = sheets.read_cell(id, row_index = 0, col_index = 1)
-    slack.chat_post_message(slack_channel, "Value at cell B1: `%s`" % value)
+    my_sheets.write_cell(id, row_index = 0, col_index = 1, value = 1)
+    value = my_sheets.read_cell(id, row_index = 0, col_index = 1)
+    my_slack.chat_post_message(slack_channel, "Value at cell B1: `%s`" % value)
 
 def _write_and_read_cell_range(id, slack_channel):
     """Write and read a range of cells in a Google Spreadsheet.
@@ -106,22 +106,22 @@ def _write_and_read_cell_range(id, slack_channel):
 
     # API documentation for writing data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
-    sheets.write_range(id, a1_range, data)
+    my_sheets.write_range(id, a1_range, data)
 
     # API documentation for reading data:
     # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
-    data = sheets.read_range(id, a1_range)
+    data = my_sheets.read_range(id, a1_range)
     for i, row in enumerate(data):
         if row[1] == "":
             # Workaround to read formulas.
-            row[1] = sheets.read_cell(
+            row[1] = my_sheets.read_cell(
                 id,
                 row_index = i,
                 col_index = 1,
                 value_render_option = "FORMULA",
             )
         msg = "Row %d: `%s` = `%s`" % (i + 1, row[0], row[1])
-        slack.chat_post_message(slack_channel, msg)
+        my_slack.chat_post_message(slack_channel, msg)
 
 def _set_cell_range_formatting(id):
     """Set formatting for a range of cells in a Google Spreadsheet.
@@ -136,8 +136,8 @@ def _set_cell_range_formatting(id):
     # FYI - reference for color codes:
     # https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets
 
-    sheets.set_background_color(id, "A1:B1", 0xea4335)
-    sheets.set_background_color(id, "A2:B2", 0x34a853)
-    sheets.set_background_color(id, "A3:B3", 0x4285f4)
+    my_sheets.set_background_color(id, "A1:B1", 0xea4335)
+    my_sheets.set_background_color(id, "A2:B2", 0x34a853)
+    my_sheets.set_background_color(id, "A3:B3", 0x4285f4)
 
-    sheets.set_text_format(id, "A1:B3", color = 0xffffff)
+    my_sheets.set_text_format(id, "A1:B3", color = 0xffffff)

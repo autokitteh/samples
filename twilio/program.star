@@ -22,7 +22,7 @@ which execute the mapped entry-point functions.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@twilio", "twilio")
+load("@twilio", "my_twilio")
 load("env", "FROM_NUMBER")  # Set in "autokitteh.yaml".
 
 def on_slack_slash_command(data):
@@ -33,7 +33,7 @@ def on_slack_slash_command(data):
     """
 
     # Send SMS text via Twilio to the given phone number ("+12345556789").
-    resp = twilio.create_message(
+    resp = my_twilio.create_message(
         from_number = FROM_NUMBER,
         to = data.text,
         body = "This is an autokitteh demo message, meow!",
@@ -44,7 +44,7 @@ def on_slack_slash_command(data):
     print(resp)
 
     # Also send a Whatsapp message to the same number.
-    resp = twilio.create_message(
+    resp = my_twilio.create_message(
         from_number = "whatsapp:" + FROM_NUMBER,
         to = "whatsapp:" + data.text,
         body = "This is an autokitteh demo message, meow!",

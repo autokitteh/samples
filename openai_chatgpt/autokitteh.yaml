@@ -11,13 +11,13 @@ version: v1
 project:
   name: openai_chatgpt_sample
   connections:
-    - name: chatgpt
+    - name: my_chatgpt
       integration: chatgpt
       token: TODO # Replace this with an autokitteh connection token
     - name: slack
-      integration: slack
+      integration: my_slack
       token: TODO # Replace this with an autokitteh connection token
   triggers:
-    - connection: slack
+    - connection: my_slack
       event_type: slash_command
       entrypoint: program.star:on_slack_slash_command
