@@ -12,4 +12,4 @@ project:
     - name: get
       connection: http_conn
       event_type: get
-      call: program.star:on_http_get
+      entrypoint: program.star:on_http_get
