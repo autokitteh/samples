@@ -4,11 +4,10 @@
 version: v1
 
 project:
-  name: skeleton_project
+  name: quickstart
   connections:
     - name: my_http
       integration: http
-      token: trigger_path # http://<autokitteh address>/http/<project name>/<token>
   triggers:
     - name: get
       connection: my_http

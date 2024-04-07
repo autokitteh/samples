@@ -7,4 +7,4 @@ def on_http_get(data):
         print("Loop iteration: %d of 100" % (i + 1))
         sleep(FIVE_SECONDS)
 
-    print("Finished processing the %s request" % data.method)
+    print("Finished processing %s request" % data.method)
