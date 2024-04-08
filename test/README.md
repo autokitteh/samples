@@ -16,3 +16,9 @@ For each sample, we'll
 The main hurdle is triggering the workflow.
 I started with the `http` since it's simple to test,
 but for otheres we'll need to do more work and store secrets in GitHub actions.
+
+## Running
+
+This test is ran in a GitHub action from the [autokitteh][ak] repo
+
+[ak]: https://github.com/autokitteh/autokitteh
