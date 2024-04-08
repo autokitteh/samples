@@ -9,7 +9,7 @@ project:
   connections:
     - name: http
       integration: http
-      token: trigger_url_path # http://<autokitteh address>/http/<token>
+      token: trigger_url_path # http://<autokitteh address>/http/http_simple/<token>
   triggers:
     # More HTTP methods are supported as event types:
     # head, put, delete, options, and patch.
