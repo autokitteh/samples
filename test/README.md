@@ -2,6 +2,8 @@
 
 An end-to-end testing for samples.
 
+Currently only `http` is tested.
+
 ## Idea
 
 For each sample, we'll
