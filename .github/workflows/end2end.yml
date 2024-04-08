@@ -1,8 +1,4 @@
-# Continuous Integration workflow for Go projects. For more information see:
-# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-# https://golangci-lint.run/usage/install#github-actions
-
-name: Continuous Integration - Go
+name: Samples End to End Tests
 
 on:
   push:
