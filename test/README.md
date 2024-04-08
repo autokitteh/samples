@@ -1,8 +1,8 @@
-# Testing Project
+# Testing Samples
 
 An end-to-end testing for samples.
 
-Currently only `http` is tested.
+Currently, only `http` is tested.
 
 ## Idea
 
@@ -13,6 +13,6 @@ For each sample, we'll
 - Trigger the workflow
 - Check that the session completed successfully
 
-The main hurgle is triggering the workflow. 
+The main hurdle is triggering the workflow.
 I started with the `http` since it's simple to test,
 but for otheres we'll need to do more work and store secrets in GitHub actions.

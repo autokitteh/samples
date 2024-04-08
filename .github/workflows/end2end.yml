@@ -1,10 +1,9 @@
 name: Samples End to End Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron: '17 * * * *'
 
 jobs:
   test:
@@ -22,3 +21,11 @@ jobs:
         run: curl -sSL https://get.autokitteh.sh | bash
       - name: Test
         run: go test -v ./tests
+      - name: Notify failure to Slack
+        if: github.event.workflow_run.conclusion == 'failure' || github.event.workflow_run.conclusion == 'timed_out'
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: C05ED1CDSRW
+          slack-message: "Sample e2e failed: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
