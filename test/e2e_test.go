@@ -1,14 +1,17 @@
 package samples
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/exec"
 	"path"
-	"regexp"
 	"testing"
 	"time"
 
@@ -91,19 +94,46 @@ func testCtx(t *testing.T) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), time.Second)
 }
 
-// t:{seconds:1712565862  nanos:324155669}  state:{completed:{prints:" ...
-var statusRe = regexp.MustCompile(`}\s+state:{([a-z]+)`)
+type SessionState byte
 
-func sessionState(t *testing.T) string {
-	cmd := exec.Command("ak", "session", "log")
+const (
+	CompletedState SessionState = iota + 1
+	ErrorState
+)
+
+func sessionState(t *testing.T) SessionState {
+	cmd := exec.Command("ak", "session", "log", "-j")
 	data, err := cmd.CombinedOutput()
 	require.NoError(t, err, "session log")
 
-	matches := statusRe.FindAllSubmatch(data, -1)
-	require.Greaterf(t, len(matches), 0, "status in:\n%s", string(data))
+	// {"t":"2024-04-08T13:04:51.884583388Z","state":{"created":{}}}
+	// ..."state":{"running":{"run_id":"run_4p7gjjnxd827qbz7kc4g4bancx"}}}
+	// ..."state":{"completed":{"prints": ...
+	// ..."state":{"error":{"prints": ...
+	dec := json.NewDecoder(bytes.NewReader(data))
+	for {
+		var result struct {
+			State struct {
+				Completed json.RawMessage
+				Error     json.RawMessage
+			}
+		}
+		err := dec.Decode(&result)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		require.NoError(t, err, "read session")
 
-	match := matches[len(matches)-1]
-	return string(match[1])
+		switch {
+		case result.State.Completed != nil:
+			return CompletedState
+		case result.State.Error != nil:
+			return ErrorState
+		}
+	}
+
+	require.FailNow(t, "session not finished")
+	return 0 // Make compiler happy
 }
 
 func Test_http(t *testing.T) {
@@ -123,5 +153,5 @@ func Test_http(t *testing.T) {
 	time.Sleep(time.Second) // TODO: Find a way to poll on workflow
 
 	state := sessionState(t)
-	require.Equal(t, "completed", state, "workflow state")
+	require.Equal(t, CompletedState, state, "workflow state")
 }
