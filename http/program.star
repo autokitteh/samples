@@ -33,9 +33,10 @@ def on_http_get(data):
 
     print(data.body)  # "", because GET requests don't have a body.
 
-    get_echo_params()
-    get_html()
-    get_json()
+    # FIXME: This is currently broken
+    # get_echo_params()
+    # get_html()
+    # get_json()
     # TODO: get_error()
 
 def get_echo_params():
