@@ -7,16 +7,16 @@ version: v1
 project:
   name: http_sample
   connections:
-    - name: http
+    - name: my_http
       integration: http
-      token: trigger_url_path # http://<autokitteh address>/http/http_simple/<token>
+      token: trigger_path  # http://<autokitteh address>/http/<project name>/<token>
   triggers:
     # More HTTP methods are supported as event types:
     # head, put, delete, options, and patch.
-    - connection: http
+    - connection: my_http
       event_type: get
       entrypoint: program.star:on_http_get
-    - connection: http
+    - connection: my_http
       event_type: post
       entrypoint: program.star:on_http_post
   vars:

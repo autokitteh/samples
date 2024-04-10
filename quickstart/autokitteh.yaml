@@ -4,12 +4,12 @@
 version: v1
 
 project:
-  name: skeleton_project
+  name: quickstart_project
   connections:
-    - name: http
+    - name: http_conn
       integration: http
-      token: trigger_url_path # http://<autokitteh address>/http/<token>
   triggers:
-    - connection: http
+    - name: get
+      connection: http_conn
       event_type: get
       entrypoint: program.star:on_http_get

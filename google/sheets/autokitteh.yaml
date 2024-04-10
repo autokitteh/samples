@@ -11,13 +11,13 @@ version: v1
 project:
   name: google_sheets_sample
   connections:
-    - name: sheets
+    - name: my_sheets
       integration: googlesheets
       token: TODO # Replace this with an autokitteh connection token
-    - name: slack
+    - name: my_slack
       integration: slack
       token: TODO # Replace this with an autokitteh connection token
   triggers:
-    - connection: slack
+    - connection: my_slack
       event_type: slash_command
       entrypoint: program.star:on_slack_slash_command

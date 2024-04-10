@@ -20,8 +20,8 @@ It merely showcases various illustrative, annotated, reusable examples.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@chatgpt", "chatgpt")
-load("@slack", "slack")
+load("@chatgpt", "my_chatgpt")
+load("@slack", "my_slack")
 
 MODEL = "gpt-3.5-turbo"
 
@@ -33,7 +33,7 @@ def on_slack_slash_command(data):
     """
 
     # Example 1: trivial interaction with ChatGPT.
-    resp = chatgpt.create_chat_completion(message = "Hello!")
+    resp = my_chatgpt.create_chat_completion(message = "Hello!")
 
     # For educational and debugging purposes, print ChatGPT's response
     # in the autokitteh session's log.
@@ -53,10 +53,10 @@ def on_slack_slash_command(data):
 
     # Note that this time we specify the model, and use "messages"
     # (an array of structs) instead of "message" (a string).
-    resp = chatgpt.create_chat_completion(model = MODEL, messages = msgs)
+    resp = my_chatgpt.create_chat_completion(model = MODEL, messages = msgs)
     if resp.error:
-        slack.chat_post_message(data.user_id, "Error: `%s`" % resp.error)
+        my_slack.chat_post_message(data.user_id, "Error: `%s`" % resp.error)
     else:
         for choice in resp.choices:
-            slack.chat_post_message(data.user_id, choice.message.content)
-        slack.chat_post_message(data.user_id, "Usage: `%s`" % str(resp.usage))
+            my_slack.chat_post_message(data.user_id, choice.message.content)
+        my_slack.chat_post_message(data.user_id, "Usage: `%s`" % str(resp.usage))

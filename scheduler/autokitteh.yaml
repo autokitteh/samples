@@ -15,13 +15,13 @@ project:
     - name: SLACK_CHANNEL
       value: TODO # Replace this with a Slack channel name or ID
   connections:
-    - name: scheduler
+    - name: my_scheduler
       integration: scheduler
       token: TODO # Replace this with an autokitteh connection token
-    - name: slack
+    - name: my_slack
       integration: slack
       token: TODO # Replace this with an autokitteh connection token
   triggers:
-    - connection: scheduler
+    - connection: my_scheduler
       event_type: cron_trigger
       entrypoint: program.star:on_cron_trigger

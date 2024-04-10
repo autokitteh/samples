@@ -21,7 +21,7 @@ It merely showcases various illustrative, annotated, reusable examples.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@slack", "slack")
+load("@slack", "my_slack")
 
 def on_slack_app_mention(data):
     """https://api.slack.com/events/app_mention
@@ -37,10 +37,10 @@ def on_slack_app_mention(data):
     user = "<@" + data.user + ">"
     channel = "<#" + data.channel + ">"
     text = "You mentioned me in %s and wrote: `%s`" % (channel, data.text)
-    slack.chat_post_message(channel = data.user, text = text)
-    slack.chat_post_message("#slack-test", text.replace("You", user))
+    my_slack.chat_post_message(channel = data.user, text = text)
+    my_slack.chat_post_message("#slack-test", text.replace("You", user))
     text = "Before update :crying_cat_face:"
-    resp = slack.chat_post_message("#slack-test", text)
+    resp = my_slack.chat_post_message("#slack-test", text)
 
     # Encountered an error? Print debugging information
     # in the autokitteh session's log, and finish.
@@ -52,25 +52,25 @@ def on_slack_app_mention(data):
     # See: https://api.slack.com/methods/chat.update
     sleep(10)
     text = "After update :smiley_cat:"
-    resp = slack.chat_update(channel = resp.channel, ts = resp.ts, text = text)
+    resp = my_slack.chat_update(channel = resp.channel, ts = resp.ts, text = text)
 
     # Reply to the message's thread, after a few seconds.
     sleep(5)
     text = "Reply before update :crying_cat_face:"
-    resp = slack.chat_post_message(resp.channel, resp.ts, text)
+    resp = my_slack.chat_post_message(resp.channel, resp.ts, text)
 
     # Update the threaded reply message, after a few seconds.
     sleep(5)
     text = "Reply after update :smiley_cat:"
-    slack.chat_update(resp.channel, resp.ts, text)
+    my_slack.chat_update(resp.channel, resp.ts, text)
 
     # Add a reaction to the threaded reply message.
     # See: https://api.slack.com/methods/reactions.add
-    slack.reactions_add(channel = resp.channel, name = "blob-clap", timestamp = resp.ts)
+    my_slack.reactions_add(channel = resp.channel, name = "blob-clap", timestamp = resp.ts)
 
     # Retrieve all the replies.
     # See: https://api.slack.com/methods/conversations.replies
-    resp = slack.conversations_replies(channel = resp.channel, ts = resp.ts)
+    resp = my_slack.conversations_replies(channel = resp.channel, ts = resp.ts)
 
     # For educational purposes, print all the reply objects
     # in the autokitteh session's log.
@@ -97,13 +97,13 @@ def on_slack_message(data):
 def _on_slack_new_message(data, user):
     """Someone wrote a new message."""
     msg = ":point_up: %s wrote: `%s`" % (user, data.text)
-    slack.chat_post_message(data.channel, msg)
+    my_slack.chat_post_message(data.channel, msg)
 
 def _on_slack_reply_message(data, user):
     """Someone wrote a reply in a thread."""
     msg = ":point_up: %s wrote a reply to <@%s>: `%s`"
     msg %= (user, data.parent_user_id, data.text)
-    slack.chat_post_message(data.channel, data.thread_ts, msg)
+    my_slack.chat_post_message(data.channel, data.thread_ts, msg)
 
 def _on_slack_message_changed(data, user):
     """Someone edited a message."""
@@ -111,7 +111,7 @@ def _on_slack_message_changed(data, user):
     msg %= (user, data.previous_message.text, data.message.text)
 
     # Thread TS may or may not be empty, depending on the edited message.
-    slack.chat_post_message(data.channel, data.thread_ts, msg)
+    my_slack.chat_post_message(data.channel, data.thread_ts, msg)
 
 def on_slack_reaction_added(data):
     """https://api.slack.com/events/reaction_added"""
@@ -133,7 +133,7 @@ def on_slack_slash_command(data):
 
     # Retrieve the profile information of the user who triggered this event.
     # See: https://api.slack.com/methods/users.info
-    user_info = slack.users_info(data.user_id)
+    user_info = my_slack.users_info(data.user_id)
 
     # Encountered an error? Print debugging information
     # in the autokitteh session's log, and finish.
@@ -143,17 +143,17 @@ def on_slack_slash_command(data):
 
     profile = user_info.user.profile
     text = "Slack mention: <@%s>" % data.user_id
-    slack.chat_post_message(data.user_id, text)
+    my_slack.chat_post_message(data.user_id, text)
     text = "Full name: " + profile.real_name
-    slack.chat_post_message(data.user_id, text)
+    my_slack.chat_post_message(data.user_id, text)
     text = "Email: " + profile.email
-    slack.chat_post_message(data.user_id, text)
+    my_slack.chat_post_message(data.user_id, text)
 
     # Treat the text of the user's slash command as a message target (channel
     # ID/name or user ID), and send an interactive message to that target.
     title = "Question From %s" % data.user_id
     msg = "Please select one of these options... :smiley_cat:"
-    slack.send_approval_message(
+    my_slack.send_approval_message(
         target = data.text,
         header = title,
         message = msg,
@@ -177,4 +177,4 @@ def on_slack_interaction(data):
         msg += " :+1:"
     elif data.actions[0].style == "danger":  # Red button.
         msg += " :-1:"
-    slack.chat_post_message(channel = respond_to, text = msg)
+    my_slack.chat_post_message(channel = respond_to, text = msg)

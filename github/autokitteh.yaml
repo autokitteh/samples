@@ -11,10 +11,10 @@ version: v1
 project:
   name: github_sample
   connections:
-    - name: github
+    - name: my_github
       integration: github
       token: TODO # Replace this with an autokitteh connection token
   triggers:
-    - connection: github
+    - connection: my_github
       event_type: issue_comment
       entrypoint: program.star:on_github_issue_comment

@@ -13,7 +13,7 @@ which execute the mapped entry-point function.
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
-load("@slack", "slack")
+load("@slack", "my_slack")
 load("env", "SLACK_CHANNEL")  # Set in "autokitteh.yaml".
 
 def on_cron_trigger(data):
@@ -42,4 +42,4 @@ def on_cron_trigger(data):
     msg += "Minute: `%d`\n" % data.minute
     msg += "Second: `%d`" % data.second
 
-    slack.chat_post_message(SLACK_CHANNEL, msg)
+    my_slack.chat_post_message(SLACK_CHANNEL, msg)
