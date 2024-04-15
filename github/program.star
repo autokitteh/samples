@@ -29,14 +29,13 @@ REACTIONS = ["+1", "-1", "laugh", "confused", "heart", "hooray", "rocket", "eyes
 def on_github_issue_comment(data):
     """https://docs.github.com/en/rest/overview/github-event-types#issuecommentevent
 
+    Based on the filter in the "autokitteh.yaml" manifest file,
+    handle only *new* issue comments in this sample code
+    (FYI, the other options are "edited" and "deleted").
+
     Args:
         data: GitHub event data.
     """
-
-    # Handle only new issue comments in this sample code
-    # (FYI, the other options are "edited" and "deleted").
-    if data.action != "created":
-        return
 
     # Add to each new issue comment a random reaction emoji.
     # rand.intn: https://pkg.go.dev/math/rand#Rand.Intn.
