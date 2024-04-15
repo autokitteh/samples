@@ -24,4 +24,4 @@ project:
   triggers:
     - connection: my_scheduler
       event_type: cron_trigger
-      entrypoint: program.star:on_cron_trigger
+      call: program.star:on_cron_trigger

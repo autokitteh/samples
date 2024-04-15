@@ -6,6 +6,10 @@ version: v1
 
 project:
   name: http_sample
+  vars:
+    # Feel free to modify this when you run a local instance of httpbin.
+    - name: HTTPBIN_BASE_URL
+      value: https://httpbin.org
   connections:
     - name: http_without_auth
       integration: http
@@ -36,7 +40,3 @@ project:
       data:
         path: /bearer/{token}
       call: bearer_token.star:on_http_get_with_bearer_token
-  vars:
-    # Feel free to modify this when you run a local instance of httpbin.
-    - name: HTTPBIN_BASE_URL
-      value: https://httpbin.org

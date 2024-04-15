@@ -17,4 +17,7 @@ project:
   triggers:
     - connection: my_github
       event_type: issue_comment
-      entrypoint: program.star:on_github_issue_comment
+      # Handle only new issue comments in this sample code
+      # (FYI, the other options are "edited" and "deleted").
+      filter: "data.action == 'created'"
+      call: program.star:on_github_issue_comment
