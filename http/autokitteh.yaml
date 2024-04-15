@@ -7,18 +7,35 @@ version: v1
 project:
   name: http_sample
   connections:
-    - name: my_http
+    - name: http_without_auth
       integration: http
-      token: trigger_path # http://<autokitteh address>/http/<project name>/<token>
+    - name: http_with_basic_auth
+      integration: http
+      token: TODO # Replace this with an autokitteh connection token
+    - name: http_with_bearer_token
+      integration: http
+      token: TODO # Replace this with an autokitteh connection token
   triggers:
     # More HTTP methods are supported as event types:
     # head, put, delete, options, and patch.
-    - connection: my_http
+    - connection: http_without_auth
       event_type: get
-      entrypoint: program.star:on_http_get
-    - connection: my_http
+      data:
+        path: get
+      call: no_auth.star:on_http_get
+    - connection: http_without_auth
       event_type: post
-      entrypoint: program.star:on_http_post
+      call: no_auth.star:on_http_post
+    - connection: http_with_basic_auth
+      event_type: get
+      data:
+        path: basic/{username}/{password}
+      call: basic_auth.star:on_http_get_with_basic_auth
+    - connection: http_with_bearer_token
+      event_type: get
+      data:
+        path: /bearer/{token}
+      call: bearer_token.star:on_http_get_with_bearer_token
   vars:
     # Feel free to modify this when you run a local instance of httpbin.
     - name: HTTPBIN_BASE_URL
