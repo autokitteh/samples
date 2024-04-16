@@ -4,7 +4,7 @@ FIVE_SECONDS = 5
 
 def on_http_get(data):
     for i in range(50):
-        print("Loop iteration: %d of 100" % (i + 1))
+        print("Loop iteration: %d of 50" % (i + 1))
         sleep(FIVE_SECONDS)
 
     print("Finished processing %s request" % data.method)
