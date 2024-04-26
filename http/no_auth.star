@@ -19,106 +19,130 @@ with these HTTP methods: GET, HEAD, POST, PUT, DELETE, OPTIONS, and PATCH.
 
 This sample is implemented in Starlark, which is a dialect of Python
 (see https://bazel.build/rules/language).
+
+
+Relevant types and function signatures:
+
+HTTPResponseBody:
+    bytes() # Returns response body as bytes
+    text()  # Returns response body as text
+    json()  # Parses response body as json, returning JSON-decoded result
+
+
+HTTPResponse:
+    url: string             # the url that was ultimately requested (may change after redirects)
+    status_code: int        # response status code (for example: 200 == OK)
+    headers: dict           # dictionary of response headers
+    encoding: string        # transfer encoding. example: "octet-stream" or "application/json"
+    body: HTTPResponseBody
+
+get(url: str, params: Optional[str], headers: Optional[str]) -> HTTPResponse
+
+post(url: str, params: Optional[dict], headers: Optional[None],
+     data: Optional[string|bytes|list|dict],
+     json: Optional[str|dict]
+    ) -> HTTPResponse
+
 """
 
-load("@http", "http_without_auth")
+load("@http", "http_no_auth")
 load("env", "HTTPBIN_BASE_URL")  # Set in "autokitteh.yaml".
 
-# TODO: FIX "resp.body" across this file!!!
 
-# data(
-#     params = {\"username\": \"aaa\", \"password\": \"bbb\"},
-#     url = url(
-#         fragment = \"\", host = \"\", opaque = \"\", path = \"/basic/aaa/bbb\",
-#         query = {},
-#         raw = \"\",
-#         raw_fragment = \"\",
-#         raw_query = \"\",
-#         scheme = \"\"
-#     )
-# )
+def print_headers(http_obj, req_type):
+    print(req_type, " headers:")
+    for key, value in http_obj.headers.items():
+        print("  %s = %s" % (key, value))
+
+def print_resp_url_status_headers(resp):
+    print("url: ", resp.url)
+    print("status code: ", resp.status_code)
+
+    print_headers(resp, "response")
 
 def on_http_get(data):
     """https://www.rfc-editor.org/rfc/rfc9110#GET
 
     Args:
-        data: Incoming HTTP request details.
+        data: Incoming HTTP GET request details.
     """
-    print(data.method)  # "GET"
-    print(data.url)  # Reference: https://pkg.go.dev/net/url#URL
+    print("triggered with GET request on %s", data.url.path)
+    print("url: ", data.url)  # Reference: https://pkg.go.dev/net/url#URL
     # TODO: print(data.url_string)
 
-    for key, value in data.headers.items():
-        print("Request header: %s = %s" % (key, value))
+    print_headers(data, "request")
 
-    print(data.body.text())  # "" (because GET requests don't have a body).
+    print("request body (text): -----v\n", data.body.text())
+    print("request body (form): -----v\n", data.body.form()) # will be empty, no matter what would be sent in body
 
+    # if body isn't JSON (since GET request don't have a body), catch the error:
+    j, err = catch(lambda: data.body.json())
+    print("request body (json): %s, err: %s \n" % (j, err))
+
+    print("invoking subsequent GET requests:")
     get_echo_params()
     get_html()
     get_json()
     # TODO: get_error()
 
 def get_echo_params():
-    """https://www.rfc-editor.org/rfc/rfc9110#GET
-
+    """ See
+    https://www.rfc-editor.org/rfc/rfc9110#GET
     https://httpbin.org/#/HTTP_Methods/get_get
     """
 
-    # Other optional dictionary argument: headers.
+    url = HTTPBIN_BASE_URL + "/get"
+    print("--- (1) get with params (via GET to %s) ---" % url)
+
     params = {"key1": "value1", "key2": "value2"}
-    resp = http_without_auth.get(HTTPBIN_BASE_URL + "/get", params = params)
+    resp = http_no_auth.get(url, params = params)
+    print_resp_url_status_headers(resp)
+    # observe that `Content-Type` header is `application/json`.
 
-    print(resp.url)  # HTTPBIN_BASE_URL + "/get?key1=value1&key2=value2"
-    print(resp.status_code)  # 200
+    # httpbin.org/get echoes back params (as "args"), headers and other things as json
+    # In this specific case "headers", "args", "url" keys should be present in the response body.
+    print("response body (text): -----v\n", resp.body.text())  # same as json, formatted as multiline text
+    print("response body (json): -----v\n", resp.body.json())  # {"args":{"key1":"value1", ... }, ...}
 
-    for key, value in resp.headers.items():
-        print("Response header: %s = %s" % (key, value))
-
-    print(resp.body.text())  # "{\n  \"args\": {\n    \"key1\": \"value1\", ... }\n"
-
-    # Note: "args" is expected to exist because it's a part of httpbin's
-    # echo reponse body, there is no standard structure in "resp.body.json()".
-    # Also, if "args" is empty in httpbin's JSON response, then it won't be in
-    # "resp.body.json()" at all. "dict.get()" handles this possibility safely,
-    # compared to direct access like "dict['key']".
-    args = resp.body.json().get("args")
-    print(args.get("key1", "not found"))
-    print(args.get("key2", "not found"))
+    # Note(s):
+    # - "args" key is expected to exist due to httpbin's echo behavior. Params sent will be echoed back as "args".
+    # - use get to access probably unexisting dictionary keys safely.
+    print("params/args: ")
+    args = resp.body.json().get("args", {})
+    for k in ("key1", "key2"):
+        print("  %s: %s" % (k, args.get(k, "not found")))
 
 def get_html():
-    """https://www.rfc-editor.org/rfc/rfc9110#GET
-
+    """ See
+    https://www.rfc-editor.org/rfc/rfc9110#GET
     https://httpbin.org/#/Response_formats/get_html
     """
 
-    # Optional dictionary arguments: headers, params.
-    resp = http_without_auth.get(HTTPBIN_BASE_URL + "/html")
+    url = HTTPBIN_BASE_URL + "/html"
+    print("\n--- (2) get HTML (via GET to %s) ---" % url)
 
-    print(resp.url)  # HTTPBIN_BASE_URL + "/html"
-    print(resp.status_code)  # 200
+    resp = http_no_auth.get(url)
+    print_resp_url_status_headers(resp)
 
-    for key, value in resp.headers.items():
-        print("Response header: %s = %s" % (key, value))
-
-    print(resp.body.text())  # "\u003c!DOCTYPE html\u003e\\n..."
+    # In this case, httpbin won't echo back the request body, so the response body will be just html.
+    print("response body (txt): -----v\n", resp.body.text())  # "\u003c!DOCTYPE html\u003e\\n..."
+    # no need to resp.body.json(), since HTML is not a valid JSON
 
 def get_json():
-    """https://www.rfc-editor.org/rfc/rfc9110#GET
-
+    """ See
+    https://www.rfc-editor.org/rfc/rfc9110#GET
     https://httpbin.org/#/Response_formats/get_json
     """
 
-    # Optional dictionary arguments: headers, params.
-    resp = http_without_auth.get(HTTPBIN_BASE_URL + "/json")
+    url = HTTPBIN_BASE_URL + "/json"
+    print("\n--- (2) get JSON (via GET to %s) ---" % url)
 
-    print(resp.url)  # HTTPBIN_BASE_URL + "/json"
-    print(resp.status_code)  # 200
+    resp = http_no_auth.get(url)
+    print_resp_url_status_headers(resp)
 
-    for key, value in resp.headers.items():
-        print("%s = %s" % (key, value))
-
-    print(resp.body.json())  # {"slideshow": {"author": "Yours Truly", ... }}
-    print(resp.body.json().get("slideshow", {}).get("author"))  # "Yours Truly"
+    print("response body (bytes): -----v\n", resp.body.bytes()) # same as json, formatted as bytes, printed as multiline text
+    print("response body (json): -----v\n", resp.body.json())  # {"slideshow": {"author": "Yours Truly", ... }}
+    print("response_json['slideshow']['author']: ", resp.body.json().get("slideshow", {}).get("author"))  # "Yours Truly"
 
 def get_error():
     pass  # TODO: Implement.
@@ -127,50 +151,78 @@ def on_http_post(data):
     """https://www.rfc-editor.org/rfc/rfc9110#POST
 
     Args:
-        data: Incoming HTTP request details.
+        data: Incoming HTTP POST request details.
     """
-    print(data.method)  # "GET"
-    print(data.url)  # Reference: https://pkg.go.dev/net/url#URL
+    print("triggered with POST request on %s", data.url.path)
+    print("url: ", data.url)  # Reference: https://pkg.go.dev/net/url#URL
     # TODO: print(data.url_string)
 
-    for key, value in data.headers.items():
-        print("Request header: %s = %s" % (key, value))
+    print_headers(data, "request")
 
-    print(data.body.text())
-    print(data.body.form())
-
+    print("request body (text): -----v\n", data.body.text()) # key1=value1&key2=value2
+    print("request body (form): -----v\n", data.body.form()) # {"key1": "value1", "key2": "value2"}
+    print("request form, keys <-> values:")
     for key, value in data.body.form().items():
-        print("Request body: %s = %s" % (key, value))
+        print("  %s = %s" % (key, value))
 
-    post_echo_form()
-    # TODO: post_json()
+    j, err = catch(lambda: data.body.json())
+    print("request body (json): %s, err: %s \n" % (j, err))
+
+    print("invoking subsequent POST requests:")
+    url = HTTPBIN_BASE_URL + "/post"
+    post_echo_form(url)
+    post_json(url)
     # TODO: post_error()
 
-def post_echo_form():
-    """https://www.rfc-editor.org/rfc/rfc9110#POST
+def post_echo_form(url):
+    """ See
+    https://www.rfc-editor.org/rfc/rfc9110#POST
+    https://httpbin.org/#/HTTP_Methods/post_post
+    """
+    print("--- (1) post form (via POST to %s) ---" % url)
 
+    form = {"foo": "bar"}
+    resp = http_no_auth.post(url, data = form)
+    print_resp_url_status_headers(resp)
+
+    # httpbin.org/get echoes back form, json, data, headers and other things
+    print("response body (text): -----v\n", resp.body.text()) # multiline text, form sent will appear in {"form": ...}
+    bodyJson = resp.body.json()
+    print("response body (json): -----v\n", bodyJson)
+
+    # form sent will be found in {"form": ...}
+    print("form sent: -----v\n", bodyJson.get("form", {}))
+
+def post_json(url):
+    """ See
+    https://www.rfc-editor.org/rfc/rfc9110#POST
     https://httpbin.org/#/HTTP_Methods/post_post
     """
 
-    # Other optional dictionary arguments: headers, params.
-    # Alternative body arguments: raw_body (string), or json_body (struct).
-    form = {"key1": "value1", "key2": "value2"}
-    resp = http_without_auth.post(HTTPBIN_BASE_URL + "/post", form_body = form)
+    # 1
+    print("\n--- (2) post json #1 (via POST to %s) ---" % url)
 
-    print(resp.url)  # HTTPBIN_BASE_URL + "/post"
-    print(resp.status_code)  # 200
+    # send data= param and pass JSON content type
+    resp = http_no_auth.post(url, data = {"foo1": "bar1"}, headers={"Content-Type": "application/json"})
+    print_resp_url_status_headers(resp)
 
-    for key, value in resp.headers.items():
-        print("Response header: %s = %s" % (key, value))
+    # httpbin.org/get echoes back form, json, data, headers and other things
+    print("response body (text): -----v\n", resp.body.text()) # multiline text, json sent will appear both under `data` and in `json' keys
+    bodyJson = resp.body.json()
+    print("response body (json): -----v\n", bodyJson) # {"form": {}, "data": "{\"foo1\":\"bar1\"}", "args": {}, "json": {"foo1": "bar1"}, "headers": {"Content-Type": "application/json", ...}, ...}
 
-    print(resp.body.text())  # "{\n  \"args\": {}, ... }\n"
-    print(resp.body.json())  # "{"args": {}, ... }"
+    # Note(s):
+    # - "json" key is expected due to httpbin's echo behavior. JSON sent will be echoed back in {"json": ...}.
+    print("json sent: -----v\n", bodyJson.get("json", {}))
 
-    # Note: "form" is expected to exist because it's a part of httpbin's
-    # echo reponse body, there is no standard structure in "resp.body.json()".
-    # Also, if "form" is empty in httpbin's JSON response, then it won't be in
-    # "resp.body.json()" at all. "dict.get()" handles this possibility safely,
-    # compared to direct access like "dict['key']".
-    form = resp.body.json().get("args")
-    print(form.get("key1", "not found"))
-    print(form.get("key2", "not found"))
+    # 2
+    print("\n--- post json #2 (via POST to %s) ---" % url)
+
+    # send JSON via json= param without specifying content type
+    resp = http_no_auth.post(url, json = {"foo2": "bar2"})
+    print_resp_url_status_headers(resp)
+
+    print("response body (text): -----v\n", resp.body.text()) # multiline text, json sent will appear both under `data` and in `json'
+    bodyJson = resp.body.json()
+    print("response body (json): -----v\n", bodyJson) # {"form": {}, "data": "{\"foo2\":\"bar2\"}", "args": {}, "json": {"foo2": "bar2"}, "headers": {"Content-Type": "application/json", ...}, ...}
+    print("json sent: -----v\n", bodyJson.get("json", {}))
