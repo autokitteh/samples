@@ -73,18 +73,11 @@ def on_http_get(data):
 
     print_headers(data, "request")
 
-    print("request body (text): -----v\n", data.body.text())
-    print("request body (form): -----v\n", data.body.form()) # will be empty, no matter what would be sent in body
-
-    # if body isn't JSON (since GET request don't have a body), catch the error:
-    j, err = catch(lambda: data.body.json())
-    print("request body (json): %s, err: %s \n" % (j, err))
-
     print("invoking subsequent GET requests:")
     get_echo_params()
     get_html()
     get_json()
-    # TODO: get_error()
+    get_error()
 
 def get_echo_params():
     """ See
@@ -146,7 +139,16 @@ def get_json():
     print("response_json['slideshow']['author']: ", resp.body.json().get("slideshow", {}).get("author"))  # "Yours Truly"
 
 def get_error():
-    pass  # TODO: Implement.
+    url = HTTPBIN_BASE_URL + "/status/404"
+    print("\n--- (2) get error (via GET to %s) ---" % url)
+
+    resp = http_no_auth.get(url)
+    print_resp_url_status_headers(resp) # status code is 404
+
+    # body is empty and isn't JSON. catch the error:
+    jsn, err = catch(resp.body.json) # NOTE that we are passing function name without parentheses
+    print("response body (json): %s, err: %s \n" % (jsn, err))
+
 
 def on_http_post(data):
     """https://www.rfc-editor.org/rfc/rfc9110#POST
@@ -166,7 +168,7 @@ def on_http_post(data):
     for key, value in data.body.form().items():
         print("  %s = %s" % (key, value))
 
-    j, err = catch(lambda: data.body.json())
+    j, err = catch(data.body.json) #catch(lambda: data.body.json())
     print("request body (json): %s, err: %s \n" % (j, err))
 
     print("invoking subsequent POST requests:")
