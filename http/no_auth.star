@@ -23,26 +23,27 @@ This sample is implemented in Starlark, which is a dialect of Python
 
 Relevant types and function signatures:
 
-HTTPResponseBody:
-    bytes() # Returns response body as bytes
-    text()  # Returns response body as text
-    json()  # Parses response body as json, returning JSON-decoded result
+def get(url: str, params: Optional[str], headers: Optional[str]) -> HTTPResponse
 
+def post(url: str, params: Optional[dict], headers: Optional[None],
+         data: Optional[string|bytes|list|dict],
+         json: Optional[str|dict]
+        ) -> HTTPResponse
 
-HTTPResponse:
+class HTTPResponse:
     url: string             # the url that was ultimately requested (may change after redirects)
     status_code: int        # response status code (for example: 200 == OK)
     headers: dict           # dictionary of response headers
     encoding: string        # transfer encoding. example: "octet-stream" or "application/json"
     body: HTTPResponseBody
 
-get(url: str, params: Optional[str], headers: Optional[str]) -> HTTPResponse
-
-post(url: str, params: Optional[dict], headers: Optional[None],
-     data: Optional[string|bytes|list|dict],
-     json: Optional[str|dict]
-    ) -> HTTPResponse
-
+class HTTPResponseBody:
+    def bytes(): # Returns response body as bytes
+      ..
+    def text():  # Returns response body as text
+      ...
+    def json():  # Parses response body as json, returning JSON-decoded result
+      ...
 """
 
 load("@http", "http_no_auth")
