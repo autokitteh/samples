@@ -146,7 +146,7 @@ def get_error():
     print_resp_url_status_headers(resp) # status code is 404
 
     # body is empty and isn't JSON. catch the error:
-    jsn, err = catch(resp.body.json) # NOTE that we are passing function name without parentheses
+    jsn, err = catch(resp.body.json) # NOTE that function name passed without parentheses
     print("response body (json): %s, err: %s \n" % (jsn, err))
 
 
@@ -168,7 +168,7 @@ def on_http_post(data):
     for key, value in data.body.form().items():
         print("  %s = %s" % (key, value))
 
-    j, err = catch(data.body.json) #catch(lambda: data.body.json())
+    j, err = catch(data.body.json) # Note that function name passed without parentheses
     print("request body (json): %s, err: %s \n" % (j, err))
 
     print("invoking subsequent POST requests:")
@@ -188,12 +188,10 @@ def post_echo_form(url):
     resp = http_no_auth.post(url, data = form)
     print_resp_url_status_headers(resp)
 
-    # httpbin.org/get echoes back form, json, data, headers and other things
-    print("response body (text): -----v\n", resp.body.text()) # multiline text, form sent will appear in {"form": ...}
+    # Form sent will be echoed back by httpbin.org under the ``form' key
+    print("response body (text): -----v\n", resp.body.text()) # multiline text
     bodyJson = resp.body.json()
-    print("response body (json): -----v\n", bodyJson)
-
-    # form sent will be found in {"form": ...}
+    print("response body (json): -----v\n", bodyJson) # {"form": ...}
     print("form sent: -----v\n", bodyJson.get("form", {}))
 
 def post_json(url):
@@ -201,31 +199,17 @@ def post_json(url):
     https://www.rfc-editor.org/rfc/rfc9110#POST
     https://httpbin.org/#/HTTP_Methods/post_post
     """
+    print("\n--- (2) post json (via POST to %s) ---" % url)
 
-    # 1
-    print("\n--- (2) post json #1 (via POST to %s) ---" % url)
+    # 1. send JSON via json= param without specifying content type
+    resp = http_no_auth.post(url, json = {"foo": "bar"})
+    # 2. another way to send JSON is to send it as data= and specify Content-Type
+    # resp = http_no_auth.post(url, data = {"foo1": "bar1"}, headers={"Content-Type": "application/json"})
 
-    # send data= param and pass JSON content type
-    resp = http_no_auth.post(url, data = {"foo1": "bar1"}, headers={"Content-Type": "application/json"})
     print_resp_url_status_headers(resp)
 
-    # httpbin.org/get echoes back form, json, data, headers and other things
-    print("response body (text): -----v\n", resp.body.text()) # multiline text, json sent will appear both under `data` and in `json' keys
+    # JSON sent will appear both under `data` and `json' keys due to httpbin.org echo behavior
+    print("response body (text): -----v\n", resp.body.text()) # multiline text
     bodyJson = resp.body.json()
-    print("response body (json): -----v\n", bodyJson) # {"form": {}, "data": "{\"foo1\":\"bar1\"}", "args": {}, "json": {"foo1": "bar1"}, "headers": {"Content-Type": "application/json", ...}, ...}
-
-    # Note(s):
-    # - "json" key is expected due to httpbin's echo behavior. JSON sent will be echoed back in {"json": ...}.
-    print("json sent: -----v\n", bodyJson.get("json", {}))
-
-    # 2
-    print("\n--- post json #2 (via POST to %s) ---" % url)
-
-    # send JSON via json= param without specifying content type
-    resp = http_no_auth.post(url, json = {"foo2": "bar2"})
-    print_resp_url_status_headers(resp)
-
-    print("response body (text): -----v\n", resp.body.text()) # multiline text, json sent will appear both under `data` and in `json'
-    bodyJson = resp.body.json()
-    print("response body (json): -----v\n", bodyJson) # {"form": {}, "data": "{\"foo2\":\"bar2\"}", "args": {}, "json": {"foo2": "bar2"}, "headers": {"Content-Type": "application/json", ...}, ...}
+    print("response body (json): -----v\n", bodyJson) # {data": "{\"foo\":\"bar\"}", "json": {"foo": "bar"},  ...}
     print("json sent: -----v\n", bodyJson.get("json", {}))
