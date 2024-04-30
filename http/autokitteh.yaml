@@ -11,7 +11,7 @@ project:
     - name: HTTPBIN_BASE_URL
       value: https://httpbin.org
   connections:
-    - name: http_without_auth
+    - name: http_no_auth
       integration: http
     - name: http_with_basic_auth
       integration: http
@@ -22,13 +22,16 @@ project:
   triggers:
     # More HTTP methods are supported as event types:
     # head, put, delete, options, and patch.
-    - connection: http_without_auth
+    - connection: http_no_auth
       event_type: get
       data:
         path: get
+      # Triggered by GET request to http://localhost:9980/http/http_sample/get
       call: no_auth.star:on_http_get
-    - connection: http_without_auth
+    - connection: http_no_auth
       event_type: post
+      # Triggered by POST request to http://localhost:9980/http/http_sample/
+      # since no additional path defined
       call: no_auth.star:on_http_post
     - connection: http_with_basic_auth
       event_type: get
