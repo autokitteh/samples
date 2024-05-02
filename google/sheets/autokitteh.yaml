@@ -18,6 +18,7 @@ project:
       integration: slack
       token: TODO # Replace this with an autokitteh connection token
   triggers:
-    - connection: my_slack
+    - name: my_slack_slash_command
+      connection: my_slack
       event_type: slash_command
       call: program.star:on_slack_slash_command

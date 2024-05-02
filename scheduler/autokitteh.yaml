@@ -22,6 +22,7 @@ project:
       integration: slack
       token: TODO # Replace this with an autokitteh connection token
   triggers:
-    - connection: my_scheduler
+    - name: my_scheduler_cron_trigger
+      connection: my_scheduler
       event_type: cron_trigger
       call: program.star:on_cron_trigger
