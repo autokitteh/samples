@@ -8,7 +8,7 @@ To trigger this, send an HTTP GET request with this command:
 
 The trigger is defined in the "autokitteh.yaml" manifest file.
 
-The "{token}" substring overrides the autokitteh connection's
+The "{token}" substring overrides the AutoKitteh connection's
 bearer token in the second HTTP request.
 
 To see the results (i.e. the workflow's print messages), run this command:
@@ -30,11 +30,11 @@ def on_http_get_with_bearer_token(data):
 
     url = HTTPBIN_BASE_URL + "/bearer"
 
-    # Example 1: use the autokitteh connection's secret credentials.
+    # Example 1: use the AutoKitteh connection's secret credentials.
     resp = http_with_bearer_token.get(url)
     print_details(resp)
 
-    # Example 2: override the autokitteh connection's credentials.
+    # Example 2: override the AutoKitteh connection's credentials.
     headers = {"Authorization": "Bearer " + data.params["token"]}
     resp = http_with_bearer_token.get(url, headers = headers)
     print_details(resp)

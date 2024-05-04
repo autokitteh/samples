@@ -1,4 +1,4 @@
-"""This program demonstrates autokitteh's GitHub integration.
+"""This program demonstrates AutoKitteh's GitHub integration.
 
 This program implements multiple entry-point functions that are triggered
 by various GitHub webhook events in the "autokitteh.yaml" manifest file.
@@ -11,7 +11,7 @@ API details:
 It also demonstrates using a custom builtin function (rand.intn) to generate
 random integer numbers (based on https://pkg.go.dev/math/rand#Rand.Intn).
 
-When the project has an active deployment, and autokitteh receives
+When the project has an active deployment, and AutoKitteh receives
 trigger events from its connections, it starts runtime sessions
 which execute the mapped entry-point functions.
 
