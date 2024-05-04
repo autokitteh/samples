@@ -1,12 +1,14 @@
 # Google Sheets Sample Project
 
-This sample project demonstrates autokitteh's integration with
+This sample project demonstrates AutoKitteh's integration with
 [Google Sheets](https://www.google.com/sheets/about/).
 
-The file [`program.star`](./program.star) implements single entry-point
+The file [`program.star`](./program.star) implements a single entry-point
 function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
-manifest file as the receiver of `"slack_slash_command"` events. Once
-triggered by a Slack user, it reads and writes in a Google Spreadsheet.
+manifest file as the receiver of `slash_command` events.
+
+When triggered by a Slack slash command, it calls various read and write
+functions in a specified Google Spreadsheet.
 
 API details:
 

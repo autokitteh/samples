@@ -1,6 +1,6 @@
 # Google Sample Projects
 
-These sample projects demonstrate autokitteh's integration with Google APIs:
+These sample projects demonstrate AutoKitteh's integration with Google APIs:
 
 Google Workspace:
 
@@ -17,22 +17,24 @@ Google Cloud:
 
 ## Instructions
 
-1. Open a browser, and go to the autokitteh server's URL
-2. Go to the integrations page, and choose a Google service
-3. Create a connection for it, and copy the resulting token
-4. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
-   manifest file
+1. Create an AutoKitteh connection token
 
-Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
+   1. Open a browser, and go to the AutoKitteh server's URL
+   2. Create Google and Slack connections, and copy the resulting tokens
+   3. Replace the `TODO` lines in the [`autokitteh.yaml`](./autokitteh.yaml)
+      manifest file
 
-1. Apply the `autokitteh.yaml` manifest file
-2. Build and deploy [`program.star`](./program.star)
+2. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
+   `autokitteh.yaml` manifest file
+
+3. Tell AutoKitteh's Slack bot what to do, using a slash command.
+   Available options are described in each project.
 
 ## Connection Notes
 
-autokitteh supports 2 connection modes with Google APIs:
+AutoKitteh supports 2 connection modes with Google APIs:
 
-- OAuth v2 (the user signs-in and authorizes autokitteh in step 3 above)
+- OAuth v2 (the user signs-in and authorizes AutoKitteh in step 3 above)
 
   - [Learn about authentication and authorization](https://developers.google.com/workspace/guides/auth-overview)
   - [Google Identity - Using OAuth 2.0](https://developers.google.com/identity/protocols/oauth2/web-server)

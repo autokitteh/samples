@@ -1,20 +1,16 @@
-"""This program demonstrates autokitteh's Gmail integration.
+"""This program demonstrates AutoKitteh's Gmail integration.
 
 This program implements a single entry-point function, which is
 configured in the "autokitteh.yaml" manifest file as the receiver
-of "slack_slash_command" events.
+of "slash_command" events.
 
-Once triggered by a Slack user, it executes various Gmail API calls
+When triggered by a Slack user, it executes various Gmail API calls
 depending on the user's input, and posts the results back to the user.
 
 API details:
 - API overview: https://developers.google.com/gmail/api/guides
 - REST API reference: https://developers.google.com/gmail/api/reference/rest
 - Go client API: https://pkg.go.dev/google.golang.org/api/gmail/v1
-
-When the project has an active deployment, and autokitteh receives
-trigger events from its connections, it starts runtime sessions
-which execute the mapped entry-point function.
 
 This program isn't meant to cover all available functions and events.
 It merely showcases various illustrative, annotated, reusable examples.
@@ -230,7 +226,7 @@ def _messages_send(slack_channel, text):
     resp = my_gmail.messages_send("\r\n".join([
         "From: " + resp.email_address,
         "To: " + resp.email_address,
-        "Subject: Test from autokitteh",
+        "Subject: Test from AutoKitteh",
         "",
         text,
     ]))

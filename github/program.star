@@ -1,8 +1,8 @@
 """This program demonstrates AutoKitteh's GitHub integration.
 
-This program implements multiple entry-point functions that are triggered
-by various GitHub webhook events in the "autokitteh.yaml" manifest file.
-It also executes various GitHub API calls.
+This program implements multiple entry-point functions that are triggered by
+various GitHub webhook events, which are defined in the "autokitteh.yaml"
+manifest file. It also executes various GitHub API calls.
 
 API details:
 - REST API referene: https://docs.github.com/en/rest
