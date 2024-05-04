@@ -1,14 +1,14 @@
 # Gmail Sample Project
 
-This sample project demonstrates autokitteh's integration with
+This sample project demonstrates AutoKitteh's integration with
 [Gmail](https://www.google.com/gmail/about/).
 
-The file [`program.star`](./program.star) implements single entry-point
+The file [`program.star`](./program.star) implements a single entry-point
 function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
-manifest file as the receiver of `"slack_slash_command"` events.
+manifest file as the receiver of `slash_command` events.
 
-Once triggered by a Slack user, it executes various Gmail API calls depending
-on the user's input, and posts the results back to the user:
+When triggered by a Slack slash command, it calls a Gmail API function,
+depending on the input, and posts the results back to the Slack user:
 
 - `gmail get profile`
 - `gmail drafts list [optional query]`
