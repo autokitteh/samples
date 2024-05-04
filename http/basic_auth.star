@@ -9,12 +9,12 @@ To trigger this, send an HTTP GET request with this command:
 The trigger is defined in the "autokitteh.yaml" manifest file.
 
 The "{username}" and "{password}" substrings are the expected credentials.
-If the autokitteh connection was created with these credentials, the first
+If the AutoKitteh connection was created with these credentials, the first
 HTTP response will have a status code of 200 OK. Otherwise, it will be 401
 Unauthorized.
 
 The second HTTP response will always have a status code of 200 OK, because
-the request overrides the autokitteh connection's credentials.
+the request overrides the AutoKitteh connection's credentials.
 
 To see the results (i.e. the workflow's print messages), run this command:
 
@@ -36,11 +36,11 @@ def on_http_get_with_basic_auth(data):
     expected_creds = (data.params["username"], data.params["password"])
     url = HTTPBIN_BASE_URL + "/basic-auth/%s/%s" % expected_creds
 
-    # Example 1: use the autokitteh connection's secret credentials.
+    # Example 1: use the AutoKitteh connection's secret credentials.
     resp = http_with_basic_auth.get(url)
     print_details(resp)
 
-    # Example 2: override the autokitteh connection's credentials.
+    # Example 2: override the AutoKitteh connection's credentials.
     override_creds = data.params["username"] + ":" + data.params["password"]
     headers = {"Authorization": "Basic " + base64.encode(override_creds)}
     print(headers)

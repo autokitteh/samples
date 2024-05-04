@@ -1,4 +1,4 @@
-"""These entry-point functions demonstrate autokitteh's HTTP integration.
+"""These entry-point functions demonstrate AutoKitteh's HTTP integration.
 
 They are triggered by HTTP events (such as receiving GET and POST requests),
 and then send HTTP requests to an HTTP testing server.
@@ -14,7 +14,7 @@ The triggers are defined in the "autokitteh.yaml" manifest file:
 the (no auth) HTTP connection, the HTTP methods (GET and POST), and
 the URL paths under the project's webhook for receiving HTTP events.
 
-The HTTP integration in autokitteh supports sending and receiving requests
+The HTTP integration in AutoKitteh supports sending and receiving requests
 with these HTTP methods: GET, HEAD, POST, PUT, DELETE, OPTIONS, and PATCH.
 
 This sample is implemented in Starlark, which is a dialect of Python
