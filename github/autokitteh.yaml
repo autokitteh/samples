@@ -1,5 +1,5 @@
 # This YAML file is a declarative manifest that describes the setup of an
-# autokitteh sample project that demonstrates autokitteh's integration with
+# AutoKitteh sample project that demonstrates bidirectional integration with
 # GitHub (https://github.com).
 #
 # Before applying this file:
@@ -13,7 +13,7 @@ project:
   connections:
     - name: my_github
       integration: github
-      token: TODO # Replace this with an autokitteh connection token
+      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - connection: my_github
       event_type: issue_comment
