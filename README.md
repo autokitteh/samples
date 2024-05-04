@@ -20,12 +20,9 @@ The `autokitteh.yaml` file is a declarative manifest that describes the
 configuration of a project:
 
 - Project name
-- Code and resource file(s)
 - autokitteh connection(s)
-- Execution environments (e.g. test/prod, geographical regions, availability
-  zones)
-- Triggers (asyncrhnous events from connections, mapped to entry-point
-  functions)
+- Triggers (asyncrhnous events from connections, with optional filtering,
+  mapped to entry-point functions)
 
 ### Source Code Files
 
