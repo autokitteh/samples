@@ -1,14 +1,14 @@
 # GitHub Sample Project
 
-This sample project demonstrates autokitteh's integration with
+This sample project demonstrates AutoKitteh's bidirectional integration with
 [GitHub](https://github.com).
 
 The file [`program.star`](./program.star) implements multiple entry-point
-functions that are mapped to various GitHub webhook events in the
-[`autokitteh.yaml`](./autokitteh.yaml) manifest file. It also executes various
-GitHub API calls.
+functions that are triggered by various GitHub webhook events (which are
+defined in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file), and
+execute various GitHub API calls.
 
-API details:
+GitHub API details:
 
 - [REST API reference](https://docs.github.com/en/rest)
 - [Go client API](https://pkg.go.dev/github.com/google/go-github/v57/github)
@@ -16,25 +16,24 @@ API details:
 It also demonstrates using a custom builtin function (`rand.intn`) to generate
 random integer numbers, based on <https://pkg.go.dev/math/rand#Rand.Intn>.
 
-This project isn't meant to cover all available functions and events. it
+This project isn't meant to cover all available functions and events. It
 merely showcases a few illustrative, annotated, reusable examples.
 
 ## Instructions
 
-1. Open a browser, and go to the autokitteh server's URL
-2. Go to the integrations page, and choose GitHub
-3. Create a connection, and copy the resulting token
-4. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
-   manifest file
+1. Create an AutoKitteh connection token
 
-Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
+   1. Open a browser, and go to the AutoKitteh server's URL
+   2. Create a GitHub connection, and copy the resulting token
+   3. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
+      manifest file
 
-1. Apply the `autokitteh.yaml` manifest file
-2. Build and deploy [`program.star`](./program.star)
+2. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
+   `autokitteh.yaml` manifest file
 
 ## Connection Notes
 
-autokitteh supports 2 connection modes with GitHub:
+AutoKitteh supports 2 connection modes with GitHub:
 
 - Personal Access Token (PAT - fine-grained or classic) + manually-configured
   webhook

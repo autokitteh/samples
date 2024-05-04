@@ -1,4 +1,4 @@
-# Sample Projects for autokitteh
+# Sample Projects for AutoKitteh
 
 ## Overview
 
@@ -9,7 +9,7 @@ Each of the project directories contains:
 - One or more program files (code and resources)
 
 Some projects focus on the capabilities and API details of specific
-autokitteh integrations.
+AutoKitteh integrations.
 
 Other projects are more cross-functional and product-oriented, demonstrating
 the operation and value of the system as a whole.
@@ -20,7 +20,7 @@ The `autokitteh.yaml` file is a declarative manifest that describes the
 configuration of a project:
 
 - Project name
-- autokitteh connection(s)
+- AutoKitteh connection(s)
 - Triggers (asyncrhnous events from connections, with optional filtering,
   mapped to entry-point functions)
 
@@ -33,7 +33,7 @@ Stay tuned for implementations in Python, TypeScript, and other languages!
 
 ## Projects
 
-Capabilities and API details of specific autokitteh integrations:
+Capabilities and API details of specific AutoKitteh integrations:
 
 - [GitHub](./github/)
 - [Google](./google/)
