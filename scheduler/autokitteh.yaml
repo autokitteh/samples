@@ -1,10 +1,10 @@
-# This YAML file is a declarative manifest that describes the setup of an
-# autokitteh sample project that demonstrates autokitteh's integration with
+# This YAML file is a declarative manifest that describes the setup
+# of an AutoKitteh sample project that demonstrates integration with
 # a cron-like scheduler.
 #
 # Before applying this file:
 # - Set the "SLACK_CHANNEL" value in the "vars" section
-# - Create autokitteh connection tokens for the Scheduler (Cron) and Slack,
+# - Create AutoKitteh connection tokens for the Scheduler (Cron) and Slack,
 #   and replace the "TODO" lines below
 
 version: v1
@@ -13,16 +13,16 @@ project:
   name: scheduler_sample
   vars:
     - name: SLACK_CHANNEL
-      value: TODO # Replace this with a Slack channel name or ID
+      value: TODO # Replace this with a Slack channel name or ID.
   connections:
     - name: my_scheduler
       integration: scheduler
-      token: TODO # Replace this with an autokitteh connection token
+      token: TODO # Replace this with an AutoKitteh connection token.
     - name: my_slack
       integration: slack
-      token: TODO # Replace this with an autokitteh connection token
+      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
-    - name: my_scheduler_cron_trigger
+    - name: scheduler_cron_trigger
       connection: my_scheduler
       event_type: cron_trigger
       call: program.star:on_cron_trigger
