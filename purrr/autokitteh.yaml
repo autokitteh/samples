@@ -45,7 +45,7 @@ project:
       connection: github
       event_type: pull_request_review_thread
       call: github_thread.star:on_github_pull_request_review_thread
-    - name: github_slash_command
+    - name: slack_slash_command
       connection: slack
       event_type: slash_command
       call: slack_cmd.star:on_slack_slash_command
