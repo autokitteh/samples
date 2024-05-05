@@ -1,11 +1,11 @@
 # OpenAI ChatGPT Sample Project
 
-This sample project demonstrates autokitteh's integration with
+This sample project demonstrates AutoKitteh's integration with
 [OpenAI ChatGPT](https://chat.openai.com).
 
 The file [`program.star`](./program.star) implements a single entry-point
-function, which is mapped in the [`autokitteh.yaml`](./autokitteh.yaml)
-manifest file as the receiver of `"slack_slash_command"` events.
+function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
+manifest file as the receiver of Slack `slash_command` events.
 
 It sends a couple of requests to the ChatGPT API, and sends the responses
 back to the user over Slack, as well as ChatGPT token usage stats.
@@ -18,18 +18,14 @@ API details:
 This project isn't meant to cover all available functions and events. it
 merely showcases a few illustrative, annotated, reusable examples.
 
-This project isn't meant to cover all available functions, it merely showcases
-a few illustrative and annotated examples.
-
 ## Instructions
 
-1. Open a browser, and go to the autokitteh server's URL
-2. Go to the integrations page, and choose OpenAI ChatGPT and Slack
-3. Create connections for them, and copy the resulting tokens
-4. Replace the `TODO` lines in the [`autokitteh.yaml`](./autokitteh.yaml)
-   manifest file
+1. Create AutoKitteh connection tokens
 
-Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
+   1. Open a browser, and go to the AutoKitteh server's URL
+   2. Create ChatGPT and Slack connections, and copy the resulting tokens
+   3. Replace the `TODO` lines in the [`autokitteh.yaml`](./autokitteh.yaml)
+      manifest file
 
-1. Apply the `autokitteh.yaml` manifest file
-2. Build and deploy [`program.star`](./program.star)
+2. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
+   `autokitteh.yaml` manifest file

@@ -1,9 +1,9 @@
-"""This program demonstrates autokitteh's Twilio integration.
+"""This program demonstrates AutoKitteh's Twilio integration.
 
-This program implements two entry-point functions that are mapped
-to trigger events in the "autokitteh.yaml" manifest file. One is
-a Slack trigger to initiate sending Twilio messages, and the
-other is a webhook receiving status reports from Twilio.
+This program implements two entry-point functions that are triggered by
+events which are defined in the "autokitteh.yaml" manifest file. One is
+a Slack trigger to initiate sending Twilio messages, and the other is a
+webhook receiving status reports from Twilio.
 
 API details:
 - Messaging API overview: https://www.twilio.com/docs/messaging/api
@@ -13,11 +13,7 @@ In this sample, we expect the slash command's text to be a valid
 phone number to send messages to.
 
 It also demonstrates using constant values which are set for each
-autokitteh environment in the "autokitteh.yaml" manifest file.
-
-When the project has an active deployment, and autokitteh receives
-trigger events from its connections, it starts runtime sessions
-which execute the mapped entry-point functions.
+AutoKitteh environment in the "autokitteh.yaml" manifest file.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
@@ -36,17 +32,17 @@ def on_slack_slash_command(data):
     resp = my_twilio.create_message(
         from_number = FROM_NUMBER,
         to = data.text,
-        body = "This is an autokitteh demo message, meow!",
+        body = "This is an AutoKitteh demo message, meow!",
     )
 
     # For education and debugging purposes, print Twilio's response
-    # in the autokitteh session's log.
+    # in the AutoKitteh session's log.
     print(resp)
 
     # Also send a Whatsapp message to the same number.
     resp = my_twilio.create_message(
         from_number = "whatsapp:" + FROM_NUMBER,
         to = "whatsapp:" + data.text,
-        body = "This is an autokitteh demo message, meow!",
+        body = "This is an AutoKitteh demo message, meow!",
     )
     print(resp)

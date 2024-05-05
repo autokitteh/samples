@@ -4,9 +4,9 @@ This sample project demonstrates autokitteh's integration with
 [Slack](https://slack.com).
 
 The file [`program.star`](./program.star) implements multiple entry-point
-functions that are mapped to various Slack webhook events in the
-[`autokitteh.yaml`](./autokitteh.yaml) manifest file. It also executes various
-Slack API calls.
+functions that are triggered by various Slack webhook events, which are
+defined in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file. It also
+executes various Slack API calls.
 
 API details:
 
@@ -21,16 +21,15 @@ merely showcases a few illustrative, annotated, reusable examples.
 
 ## Instructions
 
-1. Open a browser, and go to the autokitteh server's URL
-2. Go to the integrations page, and choose Slack
-3. Create a connection, and copy the resulting token
-4. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
-   manifest file
+1. Create an AutoKitteh connection token
 
-Then, via the `ak` CLI tool, or the autokitteh VSCode extension:
+   1. Open a browser, and go to the AutoKitteh server's URL
+   2. Create a Slack connection, and copy the resulting token
+   3. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
+      manifest file
 
-1. Apply the `autokitteh.yaml` manifest file
-2. Build and deploy [`program.star`](./program.star)
+3. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
+   `autokitteh.yaml` manifest file
 
 ## Connection Notes
 

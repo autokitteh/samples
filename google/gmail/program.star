@@ -2,7 +2,7 @@
 
 This program implements a single entry-point function, which is
 configured in the "autokitteh.yaml" manifest file as the receiver
-of "slash_command" events.
+of Slack "slash_command" events.
 
 When triggered by a Slack user, it executes various Gmail API calls
 depending on the user's input, and posts the results back to the user.

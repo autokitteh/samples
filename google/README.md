@@ -17,7 +17,7 @@ Google Cloud:
 
 ## Instructions
 
-1. Create an AutoKitteh connection token
+1. Create AutoKitteh connection tokens
 
    1. Open a browser, and go to the AutoKitteh server's URL
    2. Create Google and Slack connections, and copy the resulting tokens

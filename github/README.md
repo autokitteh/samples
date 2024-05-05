@@ -4,9 +4,9 @@ This sample project demonstrates AutoKitteh's bidirectional integration with
 [GitHub](https://github.com).
 
 The file [`program.star`](./program.star) implements multiple entry-point
-functions that are triggered by various GitHub webhook events (which are
-defined in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file), and
-execute various GitHub API calls.
+functions that are triggered by various GitHub webhook events, which are
+defined in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file. It also
+executes various GitHub API calls.
 
 GitHub API details:
 

@@ -1,7 +1,8 @@
-"""This program demonstrates autokitteh's OpenAI ChatGPT integration.
+"""This program demonstrates AutoKitteh's OpenAI ChatGPT integration.
 
-This program implements a single entry-point function, which is mapped in
-the "autokitteh.yaml" file as the receiver of "slack_slash_command" events.
+This program implements a single entry-point function, which is
+configured in the "autokitteh.yaml" manifest file as the receiver
+of Slack "slash_command" events.
 
 It sends a couple of requests to the ChatGPT API, and sends the responses
 back to the user over Slack, as well as ChatGPT token usage stats.
@@ -9,10 +10,6 @@ back to the user over Slack, as well as ChatGPT token usage stats.
 API details:
 - OpenAI developer platform: https://platform.openai.com/
 - Go client API: https://pkg.go.dev/github.com/sashabaranov/go-openai
-
-When the project has an active deployment, and autokitteh receives
-trigger events from its connections, it starts runtime sessions
-which execute the mapped entry-point function.
 
 This program isn't meant to cover all available functions and events.
 It merely showcases various illustrative, annotated, reusable examples.
@@ -36,7 +33,7 @@ def on_slack_slash_command(data):
     resp = my_chatgpt.create_chat_completion(message = "Hello!")
 
     # For educational and debugging purposes, print ChatGPT's response
-    # in the autokitteh session's log.
+    # in the AutoKitteh session's log.
     print(resp)
 
     # Example 2: more verbose interaction with ChatGPT,

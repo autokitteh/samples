@@ -11,10 +11,6 @@ API details:
 It also demonstrates using a custom builtin function (rand.intn) to generate
 random integer numbers (based on https://pkg.go.dev/math/rand#Rand.Intn).
 
-When the project has an active deployment, and AutoKitteh receives
-trigger events from its connections, it starts runtime sessions
-which execute the mapped entry-point functions.
-
 This program isn't meant to cover all available functions and events.
 It merely showcases various illustrative, annotated, reusable examples.
 

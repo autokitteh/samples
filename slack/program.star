@@ -1,8 +1,8 @@
-"""This program demonstrates autokitteh's Slack integration.
+"""This program demonstrates AutoKitteh's Slack integration.
 
-This program implements multiple entry-point functions that are mapped
-to various Slack webhook events in the "autokitteh.yaml" manifest file.
-It also executes various Slack API calls.
+This program implements multiple entry-point functions that are triggered by
+various Slack webhook events, which are defined in the "autokitteh.yaml"
+manifest file. It also executes various Slack API calls.
 
 API details:
 - Web API reference: https://api.slack.com/methods
@@ -10,10 +10,6 @@ API details:
 
 It also demonstrates using a custom builtin function (sleep) to sleep
 for a specified number of seconds.
-
-When the project has an active deployment, and autokitteh receives
-trigger events from its connections, it starts runtime sessions
-which execute the mapped entry-point functions.
 
 This program isn't meant to cover all available functions and events.
 It merely showcases various illustrative, annotated, reusable examples.
@@ -43,7 +39,7 @@ def on_slack_app_mention(data):
     resp = my_slack.chat_post_message("#slack-test", text)
 
     # Encountered an error? Print debugging information
-    # in the autokitteh session's log, and finish.
+    # in the AutoKitteh session's log, and finish.
     if not resp.ok:
         print(resp.error)
         return
@@ -73,7 +69,7 @@ def on_slack_app_mention(data):
     resp = my_slack.conversations_replies(channel = resp.channel, ts = resp.ts)
 
     # For educational purposes, print all the reply objects
-    # in the autokitteh session's log.
+    # in the AutoKitteh session's log.
     if resp.ok:
         for msg in resp.messages:
             print(msg)
@@ -117,7 +113,7 @@ def on_slack_reaction_added(data):
     """https://api.slack.com/events/reaction_added"""
 
     # For educational purposes, print the fields of the event object
-    # in the autokitteh session's log.
+    # in the AutoKitteh session's log.
     print(data.user)
     print(data.reaction)
     print(data.item)
@@ -136,7 +132,7 @@ def on_slack_slash_command(data):
     user_info = my_slack.users_info(data.user_id)
 
     # Encountered an error? Print debugging information
-    # in the autokitteh session's log, and finish.
+    # in the AutoKitteh session's log, and finish.
     if not user_info.ok:
         print(user_info.error)
         return
