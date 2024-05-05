@@ -1,8 +1,6 @@
 """Handler for GitHub "pull_request" events."""
 
-# TODO: Refactor all handlers to mention even if PR channel not found
-# (to print to log channel at least - mention functions already implement this correctly).
-
+load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
 load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
@@ -110,8 +108,7 @@ def _on_pr_opened(data):
     slack.bookmarks_add(channel_id, title, pr.htmlurl + ".diff")
 
     # Remember the ID of the channel we just created, for other events.
-    # See: https://redis.io/commands/set/
-    resp = store.set(pr.htmlurl, channel_id, REDIS_TTL)
+    resp = redis.set(pr.htmlurl, channel_id, REDIS_TTL)
     if resp != "OK":
         debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
 

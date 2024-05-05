@@ -1,5 +1,6 @@
 """Handler for GitHub "pull_request_review" events."""
 
+load("@redis", "redis")
 load("debug.star", "debug")
 load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
@@ -45,8 +46,7 @@ def _on_pr_review_submitted(data):
 
     # Remember the thread timestamp (message ID) of the message we posted.
     if thread_ts:
-        # See: https://redis.io/commands/set/
-        resp = store.set(data.review.htmlurl, thread_ts, REDIS_TTL)
+        resp = redis.set(data.review.htmlurl, thread_ts, REDIS_TTL)
         if resp != "OK":
             msg = 'Redis "set %s %s" failed: %s'
             debug(msg % (data.review.htmlurl, thread_ts, resp))

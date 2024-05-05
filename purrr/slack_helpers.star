@@ -1,5 +1,6 @@
 """Slack API helper functions."""
 
+load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
 load("env", "SLACK_LOG_CHANNEL")  # Set in "autokitteh.yaml".
@@ -21,8 +22,7 @@ def add_users_to_channel(channel_id, users):
     # mentioned in the channel, but as non-members they won't know it.
     opted_in = []
     for user_id in users.split(","):
-        # See: https://redis.io/commands/get/
-        if not store.get("slack_opt_out:" + user_id):
+        if not redis.get("slack_opt_out:" + user_id):
             opted_in.append(user_id)
     users = ",".join(opted_in)
 
@@ -132,8 +132,7 @@ def lookup_pr_channel(pr_url, state, wait = False):
     """
     attempts = _CHANNEL_LOOKUP_TIMEOUT if wait else 1
     for _ in range(attempts):
-        # See: https://redis.io/commands/get/
-        channel_id = store.get(pr_url)
+        channel_id = redis.get(pr_url)
         if channel_id:
             return channel_id
         else:
@@ -158,8 +157,7 @@ def _lookup_review_message(review_url):
         Message's thread timestamp, or "" if not found.
     """
     for _ in range(_MESSAGE_LOOKUP_TIMEOUT):
-        # See: https://redis.io/commands/get/
-        thread_ts = store.get(review_url)
+        thread_ts = redis.get(review_url)
         if thread_ts:
             return thread_ts
         else:
