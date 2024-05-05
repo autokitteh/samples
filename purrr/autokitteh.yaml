@@ -1,6 +1,6 @@
 # Before applying this file:
 # - Modify the values in the "vars" section, if desired
-# - Create autokitteh connection tokens for GitHub and Slack,
+# - Create AutoKitteh connection tokens for GitHub and Slack,
 #   and replace the "TODO" lines below
 
 version: v1
@@ -8,22 +8,22 @@ version: v1
 project:
   name: purrr
   vars:
-    # Default TTL for Redis cache = 30 days (to forget stale PRs)
+    # Default TTL for Redis cache = 30 days (to forget stale PRs).
     - name: REDIS_TTL
       value: 720h
-    # Create this channel / replace with your own / specify "" to disable it
+    # Create this channel / replace with your own / specify "" to disable it.
     - name: SLACK_DEBUG_CHANNEL
       value: purrr-debug
-    # Create this channel / replace with your own / specify "" to disable it
+    # Create this channel / replace with your own / specify "" to disable it.
     - name: SLACK_LOG_CHANNEL
       value: purrr-log
   connections:
     - name: github
       integration: github
-      token: TODO # Replace this with an autokitteh connection token
+      token: TODO # Replace this with an AutoKitteh connection token.
     - name: slack
       integration: slack
-      token: TODO # Replace this with an autokitteh connection token
+      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - name: github_issue_comment
       connection: github

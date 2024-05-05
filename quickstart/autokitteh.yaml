@@ -1,5 +1,5 @@
 # This YAML file is a declarative manifest that describes
-# the minimal setup of an autokitteh project.
+# the minimal setup of an AutoKitteh project.
 
 version: v1
 
@@ -9,7 +9,7 @@ project:
     - name: http_conn
       integration: http
   triggers:
-    - name: get
+    - name: http_get
       connection: http_conn
       event_type: get
       data:

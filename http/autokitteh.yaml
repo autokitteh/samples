@@ -35,13 +35,13 @@ project:
       # Triggered by POST request to http://localhost:9980/http/http_sample/
       # since no additional path is defined.
       call: no_auth.star:on_http_post
-    - name: http_with_basic_auth_get
+    - name: http_basic_get
       connection: http_with_basic_auth
       event_type: get
       data:
         path: basic/{username}/{password}
       call: basic_auth.star:on_http_get_with_basic_auth
-    - name: http_with_basic_auth_post
+    - name: http_bearer_get
       connection: http_with_bearer_token
       event_type: get
       data:
