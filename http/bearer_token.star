@@ -32,14 +32,14 @@ def on_http_get_with_bearer_token(data):
 
     # Example 1: use the AutoKitteh connection's secret credentials.
     resp = http_with_bearer_token.get(url)
-    print_details(resp)
+    _print_details(resp)
 
     # Example 2: override the AutoKitteh connection's credentials.
     headers = {"Authorization": "Bearer " + data.params["token"]}
     resp = http_with_bearer_token.get(url, headers = headers)
-    print_details(resp)
+    _print_details(resp)
 
-def print_details(resp):
+def _print_details(resp):
     """Prints HTTP response details.
 
     Args:

@@ -13,7 +13,7 @@ No more:
 - Notification fatigue due to updates that don't concern you
 - Qestions like "Who's turn is it" or "What should I do now"
 
-All that - and more - is implemented in autokitteh with about ~500 lines of
+All that - and more - is implemented in AutoKitteh with about ~500 lines of
 actual code!
 
 ## Slack Usage
@@ -54,18 +54,3 @@ Use-case 4 is permanent (until the user opts back in).
 > For the purpose of the first two use-cases, PuRRR assumes that a PR's cache
 > doesn't expire as long as that PR is active. Furthermore, PuRRR doesn't
 > perform any cleanup when PRs are closed (because they may be reopened).
-
-By default, autokitteh uses an in-memory instance of
-[Miniredis](https://github.com/alicebob/miniredis). This simplifies
-evaluation, but is unreliable for production usage.
-
-> [!CAUTION]
-> If you intend to use this project "for real", make sure you:
->
-> - Use a real Redis server or cluster
-> - Consider the following when you configure Redis:
->   - [Disaster recovery](https://redis.io/docs/management/persistence/#disaster-recovery)
->   - [Resource usage](https://redis.io/docs/reference/eviction/) and
->     [optimization](https://redis.io/docs/management/optimization/)
->   - [Security](https://redis.io/docs/management/security/)
-> - Set autokitteh's `store.server_url` configuration to your Redis URL

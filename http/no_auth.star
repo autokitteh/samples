@@ -48,17 +48,6 @@ class HTTPResponseBody:
 load("@http", "http_no_auth")
 load("env", "HTTPBIN_BASE_URL")  # Set in "autokitteh.yaml".
 
-def print_headers(http_obj, req_type):
-    print(req_type, " headers:")
-    for key, value in http_obj.headers.items():
-        print("  %s = %s" % (key, value))
-
-def print_resp_url_status_headers(resp):
-    print("url: ", resp.url)
-    print("status code: ", resp.status_code)
-
-    print_headers(resp, "response")
-
 def on_http_get(data):
     """https://www.rfc-editor.org/rfc/rfc9110#GET
 
@@ -69,26 +58,34 @@ def on_http_get(data):
     print("url: ", data.url)  # Reference: https://pkg.go.dev/net/url#URL
     # TODO: print(data.url_string)
 
-    print_headers(data, "request")
+    _print_headers(data, "request")
 
     print("invoking subsequent GET requests:")
-    get_echo_params()
-    get_html()
-    get_json()
-    get_error()
+    _get_echo_params()
+    _get_html()
+    _get_json()
+    _get_error()
 
-def get_echo_params():
-    """ See https://www.rfc-editor.org/rfc/rfc9110#GET.
+def _print_headers(http_obj, req_type):
+    print(req_type, " headers:")
+    for key, value in http_obj.headers.items():
+        print("  %s = %s" % (key, value))
 
-    See also https://httpbin.org/#/HTTP_Methods/get_get.
-    """
+def _print_resp_url_status_headers(resp):
+    print("url: ", resp.url)
+    print("status code: ", resp.status_code)
+
+    _print_headers(resp, "response")
+
+def _get_echo_params():
+    """https://httpbin.org/#/HTTP_Methods/get_get"""
 
     url = HTTPBIN_BASE_URL + "/get"
     print("--- (1) get with params (via GET to %s) ---" % url)
 
     params = {"key1": "value1", "key2": "value2"}
     resp = http_no_auth.get(url, params = params)
-    print_resp_url_status_headers(resp)
+    _print_resp_url_status_headers(resp)
     # Observe that `Content-Type` header is `application/json`.
 
     # httpbin.org/get echoes back params (as "args"), headers and other things as json
@@ -104,44 +101,38 @@ def get_echo_params():
     for k in ("key1", "key2"):
         print("  %s: %s" % (k, args.get(k, "not found")))
 
-def get_html():
-    """ See https://www.rfc-editor.org/rfc/rfc9110#GET.
-
-    See also https://httpbin.org/#/Response_formats/get_html.
-    """
+def _get_html():
+    """https://httpbin.org/#/Response_formats/get_html"""
 
     url = HTTPBIN_BASE_URL + "/html"
     print("\n--- (2) get HTML (via GET to %s) ---" % url)
 
     resp = http_no_auth.get(url)
-    print_resp_url_status_headers(resp)
+    _print_resp_url_status_headers(resp)
 
     # In this case, httpbin won't echo back the request body, so the response body will be just html.
     print("response body (txt): -----v\n", resp.body.text())  # "\u003c!DOCTYPE html\u003e\\n..."
     # No need to resp.body.json(), since HTML is not a valid JSON.
 
-def get_json():
-    """ See https://www.rfc-editor.org/rfc/rfc9110#GET.
-
-    See also https://httpbin.org/#/Response_formats/get_json.
-    """
+def _get_json():
+    """https://httpbin.org/#/Response_formats/get_json"""
 
     url = HTTPBIN_BASE_URL + "/json"
     print("\n--- (2) get JSON (via GET to %s) ---" % url)
 
     resp = http_no_auth.get(url)
-    print_resp_url_status_headers(resp)
+    _print_resp_url_status_headers(resp)
 
     print("response body (bytes): -----v\n", resp.body.bytes())  # Same as json, formatted as bytes, printed as multiline text.
     print("response body (json): -----v\n", resp.body.json())  # {"slideshow": {"author": "Yours Truly", ... }}
     print("response_json['slideshow']['author']: ", resp.body.json().get("slideshow", {}).get("author"))  # "Yours Truly"
 
-def get_error():
+def _get_error():
     url = HTTPBIN_BASE_URL + "/status/404"
     print("\n--- (2) get error (via GET to %s) ---" % url)
 
     resp = http_no_auth.get(url)
-    print_resp_url_status_headers(resp)  # status code is 404
+    _print_resp_url_status_headers(resp)  # status code is 404
 
     # Body is empty and isn't JSON. catch the error:
     jsn, err = catch(resp.body.json)  # Attention: function name passed without parentheses.
@@ -157,7 +148,7 @@ def on_http_post(data):
     print("url: ", data.url)  # Reference: https://pkg.go.dev/net/url#URL
     # TODO: print(data.url_string)
 
-    print_headers(data, "request")
+    _print_headers(data, "request")
 
     print("request body (text): -----v\n", data.body.text())  # key1=value1&key2=value2
     print("request body (form): -----v\n", data.body.form())  # {"key1": "value1", "key2": "value2"}
@@ -170,14 +161,12 @@ def on_http_post(data):
 
     print("invoking subsequent POST requests:")
     url = HTTPBIN_BASE_URL + "/post"
-    post_echo_form(url)
-    post_json(url)
+    _post_echo_form(url)
+    _post_json(url)
     # TODO: post_error()
 
-def post_echo_form(url):
-    """See https://www.rfc-editor.org/rfc/rfc9110#POST.
-
-    See also https://httpbin.org/#/HTTP_Methods/post_post.
+def _post_echo_form(url):
+    """https://httpbin.org/#/HTTP_Methods/post_post
 
     Args:
         url: URL to send the POST request to.
@@ -186,7 +175,7 @@ def post_echo_form(url):
 
     form = {"foo": "bar"}
     resp = http_no_auth.post(url, data = form)
-    print_resp_url_status_headers(resp)
+    _print_resp_url_status_headers(resp)
 
     # Form sent will be echoed back by httpbin.org under the ``form' key.
     print("response body (text): -----v\n", resp.body.text())  # Multiline text.
@@ -194,10 +183,8 @@ def post_echo_form(url):
     print("response body (json): -----v\n", body_json)  # {"form": ...}
     print("form sent: -----v\n", body_json.get("form", {}))
 
-def post_json(url):
-    """ See https://www.rfc-editor.org/rfc/rfc9110#POST.
-
-    See also https://httpbin.org/#/HTTP_Methods/post_post.
+def _post_json(url):
+    """https://httpbin.org/#/HTTP_Methods/post_post
 
     Args:
         url: URL to send the POST request to.
@@ -209,7 +196,7 @@ def post_json(url):
     # 2. Another way to send JSON is to send it as data= and specify Content-Type
     # resp = http_no_auth.post(url, data = {"foo1": "bar1"}, headers={"Content-Type": "application/json"})
 
-    print_resp_url_status_headers(resp)
+    _print_resp_url_status_headers(resp)
 
     # JSON sent will appear both under 'data' and 'json' keys due to httpbin.org echo behavior.
     print("response body (text): -----v\n", resp.body.text())  # Multiline text.

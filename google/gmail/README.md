@@ -5,7 +5,7 @@ This sample project demonstrates AutoKitteh's integration with
 
 The file [`program.star`](./program.star) implements a single entry-point
 function, which is configured in the [`autokitteh.yaml`](./autokitteh.yaml)
-manifest file as the receiver of `slash_command` events.
+manifest file as the receiver of Slack `slash_command` events.
 
 When triggered by a Slack slash command, it calls a Gmail API function,
 depending on the input, and posts the results back to the Slack user:
