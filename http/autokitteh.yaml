@@ -1,6 +1,6 @@
 # This YAML file is a declarative manifest that describes the setup
-# of an autokitteh sample project which demonstrates autokitteh's
-# bidirectional integration with HTTP.
+# of an AutoKitteh sample project which demonstrates bidirectional
+# integration with HTTP.
 
 version: v1
 
@@ -15,15 +15,15 @@ project:
       integration: http
     - name: http_with_basic_auth
       integration: http
-      token: TODO # Replace this with an autokitteh connection token
+      token: TODO # Replace this with an autokitteh connection token.
     - name: http_with_bearer_token
       integration: http
-      token: TODO # Replace this with an autokitteh connection token
+      token: TODO # Replace this with an autokitteh connection token.
   triggers:
-    # More HTTP methods are supported as event types:
-    # head, put, delete, options, and patch.
     - name: http_noauth_get
       connection: http_no_auth
+      # More HTTP methods are supported as event types:
+      # head, put, delete, options, and patch.
       event_type: get
       data:
         path: get
@@ -33,7 +33,7 @@ project:
       connection: http_no_auth
       event_type: post
       # Triggered by POST request to http://localhost:9980/http/http_sample/
-      # since no additional path defined
+      # since no additional path is defined.
       call: no_auth.star:on_http_post
     - name: http_with_basic_auth_get
       connection: http_with_basic_auth

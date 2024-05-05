@@ -1,4 +1,4 @@
-"""These entry-point functions demonstrate autokitteh's HTTP integration.
+"""These entry-point functions demonstrate AutoKitteh's HTTP integration.
 
 They are triggered by HTTP events (such as receiving GET and POST requests),
 and then send HTTP requests to an HTTP testing server.
@@ -14,12 +14,11 @@ The triggers are defined in the "autokitteh.yaml" manifest file:
 the (no auth) HTTP connection, the HTTP methods (GET and POST), and
 the URL paths under the project's webhook for receiving HTTP events.
 
-The HTTP integration in autokitteh supports sending and receiving requests
+The HTTP integration in AutoKitteh supports sending and receiving requests
 with these HTTP methods: GET, HEAD, POST, PUT, DELETE, OPTIONS, and PATCH.
 
 This sample is implemented in Starlark, which is a dialect of Python
 (see https://bazel.build/rules/language).
-
 
 Relevant types and function signatures:
 
@@ -48,7 +47,6 @@ class HTTPResponseBody:
 
 load("@http", "http_no_auth")
 load("env", "HTTPBIN_BASE_URL")  # Set in "autokitteh.yaml".
-
 
 def print_headers(http_obj, req_type):
     print(req_type, " headers:")
@@ -80,9 +78,9 @@ def on_http_get(data):
     get_error()
 
 def get_echo_params():
-    """ See
-    https://www.rfc-editor.org/rfc/rfc9110#GET
-    https://httpbin.org/#/HTTP_Methods/get_get
+    """ See https://www.rfc-editor.org/rfc/rfc9110#GET.
+
+    See also https://httpbin.org/#/HTTP_Methods/get_get.
     """
 
     url = HTTPBIN_BASE_URL + "/get"
@@ -91,7 +89,7 @@ def get_echo_params():
     params = {"key1": "value1", "key2": "value2"}
     resp = http_no_auth.get(url, params = params)
     print_resp_url_status_headers(resp)
-    # observe that `Content-Type` header is `application/json`.
+    # Observe that `Content-Type` header is `application/json`.
 
     # httpbin.org/get echoes back params (as "args"), headers and other things as json
     # In this specific case "headers", "args", "url" keys should be present in the response body.
@@ -107,9 +105,9 @@ def get_echo_params():
         print("  %s: %s" % (k, args.get(k, "not found")))
 
 def get_html():
-    """ See
-    https://www.rfc-editor.org/rfc/rfc9110#GET
-    https://httpbin.org/#/Response_formats/get_html
+    """ See https://www.rfc-editor.org/rfc/rfc9110#GET.
+
+    See also https://httpbin.org/#/Response_formats/get_html.
     """
 
     url = HTTPBIN_BASE_URL + "/html"
@@ -120,12 +118,12 @@ def get_html():
 
     # In this case, httpbin won't echo back the request body, so the response body will be just html.
     print("response body (txt): -----v\n", resp.body.text())  # "\u003c!DOCTYPE html\u003e\\n..."
-    # no need to resp.body.json(), since HTML is not a valid JSON
+    # No need to resp.body.json(), since HTML is not a valid JSON.
 
 def get_json():
-    """ See
-    https://www.rfc-editor.org/rfc/rfc9110#GET
-    https://httpbin.org/#/Response_formats/get_json
+    """ See https://www.rfc-editor.org/rfc/rfc9110#GET.
+
+    See also https://httpbin.org/#/Response_formats/get_json.
     """
 
     url = HTTPBIN_BASE_URL + "/json"
@@ -134,7 +132,7 @@ def get_json():
     resp = http_no_auth.get(url)
     print_resp_url_status_headers(resp)
 
-    print("response body (bytes): -----v\n", resp.body.bytes()) # same as json, formatted as bytes, printed as multiline text
+    print("response body (bytes): -----v\n", resp.body.bytes())  # Same as json, formatted as bytes, printed as multiline text.
     print("response body (json): -----v\n", resp.body.json())  # {"slideshow": {"author": "Yours Truly", ... }}
     print("response_json['slideshow']['author']: ", resp.body.json().get("slideshow", {}).get("author"))  # "Yours Truly"
 
@@ -143,12 +141,11 @@ def get_error():
     print("\n--- (2) get error (via GET to %s) ---" % url)
 
     resp = http_no_auth.get(url)
-    print_resp_url_status_headers(resp) # status code is 404
+    print_resp_url_status_headers(resp)  # status code is 404
 
-    # body is empty and isn't JSON. catch the error:
-    jsn, err = catch(resp.body.json) # NOTE that function name passed without parentheses
+    # Body is empty and isn't JSON. catch the error:
+    jsn, err = catch(resp.body.json)  # Attention: function name passed without parentheses.
     print("response body (json): %s, err: %s \n" % (jsn, err))
-
 
 def on_http_post(data):
     """https://www.rfc-editor.org/rfc/rfc9110#POST
@@ -162,13 +159,13 @@ def on_http_post(data):
 
     print_headers(data, "request")
 
-    print("request body (text): -----v\n", data.body.text()) # key1=value1&key2=value2
-    print("request body (form): -----v\n", data.body.form()) # {"key1": "value1", "key2": "value2"}
+    print("request body (text): -----v\n", data.body.text())  # key1=value1&key2=value2
+    print("request body (form): -----v\n", data.body.form())  # {"key1": "value1", "key2": "value2"}
     print("request form, keys <-> values:")
     for key, value in data.body.form().items():
         print("  %s = %s" % (key, value))
 
-    j, err = catch(data.body.json) # Note that function name passed without parentheses
+    j, err = catch(data.body.json)  # Attention: function name passed without parentheses.
     print("request body (json): %s, err: %s \n" % (j, err))
 
     print("invoking subsequent POST requests:")
@@ -178,9 +175,12 @@ def on_http_post(data):
     # TODO: post_error()
 
 def post_echo_form(url):
-    """ See
-    https://www.rfc-editor.org/rfc/rfc9110#POST
-    https://httpbin.org/#/HTTP_Methods/post_post
+    """See https://www.rfc-editor.org/rfc/rfc9110#POST.
+
+    See also https://httpbin.org/#/HTTP_Methods/post_post.
+
+    Args:
+        url: URL to send the POST request to.
     """
     print("--- (1) post form (via POST to %s) ---" % url)
 
@@ -188,28 +188,31 @@ def post_echo_form(url):
     resp = http_no_auth.post(url, data = form)
     print_resp_url_status_headers(resp)
 
-    # Form sent will be echoed back by httpbin.org under the ``form' key
-    print("response body (text): -----v\n", resp.body.text()) # multiline text
-    bodyJson = resp.body.json()
-    print("response body (json): -----v\n", bodyJson) # {"form": ...}
-    print("form sent: -----v\n", bodyJson.get("form", {}))
+    # Form sent will be echoed back by httpbin.org under the ``form' key.
+    print("response body (text): -----v\n", resp.body.text())  # Multiline text.
+    body_json = resp.body.json()
+    print("response body (json): -----v\n", body_json)  # {"form": ...}
+    print("form sent: -----v\n", body_json.get("form", {}))
 
 def post_json(url):
-    """ See
-    https://www.rfc-editor.org/rfc/rfc9110#POST
-    https://httpbin.org/#/HTTP_Methods/post_post
+    """ See https://www.rfc-editor.org/rfc/rfc9110#POST.
+
+    See also https://httpbin.org/#/HTTP_Methods/post_post.
+
+    Args:
+        url: URL to send the POST request to.
     """
     print("\n--- (2) post json (via POST to %s) ---" % url)
 
-    # 1. send JSON via json= param without specifying content type
+    # 1. Send JSON via json= param without specifying content type
     resp = http_no_auth.post(url, json = {"foo": "bar"})
-    # 2. another way to send JSON is to send it as data= and specify Content-Type
+    # 2. Another way to send JSON is to send it as data= and specify Content-Type
     # resp = http_no_auth.post(url, data = {"foo1": "bar1"}, headers={"Content-Type": "application/json"})
 
     print_resp_url_status_headers(resp)
 
-    # JSON sent will appear both under `data` and `json' keys due to httpbin.org echo behavior
-    print("response body (text): -----v\n", resp.body.text()) # multiline text
-    bodyJson = resp.body.json()
-    print("response body (json): -----v\n", bodyJson) # {data": "{\"foo\":\"bar\"}", "json": {"foo": "bar"},  ...}
-    print("json sent: -----v\n", bodyJson.get("json", {}))
+    # JSON sent will appear both under 'data' and 'json' keys due to httpbin.org echo behavior.
+    print("response body (text): -----v\n", resp.body.text())  # Multiline text.
+    body_json = resp.body.json()
+    print("response body (json): -----v\n", body_json)  # {data": "{\"foo\":\"bar\"}", "json": {"foo": "bar"},  ...}
+    print("json sent: -----v\n", body_json.get("json", {}))
