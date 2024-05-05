@@ -20,23 +20,29 @@ project:
       integration: http
       token: TODO # Replace this with an autokitteh connection token.
   triggers:
-    - connection: http_no_auth
+    - name: http_noauth_get
+      connection: http_no_auth
+      # More HTTP methods are supported as event types:
+      # head, put, delete, options, and patch.
       event_type: get
       data:
         path: get
       # Triggered by GET request to http://localhost:9980/http/http_sample/get
       call: no_auth.star:on_http_get
-    - connection: http_no_auth
+    - name: http_noauth_post
+      connection: http_no_auth
       event_type: post
       # Triggered by POST request to http://localhost:9980/http/http_sample/
       # since no additional path is defined.
       call: no_auth.star:on_http_post
-    - connection: http_with_basic_auth
+    - name: http_with_basic_auth_get
+      connection: http_with_basic_auth
       event_type: get
       data:
         path: basic/{username}/{password}
       call: basic_auth.star:on_http_get_with_basic_auth
-    - connection: http_with_bearer_token
+    - name: http_with_basic_auth_post
+      connection: http_with_bearer_token
       event_type: get
       data:
         path: /bearer/{token}

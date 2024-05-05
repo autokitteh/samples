@@ -15,18 +15,23 @@ project:
       integration: slack
       token: TODO # Replace this with an autokitteh connection token
   triggers:
-    - connection: my_slack
+    - name: my_slack_app_mention
+      connection: my_slack
       event_type: app_mention
       call: program.star:on_slack_app_mention
-    - connection: my_slack
+    - name: my_slack_interaction
+      connection: my_slack
       event_type: interaction
       call: program.star:on_slack_interaction
-    - connection: my_slack
+    - name: my_slack_message
+      connection: my_slack
       event_type: message
       call: program.star:on_slack_message
-    - connection: my_slack
+    - name: my_slack_reaction_added
+      connection: my_slack
       event_type: reaction_added
       call: program.star:on_slack_reaction_added
-    - connection: my_slack
+    - name: my_slack_slash_command
+      connection: my_slack
       event_type: slash_command
       call: program.star:on_slack_slash_command
