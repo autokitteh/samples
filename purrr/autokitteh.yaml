@@ -2,6 +2,7 @@
 # - Modify the values in the "vars" section, if desired
 # - Create AutoKitteh connection tokens for GitHub and Slack,
 #   and replace the "TODO" lines below
+# - Modify the Redis connection string, if needed
 
 version: v1
 
@@ -21,6 +22,9 @@ project:
     - name: github
       integration: github
       token: TODO # Replace this with an AutoKitteh connection token.
+    - name: redis
+      integration: redis
+      token: "redis://localhost:6379/0" # Modify this if needed.
     - name: slack
       integration: slack
       token: TODO # Replace this with an AutoKitteh connection token.
