@@ -53,7 +53,7 @@ def on_slack_app_mention(data):
     # Reply to the message's thread, after a few seconds.
     sleep(5)
     text = "Reply before update :crying_cat_face:"
-    resp = my_slack.chat_post_message(resp.channel, resp.ts, text)
+    resp = my_slack.chat_post_message(resp.channel, text, thread_ts = resp.ts)
 
     # Update the threaded reply message, after a few seconds.
     sleep(5)
@@ -99,7 +99,7 @@ def _on_slack_reply_message(data, user):
     """Someone wrote a reply in a thread."""
     msg = ":point_up: %s wrote a reply to <@%s>: `%s`"
     msg %= (user, data.parent_user_id, data.text)
-    my_slack.chat_post_message(data.channel, data.thread_ts, msg)
+    my_slack.chat_post_message(data.channel, msg, thread_ts = data.thread_ts)
 
 def _on_slack_message_changed(data, user):
     """Someone edited a message."""
@@ -107,7 +107,7 @@ def _on_slack_message_changed(data, user):
     msg %= (user, data.previous_message.text, data.message.text)
 
     # Thread TS may or may not be empty, depending on the edited message.
-    my_slack.chat_post_message(data.channel, data.thread_ts, msg)
+    my_slack.chat_post_message(data.channel, msg, thread_ts = data.thread_ts)
 
 def on_slack_reaction_added(data):
     """https://api.slack.com/events/reaction_added"""
