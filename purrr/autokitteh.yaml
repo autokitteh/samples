@@ -28,8 +28,8 @@ project:
     - name: redis
       integration: redis
       vars:
-        name: URL
-        value: "redis://localhost:6379/0" # Modify this if needed.
+        - name: URL
+          value: "redis://localhost:6379/0" # Modify this if needed.
     - name: slack
       integration: slack
   triggers:
