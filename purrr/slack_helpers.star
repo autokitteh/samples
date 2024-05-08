@@ -22,6 +22,7 @@ def add_users_to_channel(channel_id, users):
     # mentioned in the channel, but as non-members they won't know it.
     opted_in = []
     for user_id in users.split(","):
+        # See: https://redis.io/commands/get/
         if not redis.get("slack_opt_out:" + user_id):
             opted_in.append(user_id)
     users = ",".join(opted_in)
@@ -76,8 +77,8 @@ def archive_channel(channel_id, data):
 
     return resp.ok
 
-def create_private_channel(data, name, suffix = 1):
-    """Create a private Slack channel.
+def create_channel(data, name, suffix = 1):
+    """Create a public Slack channel.
 
     Args:
         data: GitHub event data.
@@ -96,14 +97,14 @@ def create_private_channel(data, name, suffix = 1):
 
     # Create the channel.
     # See: https://api.slack.com/methods/conversations.create
-    resp = slack.conversations_create(n, is_private = True)
+    resp = slack.conversations_create("pr_" + n)
     if not resp.ok:
         if resp.error == "name_taken":
             # If a channel with the same name already exists,
             # try again recursively with a numeric suffix.
-            return create_private_channel(data, name, suffix + 1)
+            return create_channel(data, name, suffix + 1)
         else:
-            debug('Create private Slack channel "%s": `%s`' % (n, resp.error))
+            debug('Create Slack channel "%s": `%s`' % (n, resp.error))
             return ""
 
     # As long as the channel was created, these nice-to-haves aren't critical.
@@ -132,6 +133,7 @@ def lookup_pr_channel(pr_url, state, wait = False):
     """
     attempts = _CHANNEL_LOOKUP_TIMEOUT if wait else 1
     for _ in range(attempts):
+        # See: https://redis.io/commands/get/
         channel_id = redis.get(pr_url)
         if channel_id:
             return channel_id
@@ -157,6 +159,7 @@ def _lookup_review_message(review_url):
         Message's thread timestamp, or "" if not found.
     """
     for _ in range(_MESSAGE_LOOKUP_TIMEOUT):
+        # See: https://redis.io/commands/get/
         thread_ts = redis.get(review_url)
         if thread_ts:
             return thread_ts
@@ -243,7 +246,7 @@ def rename_channel(channel_id, name, suffix = 1):
 
     # Rename the channel.
     # See: https://api.slack.com/methods/conversations.rename
-    resp = slack.conversations_rename(channel_id, n)
+    resp = slack.conversations_rename(channel_id, "pr_" + n)
     if not resp.ok:
         if resp.error == "name_taken":
             # If a channel with the same name already exists,
