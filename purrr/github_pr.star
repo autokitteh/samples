@@ -108,6 +108,7 @@ def _on_pr_opened(data):
     slack.bookmarks_add(channel_id, title, pr.htmlurl + ".diff")
 
     # Remember the ID of the channel we just created, for other events.
+    # See: https://redis.io/commands/set/
     resp = redis.set(pr.htmlurl, channel_id, REDIS_TTL)
     if resp != "OK":
         debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
