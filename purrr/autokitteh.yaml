@@ -13,6 +13,9 @@ project:
     # Default TTL for Redis cache = 30 days (to forget stale PRs).
     - name: REDIS_TTL
       value: 720h
+    # PR channel names: "pr_<number>_<title>".
+    - name: SLACK_CHANNEL_PREFIX
+      value: "pr_"
     # Create this channel / replace with your own / specify "" to disable it.
     - name: SLACK_DEBUG_CHANNEL
       value: purrr-debug
@@ -25,7 +28,7 @@ project:
     - name: redis
       integration: redis
       vars:
-        name: "URL"
+        name: URL
         value: "redis://localhost:6379/0" # Modify this if needed.
     - name: slack
       integration: slack

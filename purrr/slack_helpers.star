@@ -3,7 +3,7 @@
 load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
-load("env", "SLACK_LOG_CHANNEL")  # Set in "autokitteh.yaml".
+load("env", "SLACK_CHANNEL_PREFIX", "SLACK_LOG_CHANNEL")  # Set in "autokitteh.yaml".
 load("user_helpers.star", "resolve_github_user")
 
 _CHANNEL_MAX_METADATA_LENGTH = 250  # Characters.
@@ -97,7 +97,7 @@ def create_channel(data, name, suffix = 1):
 
     # Create the channel.
     # See: https://api.slack.com/methods/conversations.create
-    resp = slack.conversations_create("pr_" + n)
+    resp = slack.conversations_create(SLACK_CHANNEL_PREFIX + n)
     if not resp.ok:
         if resp.error == "name_taken":
             # If a channel with the same name already exists,
@@ -246,7 +246,7 @@ def rename_channel(channel_id, name, suffix = 1):
 
     # Rename the channel.
     # See: https://api.slack.com/methods/conversations.rename
-    resp = slack.conversations_rename(channel_id, "pr_" + n)
+    resp = slack.conversations_rename(channel_id, SLACK_CHANNEL_PREFIX + n)
     if not resp.ok:
         if resp.error == "name_taken":
             # If a channel with the same name already exists,
