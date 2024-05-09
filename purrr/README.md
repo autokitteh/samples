@@ -18,10 +18,10 @@ actual code!
 
 ## Slack Usage
 
-Slack private channels are created automatically for each PR, and stakeholders
-are added automatically to them. GitHub-to-Slack user matching is based on
-email addresses and case-insensitive full names. These channels are also
-un/archived automatically when the PR is closed/reopened.
+Slack channels are created automatically for each PR, and stakeholders are
+added automatically to them. GitHub-to-Slack user matching is based on email
+addresses and case-insensitive full names. These channels are also un/archived
+automatically when the PR is closed/reopened.
 
 Other channels that this system may use (if configured in the
 `autokitteh.yaml` manifest file):
@@ -46,7 +46,7 @@ This project uses [Redis](https://redis.io/) as a NoSQL cache for:
 3. Caching user IDs (optimization to reduce API calls)
 4. User opt-out database
 
-Use-cases 1 and 2 use a TTL of 100 days (configurable in the `autokitteh.yaml`
+Use-cases 1 and 2 use a TTL of 30 days (configurable in the `autokitteh.yaml`
 manifest file). Use-case 3 uses a TTL of one day since the last cache hit.
 Use-case 4 is permanent (until the user opts back in).
 

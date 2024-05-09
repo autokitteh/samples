@@ -1,7 +1,7 @@
 """User-related helper functions across GitHub and Slack."""
 
-load("@redis", "redis")
 load("@github", "github")
+load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
 
@@ -67,9 +67,11 @@ def github_username_to_slack_user_id(username):
     """
 
     # Optimization: if we already have it cached, return it.
+    # See: https://redis.io/commands/get/
     slack_id = redis.get("github_user:" + username)
     if slack_id:
         # Optimization: extend the TTL after a successful cache hit.
+        # See: https://redis.io/commands/expire/
         redis.expire("github_user:" + username, _USER_CACHE_TTL)
         return slack_id
     if slack_id == "external user":
@@ -88,6 +90,7 @@ def github_username_to_slack_user_id(username):
         slack_id = email_to_slack_user_id(resp.email)
         if slack_id:
             # Optimization: cache successful results for a day.
+            # See: https://redis.io/commands/set/
             redis.set("github_user:" + username, slack_id, _USER_CACHE_TTL)
             return slack_id
 
@@ -101,6 +104,7 @@ def github_username_to_slack_user_id(username):
         )
         if gh_full_name in slack_names:
             # Optimization: cache successful results for a day.
+            # See: https://redis.io/commands/set/
             redis.set("github_user:" + username, user.id, _USER_CACHE_TTL)
             return user.id
 
@@ -108,6 +112,7 @@ def github_username_to_slack_user_id(username):
     debug("GitHub user %s: email & name not found in Slack" % link)
 
     # Optimization: cache unsuccessful results too (i.e. external users).
+    # See: https://redis.io/commands/set/
     redis.set("github_user:" + username, "external user", _USER_CACHE_TTL)
     return ""
 

@@ -85,6 +85,7 @@ def _opt_in(data, args):
         _error(data, args[0], "this command doesn't accept extra arguments")
         return
 
+    # See: https://redis.io/commands/get/
     key_prefix = "slack_opt_out:"
     opt_out = redis.get(key_prefix + data.user_id)
     if not opt_out:
@@ -92,6 +93,7 @@ def _opt_in(data, args):
         slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
         return
 
+    # See: https://redis.io/commands/del/
     redis.delete(key_prefix + data.user_id)
     msg = ":bell: You are now opted into PuRRR"
     slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
@@ -107,6 +109,7 @@ def _opt_out(data, args):
         _error(data, args[0], "this command doesn't accept extra arguments")
         return
 
+    # See: https://redis.io/commands/get/
     key_prefix = "slack_opt_out:"
     opt_out = redis.get(key_prefix + data.user_id)
     if opt_out:
@@ -114,6 +117,7 @@ def _opt_out(data, args):
         slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
         return
 
+    # See: https://redis.io/commands/set/
     redis.set(key_prefix + data.user_id, time.now())
     msg = ":no_bell: You are now opted out of PuRRR"
     slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)

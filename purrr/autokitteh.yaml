@@ -1,8 +1,9 @@
 # Before applying this file:
-# - Modify the values in the "vars" section, if desired
-# - Create AutoKitteh connection tokens for GitHub and Slack,
-#   and replace the "TODO" lines below
+# - Modify the values in the project "vars" section, if desired
 # - Modify the Redis connection string, if needed
+#
+# After applying this file:
+# - Initialize the AutoKitteh connections to GitHub and Slack
 
 version: v1
 
@@ -12,6 +13,9 @@ project:
     # Default TTL for Redis cache = 30 days (to forget stale PRs).
     - name: REDIS_TTL
       value: 720h
+    # Default PR channel names: "pr_<number>_<title>".
+    - name: SLACK_CHANNEL_PREFIX
+      value: "pr_"
     # Create this channel / replace with your own / specify "" to disable it.
     - name: SLACK_DEBUG_CHANNEL
       value: purrr-debug
@@ -21,13 +25,13 @@ project:
   connections:
     - name: github
       integration: github
-      token: TODO # Replace this with an AutoKitteh connection token.
     - name: redis
       integration: redis
-      token: "redis://localhost:6379/0" # Modify this if needed.
+      vars:
+        - name: URL
+          value: redis://localhost:6379/0 # Modify this if needed.
     - name: slack
       integration: slack
-      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - name: github_issue_comment
       connection: github

@@ -9,7 +9,7 @@ load(
     "slack_helpers.star",
     "add_users_to_channel",
     "archive_channel",
-    "create_private_channel",
+    "create_channel",
     "lookup_pr_channel",
     "mention_user_in_message",
     "normalize_channel_name",
@@ -76,9 +76,9 @@ def _on_pr_opened(data):
     """
     pr = data.pull_request
 
-    # Create a dedicated private Slack channel for the PR.
+    # Create a dedicated Slack channel for the PR.
     name = "%d_%s" % (pr.number, normalize_channel_name(pr.title))
-    channel_id = create_private_channel(data, name)
+    channel_id = create_channel(data, name)
     if not channel_id:
         user_id = github_username_to_slack_user_id(data.sender.login)
         msg = "Failed to create a Slack channel for %s" % pr.htmlurl
@@ -108,6 +108,7 @@ def _on_pr_opened(data):
     slack.bookmarks_add(channel_id, title, pr.htmlurl + ".diff")
 
     # Remember the ID of the channel we just created, for other events.
+    # See: https://redis.io/commands/set/
     resp = redis.set(pr.htmlurl, channel_id, REDIS_TTL)
     if resp != "OK":
         debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
