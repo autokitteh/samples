@@ -80,14 +80,15 @@ def on_slack_message(data):
     Args:
         data: Slack event data.
     """
-    user = "<@" + data.user + ">" if data.user else "A bot"
-    if data.subtype == "":
-        if data.thread_ts == "":
+    if not data.subtype:
+        user = "<@" + data.user + ">"
+        if not data.thread_ts:
             _on_slack_new_message(data, user)
         else:
             # https://api.slack.com/events/message/message_replied
             _on_slack_reply_message(data, user)
     elif data.subtype == "message_changed":
+        user = "<@" + data.message.user + ">"
         _on_slack_message_changed(data, user)
 
 def _on_slack_new_message(data, user):
