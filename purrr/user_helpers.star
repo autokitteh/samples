@@ -134,6 +134,55 @@ def resolve_github_user(github_user):
         # Otherwise, fall-back to their GitHub profile link.
         return "<%s|%s>" % (github_user.htmlurl, github_user.login)
 
+def resolve_slack_user(slack_user_id):
+    """Convert a Slack user ID to a GitHub user reference.
+
+    Args:
+        slack_user_id: Slack user ID.
+
+    Returns:
+        GitHub user reference, or the Slack user's full name, or "Someone".
+        Used for mentioning users in GitHub reviews and comments.
+    """
+    if not slack_user_id:
+        debug("Slack user ID not found in Slack message event")
+        return "Someone"
+
+    # Optimization: if we already have it cached, return it.
+    # See: https://redis.io/commands/get/
+    github_user = redis.get("slack_user:" + slack_user_id)
+    if github_user:
+        # Optimization: extend the TTL after a successful cache hit.
+        # See: https://redis.io/commands/expire/
+        redis.expire("slack_user:" + slack_user_id, _USER_CACHE_TTL)
+        return github_user
+
+    # See: https://api.slack.com/methods/users.info
+    resp = slack.users_info(slack_user_id)
+    if not resp.ok:
+        debug("Get Slack user info for <@%s>: `%s`" % (slack_user_id, resp.error))
+        return "Someone"
+
+    # Special case: Slack bots can't have GitHub identities.
+    if resp.user.is_bot:
+        return resp.user.real_name + " (Slack bot)"
+
+    # TODO: Try to match by the email address first.
+    email = getattr(resp.user.profile, "email", "")  # May be None.
+    if not email:
+        debug("Slack user <@%s>: email address not found" % slack_user_id)
+    else:
+        pass
+        # github_id = email_to_github_user_id(email)
+        # if github_id:
+        #     # Optimization: cache successful results for a day.
+        #     # See: https://redis.io/commands/set/
+        #     redis.set("slack_user:" + slack_user_id, github_id, _USER_CACHE_TTL)
+        #     return github_id
+
+    # Otherwise, return the user's full name.
+    return resp.user.real_name
+
 def _slack_users(cursor = ""):
     """Return a list of all Slack users in the workspace.
 
