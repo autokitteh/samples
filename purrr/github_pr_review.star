@@ -26,7 +26,7 @@ def on_github_pull_request_review(data):
     if data.action in action_handlers:
         action_handlers[data.action](data)
     else:
-        debug("Unrecognized GitHub PR review action: `%s`" + data.action)
+        debug("Unrecognized GitHub PR review action: `%s`" % data.action)
 
 def _on_pr_review_submitted(data):
     """A review on a pull request was submitted.

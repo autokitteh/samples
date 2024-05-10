@@ -15,8 +15,7 @@ def on_github_pull_request_review_thread(data):
     if data.action in action_handlers:
         action_handlers[data.action](data)
     else:
-        msg = "Unrecognized GitHub PR review thread action: `%s`"
-        debug(msg % data.action)
+        debug("Unrecognized GitHub PR review thread action: `%s`" % data.action)
 
 def _on_pr_review_thread_resolved(data):
     """A comment thread on a pull request was marked as resolved.
