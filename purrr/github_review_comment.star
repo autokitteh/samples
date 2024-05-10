@@ -23,8 +23,7 @@ def on_github_pull_request_review_comment(data):
     if data.action in action_handlers:
         action_handlers[data.action](data)
     else:
-        msg = "Unrecognized GitHub PR review comment action: `%s`"
-        debug(msg % data.action)
+        debug("Unrecognized GitHub PR review comment action: `%s`" % data.action)
 
 def _on_pr_review_comment_created(data):
     """A comment on a pull request diff was created.
