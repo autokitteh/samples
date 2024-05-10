@@ -53,6 +53,14 @@ project:
       connection: github
       event_type: pull_request_review_thread
       call: github_thread.star:on_github_pull_request_review_thread
+    - name: slack_message
+      connection: slack
+      event_type: message
+      call: slack_message.star:on_slack_message
+    - name: slack_reaction_added
+      connection: slack
+      event_type: reaction_added
+      call: slack_reaction.star:on_slack_reaction_added
     - name: slack_slash_command
       connection: slack
       event_type: slash_command
