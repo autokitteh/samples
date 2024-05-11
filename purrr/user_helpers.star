@@ -50,7 +50,7 @@ def github_pr_participants(pr):
 
     return sorted(usernames)
 
-def github_username_to_slack_user_id(username):
+def github_username_to_slack_user_id(username, owner = ""):
     """Convert a GitHub username into a Slack user ID.
 
     This function tries to match the email address first, and then
@@ -61,6 +61,7 @@ def github_username_to_slack_user_id(username):
 
     Args:
         username: GitHub username.
+        owner: Optional, for org-specific visibility.
 
     Returns:
         Slack user ID, or "" if not found.
@@ -80,7 +81,7 @@ def github_username_to_slack_user_id(username):
         return ""
 
     # See: https://docs.github.com/en/rest/users#get-a-user
-    resp = github.get_user(username)
+    resp = github.get_user(username, owner = owner)
 
     # Try to match by the email address first.
     if not resp.email:
@@ -116,17 +117,18 @@ def github_username_to_slack_user_id(username):
     redis.set("github_user:" + username, "external user", _USER_CACHE_TTL)
     return ""
 
-def resolve_github_user(github_user):
+def resolve_github_user(github_user, owner = ""):
     """Convert a GitHub username to a linkified user reference in Slack.
 
     Args:
         github_user: GitHub user object.
+        owner: Optional, for org-specific visibility.
 
     Returns:
         Slack user reference, or GitHub profile link.
         Used for mentioning users in Slack messages.
     """
-    id = github_username_to_slack_user_id(github_user.login)
+    id = github_username_to_slack_user_id(github_user.login, owner)
     if id:
         # Mention the user by their Slack ID, if possible.
         return "<@%s>" % id

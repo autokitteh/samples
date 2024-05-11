@@ -75,12 +75,13 @@ def _on_pr_opened(data):
         data: GitHub event data.
     """
     pr = data.pull_request
+    org = data.organization.login
 
     # Create a dedicated Slack channel for the PR.
     name = "%d_%s" % (pr.number, normalize_channel_name(pr.title))
     channel_id = create_channel(data, name)
     if not channel_id:
-        user_id = github_username_to_slack_user_id(data.sender.login)
+        user_id = github_username_to_slack_user_id(data.sender.login, owner = org)
         msg = "Failed to create a Slack channel for %s" % pr.htmlurl
         slack.chat_post_message(user_id, msg)
         debug(msg)
@@ -125,7 +126,7 @@ def _on_pr_opened(data):
     # Finally, add all the participants in the PR to this channel.
     slack_user_ids = []
     for username in github_pr_participants(pr):
-        user_id = github_username_to_slack_user_id(username)
+        user_id = github_username_to_slack_user_id(username, owner = org)
         if user_id:
             slack_user_ids.append(user_id)
     add_users_to_channel(channel_id, ",".join(slack_user_ids))
