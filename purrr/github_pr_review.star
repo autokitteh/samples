@@ -39,8 +39,8 @@ def _on_pr_review_submitted(data):
     Args:
         data: GitHub event data.
     """
-    # TODO: Don't sync this with Slack, unless data.review.body isn't empty,
-    # or the sender's action was "APPROVE" or "REQUEST_CHANGES".
+    # TODO(ENG-835): Don't sync this with Slack, unless data.review.body isn't
+    # empty, or the sender's action was "APPROVE" or "REQUEST_CHANGES".
 
     pr_url = data.pull_request.htmlurl
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
