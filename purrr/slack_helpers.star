@@ -161,8 +161,7 @@ def lookup_pr_channel(pr_url, state, wait = False):
             sleep(1)
 
     # Timeout.
-    msg = "State of %s is `%s`, but Slack channel not found"
-    debug(msg % (pr_url, state))
+    debug("State of %s is `%s`, but Slack channel not found" % (pr_url, state))
     return ""
 
 def _lookup_review_message(review_url):

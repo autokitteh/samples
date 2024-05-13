@@ -119,8 +119,7 @@ def _opt_out(data, args):
     # See: https://redis.io/commands/set/
     resp = redis.set(key_prefix + data.user_id, time.now())
     if resp != "OK":
-        msg = 'Redis "set %s %s" failed: %s'
-        debug(msg % (key_prefix + data.user_id, time.now(), resp))
+        debug('Redis "set %s %s" failed: %s' % (key_prefix + data.user_id, time.now(), resp))
     else:
         msg = ":no_bell: You are now opted out of PuRRR"
         slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)

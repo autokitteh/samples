@@ -57,8 +57,7 @@ def _on_pr_review_submitted(data):
         # See: https://redis.io/commands/set/
         resp = redis.set(data.review.htmlurl, thread_ts, REDIS_TTL)
         if resp != "OK":
-            msg = 'Redis "set %s %s" failed: %s'
-            debug(msg % (data.review.htmlurl, thread_ts, resp))
+            debug('Redis "set %s %s" failed: %s' % (data.review.htmlurl, thread_ts, resp))
 
 def _on_pr_review_edited(data):
     """The body comment on a pull request review was edited.

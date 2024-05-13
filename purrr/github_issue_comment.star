@@ -50,8 +50,7 @@ def _on_issue_comment_created(data):
         # See: https://redis.io/commands/set/
         resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
         if resp != "OK":
-            msg = 'Redis "set %s %s" failed: %s'
-            debug(msg % (data.comment.htmlurl, thread_ts, resp))
+            debug('Redis "set %s %s" failed: %s' % (data.comment.htmlurl, thread_ts, resp))
 
 def _on_issue_comment_edited(data):
     """A comment on an issue or pull request was edited.

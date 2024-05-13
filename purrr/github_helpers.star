@@ -5,9 +5,9 @@ load("@redis", "redis")
 load("debug.star", "debug")
 
 def create_review_comment_reply(owner, repo, pr, body, channel_id, thread_ts):
-    """https://docs.github.com/en/rest/pulls/comments#create-a-review-comment-for-a-pull-request
+    """https://docs.github.com/en/rest/pulls/comments#create-a-reply-for-a-review-comment
 
-    Create a review comment, replying to an existing one.
+    Create a review comment which is a reply to an existing review comment.
 
     Args:
         owner: Owner of the GitHub repository.
@@ -25,7 +25,7 @@ def create_review_comment_reply(owner, repo, pr, body, channel_id, thread_ts):
     # See: https://redis.io/commands/get/
     gh_comment_id = redis.get("%s:%s" % (channel_id, thread_ts))
     if not gh_comment_id:
-        debug("Couldn't find GitHub parent comment ID for Slack reply")
+        debug("Couldn't find GitHub comment ID to sync Slack reply")
         return None
 
     return github.create_review_comment_reply(owner, repo, pr, int(gh_comment_id), body)
