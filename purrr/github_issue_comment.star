@@ -41,8 +41,8 @@ def _on_issue_comment_created(data):
     if not channel_id:
         debug("Can't announce this PR comment: " + data.comment.htmlurl)
 
-    markdown = github_markdown_to_slack(data.comment.body, pr_url)
-    msg = "%%s commented via <%s|GitHub>:\n\n%s" % (data.comment.htmlurl, markdown)
+    msg = "%%s <%s|commented on the PR>:\n\n" % data.comment.htmlurl
+    msg += github_markdown_to_slack(data.comment.body, pr_url)
     thread_ts = mention_user_in_message(channel_id, data.sender, msg)
 
     # Remember the thread timestamp (message ID) of the message we posted.

@@ -4,7 +4,12 @@ load("@redis", "redis")
 load("debug.star", "debug")
 load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
-load("slack_helpers.star", "lookup_pr_channel", "mention_user_in_reply")
+load(
+    "slack_helpers.star",
+    "lookup_pr_channel",
+    "mention_user_in_message",
+    "mention_user_in_reply",
+)
 
 def on_github_pull_request_review_comment(data):
     """https://docs.github.com/webhooks/webhook-events-and-payloads#pull_request_review_comment
@@ -43,17 +48,20 @@ def _on_pr_review_comment_created(data):
     if not channel_id:
         debug("Can't announce this PR review comment: " + data.comment.htmlurl)
 
-    # TODO: Use "comment.created_at" to enforce chronological order?
-    # (e.g. a review with multiple comments)
+    if not getattr(data.comment, "in_reply_to", None):
+        # Review comment.
+        msg = "%%s created a <%s|%s comment> in `%s`:\n\n"
+        msg %= (data.comment.htmlurl, data.comment.subject_type, data.comment.path)
+        msg += github_markdown_to_slack(data.comment.body, pr_url)
+        thread_ts = mention_user_in_message(channel_id, data.sender, msg)
+    else:
+        # Reply to a review comment.
+        thread_url = "%s#discussion_r%d" % (pr_url, data.comment.in_reply_to)
+        msg = "%%s replied with <%s|this comment>:\n\n" % data.comment.htmlurl
+        msg += github_markdown_to_slack(data.comment.body, pr_url)
+        thread_ts = mention_user_in_reply(channel_id, thread_url, data.sender, msg)
 
-    review_thread = "%s#pullrequestreview-%d" % (pr_url, data.comment.pull_request_review_id)
-
-    msg = "%%s created a %s comment in the file `%s` via <%s|GitHub>:\n\n"
-    msg %= (data.comment.subject_type, data.comment.path, data.comment.htmlurl)
-    msg += github_markdown_to_slack(data.comment.body, pr_url)
-    thread_ts = mention_user_in_reply(channel_id, review_thread, data.sender, msg)
-
-    # Remember the reply timestamp (message ID) of the message we posted.
+    # Remember the thread/reply timestamp (message ID) of the message we posted.
     if thread_ts:
         # See: https://redis.io/commands/set/
         resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
