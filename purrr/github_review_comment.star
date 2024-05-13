@@ -61,8 +61,7 @@ def _on_pr_review_comment_created(data):
             channel_ts = "%s:%s" % (channel_id, thread_ts)
             resp = redis.set(channel_ts, data.comment.id, REDIS_TTL)
             if resp != "OK":
-                msg = 'Redis "set %s %s" failed: %s'
-                debug(msg % (channel_ts, data.comment.id, resp))
+                debug('Redis "set %s %s" failed: %s' % (channel_ts, data.comment.id, resp))
     else:
         # Reply to a review comment.
         thread_url = "%s#discussion_r%d" % (pr_url, data.comment.in_reply_to)
@@ -75,8 +74,7 @@ def _on_pr_review_comment_created(data):
         # See: https://redis.io/commands/set/
         resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
         if resp != "OK":
-            msg = 'Redis "set %s %s" failed: %s'
-            debug(msg % (data.comment.htmlurl, thread_ts, resp))
+            debug('Redis "set %s %s" failed: %s' % (data.comment.htmlurl, thread_ts, resp))
 
 def _on_pr_review_comment_edited(data):
     """The content of a comment on a pull request diff was changed.
