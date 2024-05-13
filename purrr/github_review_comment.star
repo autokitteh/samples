@@ -48,8 +48,8 @@ def _on_pr_review_comment_created(data):
 
     review_thread = "%s#pullrequestreview-%d" % (pr_url, data.comment.pull_request_review_id)
 
-    msg = "%%s created a <%s|%s comment> in the file `%s` via <%s|GitHub>:\n\n"
-    msg %= (data.comment.htmlurl, data.comment.subject_type, data.comment.path)
+    msg = "%%s created a %s comment in the file `%s` via <%s|GitHub>:\n\n"
+    msg %= (data.comment.subject_type, data.comment.path, data.comment.htmlurl)
     msg += github_markdown_to_slack(data.comment.body, pr_url)
     thread_ts = mention_user_in_reply(channel_id, review_thread, data.sender, msg)
 

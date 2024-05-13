@@ -65,7 +65,7 @@ def _on_pr_review_edited(data):
     Args:
         data: GitHub event data.
     """
-    if data.changes:
+    if getattr(data, "changes", None):
         print(data.changes)
     print(data.review)
     print(data.sender)
