@@ -2,6 +2,7 @@
 
 load("@redis", "redis")
 load("@slack", "slack")
+load("debug.star", "debug")
 
 WAKE_WORD = "purrr"
 HELP_CMD = "help"
@@ -67,11 +68,9 @@ def _help(data, args):
         _error(data, HELP_CMD, "this command doesn't accept extra arguments")
         return
 
-    help = ":wave: *GitHub Pull Request Review Reminder (PuRRR)* :wave:\n\n"
-    help += "Available slash commands:"
+    help = ":wave: *GitHub Pull Request Review Reminder (PuRRR)* :wave:\n\nAvailable slash commands:"
     for cmd, description, _ in COMMANDS:
-        subs = (data.command, WAKE_WORD, cmd, description)
-        help += "\n  •  `%s %s %s` - %s" % subs
+        help += "\n  •  `%s %s %s` - %s" % (data.command, WAKE_WORD, cmd, description)
     slack.chat_post_ephemeral(data.channel_id, data.user_id, help)
 
 def _opt_in(data, args):
@@ -118,9 +117,13 @@ def _opt_out(data, args):
         return
 
     # See: https://redis.io/commands/set/
-    redis.set(key_prefix + data.user_id, time.now())
-    msg = ":no_bell: You are now opted out of PuRRR"
-    slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
+    resp = redis.set(key_prefix + data.user_id, time.now())
+    if resp != "OK":
+        msg = 'Redis "set %s %s" failed: %s'
+        debug(msg % (key_prefix + data.user_id, time.now(), resp))
+    else:
+        msg = ":no_bell: You are now opted out of PuRRR"
+        slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
 
 def _list(data, args):
     """List command.

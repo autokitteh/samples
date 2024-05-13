@@ -82,11 +82,15 @@ def github_username_to_slack_user_id(username, owner = ""):
 
     # See: https://docs.github.com/en/rest/users#get-a-user
     resp = github.get_user(username, owner = owner)
+    github_user_link = "<%s|%s>" % (resp.htmlurl, username)
+
+    # Bots are not real users, so we can't match them to Slack users.
+    if resp.type == "Bot":
+        return ""
 
     # Try to match by the email address first.
     if not resp.email:
-        link = "<https://github.com/%s|%s>" % ((username,) * 2)
-        debug("GitHub user %s: email address not found" % link)
+        debug("GitHub user %s: email address not found" % github_user_link)
     else:
         slack_id = email_to_slack_user_id(resp.email)
         if slack_id:
@@ -96,8 +100,11 @@ def github_username_to_slack_user_id(username, owner = ""):
             return slack_id
 
     # Otherwise, try to match by the user's full name.
-    gh_full_name = getattr(resp, "name", "")  # May be None.
-    gh_full_name = gh_full_name.lower()
+    if not resp.name:
+        debug("GitHub user %s: full name not found" % github_user_link)
+        return ""
+
+    gh_full_name = resp.name.lower()
     for user in _slack_users():
         slack_names = (
             user.profile.real_name.lower(),
@@ -109,8 +116,7 @@ def github_username_to_slack_user_id(username, owner = ""):
             redis.set("github_user:" + username, user.id, _USER_CACHE_TTL)
             return user.id
 
-    link = "<https://github.com/%s|%s>" % ((username,) * 2)
-    debug("GitHub user %s: email & name not found in Slack" % link)
+    debug("GitHub user %s: email & name not found in Slack" % github_user_link)
 
     # Optimization: cache unsuccessful results too (i.e. external users).
     # See: https://redis.io/commands/set/

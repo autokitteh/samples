@@ -9,8 +9,8 @@ load("slack_helpers.star", "lookup_pr_channel", "mention_user_in_message")
 def on_github_pull_request_review(data):
     """https://docs.github.com/webhooks/webhook-events-and-payloads#pull_request_review
 
-    A pull request review is a group of pull request review comments
-    in addition to a body comment and a state.
+    A pull request review is a group of pull request review
+    comments in addition to a body comment and a state.
 
     For more information, see "About pull request reviews":
     https://docs.github.com/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews
@@ -18,6 +18,11 @@ def on_github_pull_request_review(data):
     Args:
         data: GitHub event data.
     """
+
+    # Ignore this event if it was triggered by a bot.
+    if data.sender.type == "Bot":
+        return
+
     action_handlers = {
         "submitted": _on_pr_review_submitted,
         "edited": _on_pr_review_edited,
@@ -39,9 +44,9 @@ def _on_pr_review_submitted(data):
     if not channel_id:
         debug("Can't announce this PR review: " + data.review.htmlurl)
 
-    msg = "%%s submitted a <%s|review>" % data.review.htmlurl
+    msg = "%%s submitted a review via <%s|GitHub>" % data.review.htmlurl
     if data.review.body:
-        msg += ":\n" + github_markdown_to_slack(data.review.body, pr_url)
+        msg += ":\n\n" + github_markdown_to_slack(data.review.body, pr_url)
     thread_ts = mention_user_in_message(channel_id, data.sender, msg)
 
     # Remember the thread timestamp (message ID) of the message we posted.
