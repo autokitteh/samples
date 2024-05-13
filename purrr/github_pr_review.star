@@ -39,12 +39,15 @@ def _on_pr_review_submitted(data):
     Args:
         data: GitHub event data.
     """
+    # TODO: Don't sync this with Slack, unless data.review.body isn't empty,
+    # or the sender's action was "APPROVE" or "REQUEST_CHANGES".
+
     pr_url = data.pull_request.htmlurl
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
         debug("Can't announce this PR review: " + data.review.htmlurl)
 
-    msg = "%%s submitted a review via <%s|GitHub>" % data.review.htmlurl
+    msg = "%%s submitted a <%s|PR review>" % data.review.htmlurl
     if data.review.body:
         msg += ":\n\n" + github_markdown_to_slack(data.review.body, pr_url)
     thread_ts = mention_user_in_message(channel_id, data.sender, msg)
@@ -65,8 +68,10 @@ def _on_pr_review_edited(data):
     Args:
         data: GitHub event data.
     """
-    if getattr(data, "changes", None):
-        print(data.changes)
+    if not getattr(data, "changes", None):
+        return
+
+    print(data.changes)
     print(data.review)
     print(data.sender)
     print(data.pull_request)

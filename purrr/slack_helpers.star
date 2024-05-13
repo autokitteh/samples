@@ -212,7 +212,7 @@ def mention_user_in_message(channel_id, github_user, msg):
     return resp.ts if resp.ok else ""
 
 def mention_user_in_reply(channel_id, review_url, github_user, msg):
-    """Post a reply (comment) to a Slack message (review), mentioning a user.
+    """Post a reply to a Slack message (review comment), mentioning a user.
 
     Args:
         channel_id: ID of the channel to send the message to.
