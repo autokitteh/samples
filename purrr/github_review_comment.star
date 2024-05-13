@@ -1,6 +1,8 @@
 """Handler for GitHub "pull_request_review_comment" events."""
 
+load("@redis", "redis")
 load("debug.star", "debug")
+load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
 load("slack_helpers.star", "lookup_pr_channel", "mention_user_in_reply")
 
@@ -39,16 +41,25 @@ def _on_pr_review_comment_created(data):
     pr_url = data.pull_request.htmlurl
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
-        debug("Can't announce this review comment: " + data.comment.htmlurl)
+        debug("Can't announce this PR review comment: " + data.comment.htmlurl)
 
     # TODO: Use "comment.created_at" to enforce chronological order?
-    comment = data.comment
-    review_id = comment.pull_request_review_id
-    review_url = "%s#pullrequestreview-%d" % (pr_url, review_id)
-    msg = "%%s created a <%s|%s comment> in the file `%s`:\n\n"
-    msg %= (comment.htmlurl, comment.subject_type, comment.path)
+    # (e.g. a review with multiple comments)
+
+    review_thread = "%s#pullrequestreview-%d" % (pr_url, data.comment.pull_request_review_id)
+
+    msg = "%%s created a <%s|%s comment> in the file `%s` via <%s|GitHub>:\n\n"
+    msg %= (data.comment.htmlurl, data.comment.subject_type, data.comment.path)
     msg += github_markdown_to_slack(data.comment.body, pr_url)
-    mention_user_in_reply(channel_id, review_url, data.sender, msg)
+    thread_ts = mention_user_in_reply(channel_id, review_thread, data.sender, msg)
+
+    # Remember the reply timestamp (message ID) of the message we posted.
+    if thread_ts:
+        # See: https://redis.io/commands/set/
+        resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
+        if resp != "OK":
+            msg = 'Redis "set %s %s" failed: %s'
+            debug(msg % (data.comment.htmlurl, thread_ts, resp))
 
 def _on_pr_review_comment_edited(data):
     """The content of a comment on a pull request diff was changed.

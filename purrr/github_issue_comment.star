@@ -1,12 +1,16 @@
 """Handler for GitHub "issue_comment" events."""
 
+load("@redis", "redis")
 load("debug.star", "debug")
+load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
+load("markdown.star", "github_markdown_to_slack")
+load("slack_helpers.star", "lookup_pr_channel", "mention_user_in_message")
 
 def on_github_issue_comment(data):
     """https://docs.github.com/webhooks/webhook-events-and-payloads#issue_comment
 
-    This event occurs when there is activity relating to a comment on an issue
-    or pull request.
+    This event occurs when there is activity relating
+    to a comment on an issue or pull request.
 
     Args:
         data: GitHub event data.
@@ -29,14 +33,25 @@ def on_github_issue_comment(data):
 def _on_issue_comment_created(data):
     """A comment on an issue or pull request was created.
 
-    TODO: Implement this.
-
     Args:
         data: GitHub event data.
     """
-    print(data.issue)
-    print(data.comment)
-    print(data.sender)
+    pr_url = data.issue.htmlurl
+    channel_id = lookup_pr_channel(pr_url, data.issue.state)
+    if not channel_id:
+        debug("Can't announce this PR comment: " + data.comment.htmlurl)
+
+    markdown = github_markdown_to_slack(data.comment.body, pr_url)
+    msg = "%%s commented via <%s|GitHub>:\n\n%s" % (data.comment.htmlurl, markdown)
+    thread_ts = mention_user_in_message(channel_id, data.sender, msg)
+
+    # Remember the thread timestamp (message ID) of the message we posted.
+    if thread_ts:
+        # See: https://redis.io/commands/set/
+        resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
+        if resp != "OK":
+            msg = 'Redis "set %s %s" failed: %s'
+            debug(msg % (data.comment.htmlurl, thread_ts, resp))
 
 def _on_issue_comment_edited(data):
     """A comment on an issue or pull request was edited.

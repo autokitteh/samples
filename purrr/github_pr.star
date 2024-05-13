@@ -115,7 +115,7 @@ def _on_pr_opened(data):
     if resp != "OK":
         debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
 
-    details = "%s:%s:%s" % (org, data.repository.name, pr.number)
+    details = "%s:%s:%s" % (org, data.repo.name, pr.number)
     resp = redis.set(channel_id, details, REDIS_TTL)
     if resp != "OK":
         debug('Redis "set %s %s" failed: %s' % (channel_id, details, resp))
