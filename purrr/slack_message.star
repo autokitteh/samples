@@ -5,7 +5,7 @@ load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
 load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
-load("github_helpers.star", "create_review_comment")
+load("github_helpers.star", "create_review_comment_reply")
 load("markdown.star", "slack_markdown_to_github")
 load("slack_helpers.star", "get_permalink")
 load("user_helpers.star", "resolve_slack_user")
@@ -31,7 +31,9 @@ def _on_slack_new_message(data):
     Args:
         data: Slack event data.
     """
-    # TODO: Handle broadcast messages correctly (e.g. data.user is elsewhere).
+    # TODO 1: Create a GH *comment* under the review, otherwise threading will be wonky
+    # TODO 2: Save comment's ID in Redis like the GH comment flow
+    # TODO 3: Handle broadcast messages correctly (e.g. data.user is elsewhere?)
 
     github_user = resolve_slack_user(data.user)
 
@@ -60,7 +62,8 @@ def _on_slack_new_message(data):
         else:
             # Slack threaded reply, broadcasted to the channel = the same.
             body %= (github_user, get_permalink(data.channel, data.root.ts), data.text)
-        resp = create_review_comment(owner, repo, pr, body)
+
+        resp = create_review_comment_reply(owner, repo, pr, body, data.channel, data.thread_ts)
 
         # TODO: Use Redis (resp.htmlurl, data.thread_ts?)
 
