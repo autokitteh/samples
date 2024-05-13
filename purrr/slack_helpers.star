@@ -219,6 +219,9 @@ def mention_user_in_reply(channel_id, review_url, github_user, msg):
         review_url: URL of the GitHub PR review to comment on.
         github_user: GitHub user object of the mentioned user.
         msg: Message to send, containing a single "%s" placeholder.
+
+    Returns:
+        Message's thread timestamp, or "" on errors.
     """
     msg %= resolve_github_user(github_user)
     thread_ts = _lookup_review_message(review_url)
