@@ -54,6 +54,15 @@ def _on_pr_review_comment_created(data):
         msg %= (data.comment.htmlurl, data.comment.subject_type, data.comment.path)
         msg += github_markdown_to_slack(data.comment.body, pr_url)
         thread_ts = mention_user_in_message(channel_id, data.sender, msg)
+
+        # Remember the GitHub comment ID, so we can reply to it later from Slack.
+        # See: https://redis.io/commands/set/
+        if thread_ts:
+            channel_ts = "%s:%s" % (channel_id, thread_ts)
+            resp = redis.set(channel_ts, data.comment.id, REDIS_TTL)
+            if resp != "OK":
+                msg = 'Redis "set %s %s" failed: %s'
+                debug(msg % (channel_ts, data.comment.id, resp))
     else:
         # Reply to a review comment.
         thread_url = "%s#discussion_r%d" % (pr_url, data.comment.in_reply_to)
