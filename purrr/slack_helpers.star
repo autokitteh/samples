@@ -226,7 +226,7 @@ def mention_user_in_reply(channel_id, review_url, github_user, msg):
     msg %= resolve_github_user(github_user)
     thread_ts = _lookup_review_message(review_url)
     if channel_id and thread_ts:
-        slack.chat_post_message(channel_id, msg, thread_ts = thread_ts, reply_broadcast = True)
+        slack.chat_post_message(channel_id, msg, thread_ts = thread_ts)
 
     # TODO: Also post the reply in the log channel.
 

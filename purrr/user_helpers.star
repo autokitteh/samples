@@ -173,7 +173,11 @@ def resolve_slack_user(slack_user_id):
 
     # Special case: Slack bots can't have GitHub identities.
     if resp.user.is_bot:
-        return resp.user.real_name + " (Slack bot)"
+        # Optimization: cache successful results for a day.
+        # See: https://redis.io/commands/set/
+        bot_name = resp.user.real_name + " (Slack bot)"
+        redis.set("slack_user:" + slack_user_id, bot_name, _USER_CACHE_TTL)
+        return bot_name
 
     # TODO: Try to match by the email address first.
     email = getattr(resp.user.profile, "email", "")  # May be None.

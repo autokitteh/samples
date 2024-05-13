@@ -31,6 +31,8 @@ def _on_slack_new_message(data):
     Args:
         data: Slack event data.
     """
+    # TODO: Handle broadcast messages correctly (e.g. data.user is elsewhere).
+
     github_user = resolve_slack_user(data.user)
 
     # See: https://redis.io/commands/get/
