@@ -15,6 +15,11 @@ def on_github_pull_request_review_comment(data):
     Args:
         data: GitHub event data.
     """
+
+    # Ignore this event if it was triggered by a bot.
+    if data.sender.type == "Bot":
+        return
+
     action_handlers = {
         "created": _on_pr_review_comment_created,
         "edited": _on_pr_review_comment_edited,
@@ -40,7 +45,7 @@ def _on_pr_review_comment_created(data):
     comment = data.comment
     review_id = comment.pull_request_review_id
     review_url = "%s#pullrequestreview-%d" % (pr_url, review_id)
-    msg = "%%s created a <%s|%s comment> in the file `%s`:\n"
+    msg = "%%s created a <%s|%s comment> in the file `%s`:\n\n"
     msg %= (comment.htmlurl, comment.subject_type, comment.path)
     msg += github_markdown_to_slack(data.comment.body, pr_url)
     mention_user_in_reply(channel_id, review_url, data.sender, msg)

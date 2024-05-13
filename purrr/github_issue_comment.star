@@ -11,6 +11,11 @@ def on_github_issue_comment(data):
     Args:
         data: GitHub event data.
     """
+
+    # Ignore this event if it was triggered by a bot.
+    if data.sender.type == "Bot":
+        return
+
     action_handlers = {
         "created": _on_issue_comment_created,
         "edited": _on_issue_comment_edited,

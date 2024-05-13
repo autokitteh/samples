@@ -33,8 +33,7 @@ def add_users_to_channel(channel_id, users):
         return
 
     # An error occurred - first, report it.
-    msg = "Add Slack users to channel <#%s>: `%s`"
-    debug(msg % (channel_id, resp.error))
+    debug("Add Slack users to channel <#%s>: `%s`" % (channel_id, resp.error))
     for e in resp.errors:
         debug("Error: <@%s> - `%s`" % (e.user, e.error))
 
@@ -116,6 +115,26 @@ def create_channel(data, name, suffix = 1):
 
     return channel_id
 
+def get_permalink(channel_id, message_ts):
+    """Return a markdown-formatted permalink to a specific Slack message.
+
+    Args:
+        channel_id: ID of the Slack channel containing the message.
+        message_ts: Timestamp of the specific message to link to.
+
+    Returns:
+        GitHub Markdown-formatted link, or just the word "Slack"
+        if we couldn't generate it.
+    """
+
+    # See: https://api.slack.com/methods/chat.getPermalink
+    resp = slack.chat_get_permalink(channel_id, message_ts)
+    if resp.ok:
+        return "[Slack](%s)" % resp.permalink
+    else:
+        debug("Failed to get permalink for Slack message: `%s`" % resp.error)
+        return "Slack"
+
 def lookup_pr_channel(pr_url, state, wait = False):
     """Return the ID of a Slack channel representing a GitHub PR.
 
@@ -184,7 +203,7 @@ def mention_user_in_message(channel_id, github_user, msg):
     """
     msg %= resolve_github_user(github_user)
 
-    # TODO: Also post a reply in the log channel.
+    # TODO: Also post the message in the log channel.
 
     if not channel_id:
         return ""
@@ -206,7 +225,7 @@ def mention_user_in_reply(channel_id, review_url, github_user, msg):
     if channel_id and thread_ts:
         slack.chat_post_message(channel_id, msg, thread_ts = thread_ts)
 
-    # TODO: Also post a reply in the log channel.
+    # TODO: Also post the reply in the log channel.
 
 def normalize_channel_name(name):
     """Convert arbitrary text into a valid Slack channel name.

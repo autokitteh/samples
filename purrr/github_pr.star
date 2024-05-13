@@ -109,19 +109,24 @@ def _on_pr_opened(data):
     slack.bookmarks_add(channel_id, title, pr.htmlurl + ".diff")
 
     # Remember the ID of the channel we just created, for other events.
+    # Also map the channel ID to the PR details for Slack-to-GitHub sync.
     # See: https://redis.io/commands/set/
     resp = redis.set(pr.htmlurl, channel_id, REDIS_TTL)
     if resp != "OK":
         debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
 
+    details = "%s:%s:%s" % (org, data.repository.name, pr.number)
+    resp = redis.set(channel_id, details, REDIS_TTL)
+    if resp != "OK":
+        debug('Redis "set %s %s" failed: %s' % (channel_id, details, resp))
+
     # In case this is a replacement Slack channel, say so.
     msg = "Note: this is not a new PR, %%s %s now"
     if data.action == "reopened":
         msg %= "reopened it"
-        mention_user_in_message(channel_id, data.sender, msg)
     elif data.action == "ready_for_review":
         msg %= "marked it as ready for review"
-        mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg)
 
     # Finally, add all the participants in the PR to this channel.
     slack_user_ids = []
@@ -199,9 +204,7 @@ def _on_pr_converted_to_draft(data):
     if not channel_id:
         return  # Unrecoverable error.
 
-    msg = "%s converted this PR to a draft"
-    mention_user_in_message(channel_id, data.sender, msg)
-
+    mention_user_in_message(channel_id, data.sender, "%s converted this PR to a draft")
     archive_channel(channel_id, data)
 
 def _on_pr_ready_for_review(data):
@@ -224,8 +227,7 @@ def _on_pr_ready_for_review(data):
 
     # TODO: Update channel metadata, info messages, add missing participants.
 
-    msg = "%s marked this PR as ready for review"
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, "%s marked this PR as ready for review")
 
 def _on_pr_review_requested(data):
     """Review by a person or team was requested for a pull request.
@@ -259,8 +261,7 @@ def _on_pr_review_requested_person(data, channel_id):
         channel_id: PR's Slack channel ID.
     """
     reviewer = resolve_github_user(data.requested_reviewer)
-    msg = "%s requested a review from " + reviewer
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, "%s requested a review from " + reviewer)
 
     if not reviewer.startswith("<@"):
         return

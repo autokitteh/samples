@@ -36,6 +36,7 @@ def github_markdown_to_slack(text, pr_url):
     text = re.sub(r"!<(.*?)>", "Image: <$1>", text)
 
     # "@..." --> "<@U...>" or "<https://github.com/...|...>".
+    # TODO: "https://github.com/" doesn't support GitHub Enterprise.
     for github_user in re.findall(r"@[\w-]+", text):
         profile_link = "https://github.com/" + github_user[1:]
         user_obj = struct(login = github_user[1:], htmlurl = profile_link)
@@ -55,5 +56,39 @@ def github_markdown_to_slack(text, pr_url):
     # Bold text: "**" or "__" --> "*".
     text = re.sub(r"\*\*(.+?)\*\*", "*$1*", text)
     text = re.sub(r"__(.+?)__", "*$1*", text)
+
+    return text
+
+def slack_markdown_to_github(text):
+    """Convert Slack markdown text to GitHub markdown text.
+
+    References:
+    - https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+    - https://api.slack.com/reference/surfaces/formatting
+    - https://qri.io/docs/reference/starlark-packages/re
+
+    Args:
+        text: Text body, possibly containing Slack markdown.
+
+    Returns:
+        GitHub markdown text.
+    """
+
+    # Bold text: "*" --> "**".
+    text = re.sub(r"\*(.+?)\*", "**$1**", text)
+
+    # Links: "<url|text>" --> "[text](url)".
+    text = re.sub(r"<(.*?)\|(.*?)>", "[$2]($1)", text)
+
+    # Channels: "<#...|name>" --> "[name](#...)" -->
+    # "[#name](https://slack.com/app_redirect?channel=...)"
+    # (see https://api.slack.com/reference/deep-linking).
+    text = re.sub(r"\[(.*?)\]\(#(.*?)\)", "[#$1](https://slack.com/app_redirect?channel=$2)", text)
+
+    # TODO: Users: "<@U...>" --> "@github-user".
+
+    # TODO: Multiline code blocks: ```aaa\nbbb``` --> ```\naaa\nbbb\n```
+
+    # TODO: Quoted text not working?
 
     return text
