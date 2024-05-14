@@ -44,10 +44,11 @@ def _on_pr_review_comment_created(data):
         data: GitHub event data.
     """
     pr_url = data.pull_request.htmlurl
-    org = data.organization.login
+    org = data.org.login
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
         debug("Can't announce this PR review comment: " + data.comment.htmlurl)
+        return
 
     if not getattr(data.comment, "in_reply_to", None):
         # Review comment.
