@@ -81,7 +81,7 @@ def _on_pr_opened(data):
     name = "%d_%s" % (pr.number, normalize_channel_name(pr.title))
     channel_id = create_channel(data, name)
     if not channel_id:
-        user_id = github_username_to_slack_user_id(data.sender.login, owner = org)
+        user_id = github_username_to_slack_user_id(data.sender.login, org)
         msg = "Failed to create a Slack channel for %s" % pr.htmlurl
         slack.chat_post_message(user_id, msg)
         debug(msg)
@@ -91,8 +91,8 @@ def _on_pr_opened(data):
     # later based on "pull_request" events with the "edited" action).
     msg = "%%s opened %s: `%s`" % (pr.htmlurl, pr.title)
     if pr.body:
-        msg += "\n\n" + github_markdown_to_slack(pr.body, pr.htmlurl)
-    mention_user_in_message(channel_id, data.sender, msg, owner = org)
+        msg += "\n\n" + github_markdown_to_slack(pr.body, pr.htmlurl, org)
+    mention_user_in_message(channel_id, data.sender, msg, org)
 
     # TODO: Also post a message summarizing check states (updated
     # later based on "worklfow_job" and "workflow_run" events).
@@ -126,12 +126,12 @@ def _on_pr_opened(data):
         msg %= "reopened it"
     elif data.action == "ready_for_review":
         msg %= "marked it as ready for review"
-    mention_user_in_message(channel_id, data.sender, msg, owner = org)
+    mention_user_in_message(channel_id, data.sender, msg, org)
 
     # Finally, add all the participants in the PR to this channel.
     slack_user_ids = []
     for username in github_pr_participants(pr):
-        user_id = github_username_to_slack_user_id(username, owner = org)
+        user_id = github_username_to_slack_user_id(username, org)
         if user_id:
             slack_user_ids.append(user_id)
     add_users_to_channel(channel_id, ",".join(slack_user_ids))
@@ -162,7 +162,7 @@ def _on_pr_closed(data):
     msg = "%s closed this PR"
     if data.pull_request.merged:
         msg = msg.replace("closed", "merged")
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, data.organization.login)
 
     archive_channel(channel_id, data)
 
@@ -189,7 +189,7 @@ def _on_pr_reopened(data):
     # TODO: Update channel metadata, info messages, add missing participants.
 
     msg = "%s reopened this PR"
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, data.organization.login)
 
 def _on_pr_converted_to_draft(data):
     """A pull request was converted to a draft.
@@ -204,7 +204,8 @@ def _on_pr_converted_to_draft(data):
     if not channel_id:
         return  # Unrecoverable error.
 
-    mention_user_in_message(channel_id, data.sender, "%s converted this PR to a draft")
+    msg = "%s converted this PR to a draft"
+    mention_user_in_message(channel_id, data.sender, msg, org = data.organization.login)
     archive_channel(channel_id, data)
 
 def _on_pr_ready_for_review(data):
@@ -227,7 +228,8 @@ def _on_pr_ready_for_review(data):
 
     # TODO: Update channel metadata, info messages, add missing participants.
 
-    mention_user_in_message(channel_id, data.sender, "%s marked this PR as ready for review")
+    msg = "%s marked this PR as ready for review"
+    mention_user_in_message(channel_id, data.sender, msg, data.organization.login)
 
 def _on_pr_review_requested(data):
     """Review by a person or team was requested for a pull request.
@@ -260,8 +262,10 @@ def _on_pr_review_requested_person(data, channel_id):
         data: GitHub event data.
         channel_id: PR's Slack channel ID.
     """
-    reviewer = resolve_github_user(data.requested_reviewer)
-    mention_user_in_message(channel_id, data.sender, "%s requested a review from " + reviewer)
+    org = data.organization.login
+    reviewer = resolve_github_user(data.requested_reviewer, org)
+    msg = "%s requested a review from " + reviewer
+    mention_user_in_message(channel_id, data.sender, msg, org)
 
     if not reviewer.startswith("<@"):
         return
@@ -271,7 +275,7 @@ def _on_pr_review_requested_person(data, channel_id):
 
     # DM the reviewer with a reference to the Slack channel.
     msg = "%%s has requested you to review a PR - see <#%s>"
-    mention_user_in_message(reviewer, data.sender, msg % channel_id)
+    mention_user_in_message(reviewer, data.sender, msg % channel_id, org)
 
 def _on_pr_review_requested_team(data, channel_id):
     """Review by a team was requested for a pull request.
@@ -282,7 +286,7 @@ def _on_pr_review_requested_team(data, channel_id):
     """
     msg = "%%s requested a review from the <%s|%s> team"
     msg %= (data.requested_team.htmlurl, data.requested_team.name)
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, data.organization.login)
 
 def _on_pr_review_request_removed(data):
     """A request for review by a person or team was removed from a pull request.
@@ -311,9 +315,10 @@ def _on_pr_review_request_removed_person(data, channel_id):
         data: GitHub event data.
         channel_id: PR's Slack channel ID.
     """
-    reviewer = resolve_github_user(data.requested_reviewer)
+    org = data.organization.login
+    reviewer = resolve_github_user(data.requested_reviewer, org)
     msg = "%s removed the request for review from " + reviewer
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, org)
 
     if not reviewer.startswith("<@"):
         return
@@ -336,7 +341,7 @@ def _on_pr_review_request_removed_team(data, channel_id):
     """
     msg = "%%s removed the request for review from the <%s|%s> team"
     msg %= (data.requested_team.htmlurl, data.requested_team.name)
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, data.organization.login)
 
 def _on_pr_assigned(data):
     """A pull request was assigned to a user.
@@ -354,13 +359,14 @@ def _on_pr_assigned(data):
     if not channel_id:
         return  # Unrecoverable error.
 
-    assignee = resolve_github_user(data.assignee)
-    self_assigned = assignee == resolve_github_user(data.sender)
+    org = data.organization.login
+    assignee = resolve_github_user(data.assignee, org)
+    self_assigned = assignee == resolve_github_user(data.sender, org)
     if self_assigned:
         msg = "%s assigned themselves to this PR"
     else:
         msg = "%%s assigned %s to this PR" % assignee
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, org)
 
     if not assignee.startswith("<@"):
         return
@@ -373,7 +379,7 @@ def _on_pr_assigned(data):
 
     # DM the reviewer with a reference to the Slack channel.
     msg = "%%s has assigned you to a PR - see <#%s>"
-    mention_user_in_message(assignee, data.sender, msg % channel_id)
+    mention_user_in_message(assignee, data.sender, msg % channel_id, org)
 
 def _on_pr_unassigned(data):
     """A user was unassigned from a pull request.
@@ -390,13 +396,14 @@ def _on_pr_unassigned(data):
     if not channel_id:
         return  # Unrecoverable error.
 
-    assignee = resolve_github_user(data.assignee)
-    self_unassigned = assignee == resolve_github_user(data.sender)
+    org = data.organization.login
+    assignee = resolve_github_user(data.assignee, org)
+    self_unassigned = assignee == resolve_github_user(data.sender, org)
     if self_unassigned:
         msg = "%s unassigned themselves from this PR"
     else:
         msg = "%%s unassigned %s from this PR" % assignee
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, org)
 
     if not assignee.startswith("<@") or self_unassigned:
         return
@@ -418,6 +425,7 @@ def _on_pr_edited(data):
     Args:
         data: GitHub event data.
     """
+    org = data.organization.login
 
     # Don't do anything if there isn't an active Slack channel anyway.
     if data.pull_request.draft or data.pull_request.state != "open":
@@ -434,13 +442,13 @@ def _on_pr_edited(data):
         else:
             pass  # TODO: Same, but without a body.
         msg = "%s edited the PR description"
-        mention_user_in_message(channel_id, data.sender, msg)
+        mention_user_in_message(channel_id, data.sender, msg, org)
 
     # Rename the channel if the PR was renamed.
     if data.changes.title:
         pr = data.pull_request
         msg = "%%s edited the PR title to `%s`" % pr.title
-        mention_user_in_message(channel_id, data.sender, msg)
+        mention_user_in_message(channel_id, data.sender, msg, org)
 
         name = "%d_%s" % (pr.number, normalize_channel_name(pr.title))
         rename_channel(channel_id, name)
@@ -464,7 +472,7 @@ def _on_pr_synchronized(data):
         return  # Unrecoverable error.
 
     msg = "%s updated the PR's head branch"
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, data.organization.login)
 
     # TODO: Update channel bookmark titles.
     pr = data.pull_request
