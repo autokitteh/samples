@@ -92,7 +92,7 @@ def _on_pr_opened(data):
     msg = "%%s opened %s: `%s`" % (pr.htmlurl, pr.title)
     if pr.body:
         msg += "\n\n" + github_markdown_to_slack(pr.body, pr.htmlurl)
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, owner = org)
 
     # TODO: Also post a message summarizing check states (updated
     # later based on "worklfow_job" and "workflow_run" events).
@@ -126,7 +126,7 @@ def _on_pr_opened(data):
         msg %= "reopened it"
     elif data.action == "ready_for_review":
         msg %= "marked it as ready for review"
-    mention_user_in_message(channel_id, data.sender, msg)
+    mention_user_in_message(channel_id, data.sender, msg, owner = org)
 
     # Finally, add all the participants in the PR to this channel.
     slack_user_ids = []
