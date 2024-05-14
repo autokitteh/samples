@@ -1,8 +1,6 @@
 """Handler for GitHub "pull_request_review" events."""
 
-load("@redis", "redis")
 load("debug.star", "debug")
-load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
 load("slack_helpers.star", "lookup_pr_channel", "mention_user_in_message")
 
@@ -59,14 +57,7 @@ def _on_pr_review_submitted(data):
     else:
         return
 
-    thread_ts = mention_user_in_message(channel_id, data.sender, msg, org)
-
-    # Remember the thread timestamp (message ID) of the message we posted.
-    if thread_ts:
-        # See: https://redis.io/commands/set/
-        resp = redis.set(data.review.htmlurl, thread_ts, REDIS_TTL)
-        if resp != "OK":
-            debug('Redis "set %s %s" failed: %s' % (data.review.htmlurl, thread_ts, resp))
+    mention_user_in_message(channel_id, data.sender, msg, org)
 
 def _on_pr_review_edited(data):
     """The body comment on a pull request review was edited.
