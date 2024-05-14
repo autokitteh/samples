@@ -53,13 +53,13 @@ def _on_pr_review_submitted(data):
         msg = "%%s approved this PR :+1:"
         if data.review.body:
             msg += "\n\n" + github_markdown_to_slack(data.review.body, pr_url, org)
-        thread_ts = mention_user_in_message(channel_id, data.sender, msg, org)
     elif data.review.body:
         msg = "%%s submitted a <%s|PR review>:\n\n" % data.review.htmlurl
         msg += github_markdown_to_slack(data.review.body, pr_url, org)
-        thread_ts = mention_user_in_message(channel_id, data.sender, msg, org)
     else:
         return
+
+    thread_ts = mention_user_in_message(channel_id, data.sender, msg, org)
 
     # Remember the thread timestamp (message ID) of the message we posted.
     if thread_ts:
