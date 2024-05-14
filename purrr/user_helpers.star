@@ -128,7 +128,7 @@ def resolve_github_user(github_user, owner = ""):
 
     Args:
         github_user: GitHub user object.
-        owner: Optional, for org-specific visibility.
+        owner: Optional, for GitHub org-specific visibility.
 
     Returns:
         Slack user reference, or GitHub profile link.
