@@ -189,19 +189,19 @@ def _lookup_review_message(review_url):
     debug("Message mapping for %s not found" % review_url)
     return ""
 
-def mention_user_in_message(channel_id, github_user, msg, owner = ""):
+def mention_user_in_message(channel_id, github_user, msg, github_owner = ""):
     """Post a message to a Slack channel, mentioning a user.
 
     Args:
         channel_id: ID of the channel to send the message to.
         github_user: GitHub user object of the mentioned user.
         msg: Message to send, containing a single "%s" placeholder.
-        owner: Optional, for GitHub org-specific visibility.
+        github_owner: Optional, for GitHub org-specific visibility.
 
     Returns:
         Message's thread timestamp, or "" on errors.
     """
-    msg %= resolve_github_user(github_user, owner = owner)
+    msg %= resolve_github_user(github_user, github_owner)
 
     # TODO: Also post the message in the log channel.
 
@@ -211,7 +211,7 @@ def mention_user_in_message(channel_id, github_user, msg, owner = ""):
     resp = slack.chat_post_message(channel_id, msg)
     return resp.ts if resp.ok else ""
 
-def mention_user_in_reply(channel_id, review_url, github_user, msg, owner = ""):
+def mention_user_in_reply(channel_id, review_url, github_user, msg, github_owner = ""):
     """Post a reply to a Slack message (review comment), mentioning a user.
 
     Args:
@@ -219,12 +219,12 @@ def mention_user_in_reply(channel_id, review_url, github_user, msg, owner = ""):
         review_url: URL of the GitHub PR review to comment on.
         github_user: GitHub user object of the mentioned user.
         msg: Message to send, containing a single "%s" placeholder.
-        owner: Optional, for GitHub org-specific visibility.
+        github_owner: Optional, for GitHub org-specific visibility.
 
     Returns:
         Message's thread timestamp, or "" on errors.
     """
-    msg %= resolve_github_user(github_user, owner = owner)
+    msg %= resolve_github_user(github_user, github_owner)
     thread_ts = _lookup_review_message(review_url)
     if channel_id and thread_ts:
         slack.chat_post_message(channel_id, msg, thread_ts = thread_ts)

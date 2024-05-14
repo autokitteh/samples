@@ -2,7 +2,7 @@
 
 load("user_helpers.star", "resolve_github_user")
 
-def github_markdown_to_slack(text, pr_url):
+def github_markdown_to_slack(text, pr_url, github_owner = ""):
     """Convert GitHub markdown text to Slack markdown text.
 
     References:
@@ -14,6 +14,7 @@ def github_markdown_to_slack(text, pr_url):
         text: Text body, possibly containing GitHub markdown.
         pr_url: URL of the PR we're working on, used to convert
             other PR references in the text ("#123") to links.
+        github_owner: Optional, for GitHub org-specific visibility.
 
     Returns:
         Slack markdown text.
@@ -40,7 +41,7 @@ def github_markdown_to_slack(text, pr_url):
     for github_user in re.findall(r"@[\w-]+", text):
         profile_link = "https://github.com/" + github_user[1:]
         user_obj = struct(login = github_user[1:], htmlurl = profile_link)
-        slack_user = resolve_github_user(user_obj)
+        slack_user = resolve_github_user(user_obj, github_owner)
         text = text.replace(github_user, slack_user)
 
     # "#123" --> "<PR URL|#123>".

@@ -44,6 +44,7 @@ def _on_pr_review_comment_created(data):
         data: GitHub event data.
     """
     pr_url = data.pull_request.htmlurl
+    org = data.organization.login
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
         debug("Can't announce this PR review comment: " + data.comment.htmlurl)
@@ -52,8 +53,8 @@ def _on_pr_review_comment_created(data):
         # Review comment.
         msg = "%%s created a <%s|%s comment> in `%s`:\n\n"
         msg %= (data.comment.htmlurl, data.comment.subject_type, data.comment.path)
-        msg += github_markdown_to_slack(data.comment.body, pr_url)
-        thread_ts = mention_user_in_message(channel_id, data.sender, msg)
+        msg += github_markdown_to_slack(data.comment.body, pr_url, org)
+        thread_ts = mention_user_in_message(channel_id, data.sender, msg, org)
 
         # Remember the GitHub comment ID, so we can reply to it later from Slack.
         # See: https://redis.io/commands/set/
@@ -66,8 +67,8 @@ def _on_pr_review_comment_created(data):
         # Reply to a review comment.
         thread_url = "%s#discussion_r%d" % (pr_url, data.comment.in_reply_to)
         msg = "%%s replied with <%s|this comment>:\n\n" % data.comment.htmlurl
-        msg += github_markdown_to_slack(data.comment.body, pr_url)
-        thread_ts = mention_user_in_reply(channel_id, thread_url, data.sender, msg)
+        msg += github_markdown_to_slack(data.comment.body, pr_url, org)
+        thread_ts = mention_user_in_reply(channel_id, thread_url, data.sender, msg, org)
 
     # Remember the thread/reply timestamp (message ID) of the message we posted.
     if thread_ts:

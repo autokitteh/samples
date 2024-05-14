@@ -43,14 +43,15 @@ def _on_pr_review_submitted(data):
     # empty, or the sender's action was "APPROVE" or "REQUEST_CHANGES".
 
     pr_url = data.pull_request.htmlurl
+    org = data.organization.login
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
         debug("Can't announce this PR review: " + data.review.htmlurl)
 
     msg = "%%s submitted a <%s|PR review>" % data.review.htmlurl
     if data.review.body:
-        msg += ":\n\n" + github_markdown_to_slack(data.review.body, pr_url)
-    thread_ts = mention_user_in_message(channel_id, data.sender, msg)
+        msg += ":\n\n" + github_markdown_to_slack(data.review.body, pr_url, org)
+    thread_ts = mention_user_in_message(channel_id, data.sender, msg, org)
 
     # Remember the thread timestamp (message ID) of the message we posted.
     if thread_ts:
