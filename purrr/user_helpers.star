@@ -81,7 +81,7 @@ def github_username_to_slack_user_id(username, owner_org = ""):
         return ""
 
     # See: https://docs.github.com/en/rest/users#get-a-user
-    resp = github.get_user(username, owner_org)
+    resp = github.get_user(username, owner = owner_org)
     github_user_link = "<%s|%s>" % (resp.htmlurl, username)
 
     # Bots are not real users, so we can't match them to Slack users.
