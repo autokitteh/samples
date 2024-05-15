@@ -256,6 +256,8 @@ def normalize_channel_name(name):
     if name[-1] == "-":
         name = name[:-1]
 
+    return name
+
 def rename_channel(channel_id, name, suffix = 1):
     """Rename a Slack channel.
 
