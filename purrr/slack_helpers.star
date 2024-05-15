@@ -149,7 +149,7 @@ def impersonate_user_in_message(channel_id, github_user, msg, github_owner = "")
     Returns:
         Message's thread timestamp, or "" on errors.
     """
-    user = github_username_to_slack_user(github_user, github_owner)
+    user = github_username_to_slack_user(github_user.login, github_owner)
     if not user:
         return ""
 
