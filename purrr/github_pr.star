@@ -14,7 +14,6 @@ load(
     "mention_user_in_message",
     "normalize_channel_name",
     "rename_channel",
-    "unarchive_channel",
 )
 load(
     "user_helpers.star",
@@ -170,6 +169,11 @@ def _on_pr_closed(data):
 def _on_pr_reopened(data):
     """A previously closed pull request (possibly a draft) was reopened.
 
+    Attention - https://api.slack.com/methods/conversations.unarchive:
+    Bug alert: bot tokens (xoxb-...) cannot currently be used to unarchive
+    conversations. For now, please use a user token (xoxp-...) to unarchive
+    the conversation rather than a bot token.
+
     Args:
         data: GitHub event data.
     """
@@ -178,19 +182,11 @@ def _on_pr_reopened(data):
     if data.pull_request.draft:
         return
 
-    channel_id = lookup_pr_channel(data.pull_request.htmlurl, data.action)
-    if not channel_id:
-        _on_pr_opened(data)  # Workaround: treat this as a new PR.
-        return
-
-    if not unarchive_channel(channel_id, data):
-        _on_pr_opened(data)  # Workaround: treat this as a new PR.
-        return
-
-    # TODO: Update channel metadata, info messages, add missing participants.
-
-    msg = "%s reopened this PR"
-    mention_user_in_message(channel_id, data.sender, msg, data.organization.login)
+    # Workaround for the unarchive bug: treat this as a new PR, instead of:
+    # - lookup_pr_channel(data.pull_request.htmlurl, data.action)
+    # - unarchive_channel(channel_id, data)
+    # - (Updating channel metadata, posting info messages, add missing participants)
+    _on_pr_opened(data)
 
 def _on_pr_converted_to_draft(data):
     """A pull request was converted to a draft.
@@ -215,22 +211,20 @@ def _on_pr_ready_for_review(data):
     For more information, see "Changing the stage of a pull request":
     https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request
 
+    Attention - https://api.slack.com/methods/conversations.unarchive:
+    Bug alert: bot tokens (xoxb-...) cannot currently be used to unarchive
+    conversations. For now, please use a user token (xoxp-...) to unarchive
+    the conversation rather than a bot token.
+
     Args:
         data: GitHub event data.
     """
-    channel_id = lookup_pr_channel(data.pull_request.htmlurl, data.action)
-    if not channel_id:
-        _on_pr_opened(data)  # Workaround: treat this as a new PR.
-        return
 
-    if not unarchive_channel(channel_id, data):
-        _on_pr_opened(data)  # Workaround: treat this as a new PR.
-        return
-
-    # TODO: Update channel metadata, info messages, add missing participants.
-
-    msg = "%s marked this PR as ready for review"
-    mention_user_in_message(channel_id, data.sender, msg, data.organization.login)
+    # Workaround for the unarchive bug: treat this as a new PR, instead of:
+    # - lookup_pr_channel(data.pull_request.htmlurl, data.action)
+    # - unarchive_channel(channel_id, data)
+    # - (Updating channel metadata, posting info messages, add missing participants)
+    _on_pr_opened(data)
 
 def _on_pr_review_requested(data):
     """Review by a person or team was requested for a pull request.
