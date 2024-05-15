@@ -319,6 +319,11 @@ def _set_channel_topic(channel_id, data):
 def unarchive_channel(channel_id, data):
     """Unarchive a Slack channel.
 
+    Attention - https://api.slack.com/methods/conversations.unarchive:
+    Bug alert: bot tokens (xoxb-...) cannot currently be used to unarchive
+    conversations. For now, please use a user token (xoxp-...) to unarchive
+    the conversation rather than a bot token.
+
     Args:
         channel_id: Slack channel ID.
         data: GitHub event data.
