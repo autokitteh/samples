@@ -48,7 +48,7 @@ def _on_pr_review_submitted(data):
         return
 
     if data.review.state == "approved":
-        msg = "%%s approved this PR :+1:"
+        msg = "%s approved this PR :+1:"
         if data.review.body:
             msg += "\n\n" + github_markdown_to_slack(data.review.body, pr_url, org)
     elif data.review.body:
