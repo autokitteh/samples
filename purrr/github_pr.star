@@ -82,7 +82,7 @@ def _on_pr_opened(data):
     channel_id = create_channel(data, name)
     if not channel_id:
         user_id = github_username_to_slack_user_id(data.sender.login, org)
-        msg = "Failed to create a Slack channel for %s" % pr.htmlurl
+        msg = "Failed to create a Slack channel for " + pr.htmlurl
         slack.chat_post_message(user_id, msg)
         debug(msg)
         return
@@ -124,9 +124,10 @@ def _on_pr_opened(data):
     msg = "Note: this is not a new PR, %%s %s now"
     if data.action == "reopened":
         msg %= "reopened it"
+        mention_user_in_message(channel_id, data.sender, msg, org)
     elif data.action == "ready_for_review":
         msg %= "marked it as ready for review"
-    mention_user_in_message(channel_id, data.sender, msg, org)
+        mention_user_in_message(channel_id, data.sender, msg, org)
 
     # Finally, add all the participants in the PR to this channel.
     slack_user_ids = []
