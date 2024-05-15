@@ -250,7 +250,13 @@ def normalize_channel_name(name):
     # Slack channel names are limited to 80 characters, but that's
     # too long for comfort, so we use 50 instead. Plus, we need to
     # leave room for a PR number prefix and a uniqueness suffix.
-    return name[:50]
+    name = name[:50]
+
+    # Cosmetic tweak: remove trailing hyphens.
+    if name[-1] == "-":
+        name = name[:-1]
+
+    return name
 
 def rename_channel(channel_id, name, suffix = 1):
     """Rename a Slack channel.
