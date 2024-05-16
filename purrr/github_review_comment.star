@@ -6,9 +6,9 @@ load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
 load(
     "slack_helpers.star",
+    "impersonate_user_in_message",
+    "impersonate_user_in_reply",
     "lookup_pr_channel",
-    "mention_user_in_message",
-    "mention_user_in_reply",
 )
 
 def on_github_pull_request_review_comment(data):
@@ -43,35 +43,37 @@ def _on_pr_review_comment_created(data):
     Args:
         data: GitHub event data.
     """
-    pr_url = data.pull_request.htmlurl
     org = data.org.login
+    pr_url = data.pull_request.htmlurl
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
-        debug("Can't announce this PR review comment: " + data.comment.htmlurl)
+        debug("Can't sync this PR review comment: " + data.comment.htmlurl)
         return
 
     if not getattr(data.comment, "in_reply_to", None):
         # Review comment.
-        msg = "%%s created a <%s|%s comment> in `%s`:\n\n"
-        msg %= (data.comment.htmlurl, data.comment.subject_type, data.comment.path)
+        msg = "<%s|%s review comment> in `%s`:\n\n"
+        msg %= (data.comment.htmlurl, data.comment.subject_type.capitalize(), data.comment.path)
         msg += github_markdown_to_slack(data.comment.body, pr_url, org)
-        thread_ts = mention_user_in_message(channel_id, data.sender, msg, org)
+        thread_ts = impersonate_user_in_message(channel_id, data.sender, msg, org)
 
         # Remember the GitHub comment ID, so we can reply to it later from Slack.
+        # See usage in create_review_comment_reply() in github_helpers.star.
         # See: https://redis.io/commands/set/
         if thread_ts:
-            channel_ts = "%s:%s" % (channel_id, thread_ts)
+            channel_ts = "review_comment:%s:%s" % (channel_id, thread_ts)
             resp = redis.set(channel_ts, data.comment.id, REDIS_TTL)
             if resp != "OK":
                 debug('Redis "set %s %s" failed: %s' % (channel_ts, data.comment.id, resp))
     else:
-        # Reply to a review comment.
+        # Review comment in reply to another review comment.
         thread_url = "%s#discussion_r%d" % (pr_url, data.comment.in_reply_to)
-        msg = "%%s replied with <%s|this comment>:\n\n" % data.comment.htmlurl
+        msg = "<%s|Reply to review comment>:\n\n" % data.comment.htmlurl
         msg += github_markdown_to_slack(data.comment.body, pr_url, org)
-        thread_ts = mention_user_in_reply(channel_id, thread_url, data.sender, msg, org)
+        thread_ts = impersonate_user_in_reply(channel_id, thread_url, data.sender, msg, org)
 
-    # Remember the thread/reply timestamp (message ID) of the message we posted.
+    # Remember the thread/reply timestamp (message ID) of the Slack message we posted.
+    # Usage: edit and delete below, mention_user_in_reply() for syncing replies.
     if thread_ts:
         # See: https://redis.io/commands/set/
         resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)

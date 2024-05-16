@@ -43,7 +43,8 @@ def _on_issue_comment_created(data):
         debug("Can't sync this PR comment: " + data.comment.htmlurl)
         return
 
-    msg = github_markdown_to_slack(data.comment.body, pr_url, org)
+    msg = "<%s|PR comment>:\n\n" % data.comment.htmlurl
+    msg += github_markdown_to_slack(data.comment.body, pr_url, org)
     thread_ts = impersonate_user_in_message(channel_id, data.sender, msg, org)
 
     # Remember the thread timestamp (message ID) of the message we posted.

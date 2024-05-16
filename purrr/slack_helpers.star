@@ -149,6 +149,9 @@ def impersonate_user_in_message(channel_id, github_user, msg, github_owner = "")
     Returns:
         Message's thread timestamp, or "" on errors.
     """
+    if not channel_id:
+        return ""
+
     user = github_username_to_slack_user(github_user.login, github_owner)
     if not user:
         return ""
@@ -156,10 +159,39 @@ def impersonate_user_in_message(channel_id, github_user, msg, github_owner = "")
     # TODO: Also post the message in the log channel.
     p = user.profile
 
+    resp = slack.chat_post_message(channel_id, msg, username = p.real_name, icon_url = p.image_48)
+    return resp.ts if resp.ok else ""
+
+def impersonate_user_in_reply(channel_id, review_url, github_user, msg, github_owner = ""):
+    """Post a reply to a Slack message (review comment), as a user.
+
+    See also the "mention_user_in_reply" function below.
+
+    Args:
+        channel_id: ID of the channel to send the message to.
+        review_url: URL of the GitHub PR review to comment on.
+        github_user: GitHub user object of the mentioned user.
+        msg: Message to send (not containing a "%s" placeholder).
+        github_owner: Optional, for GitHub org-specific visibility.
+
+    Returns:
+        Message's thread timestamp, or "" on errors.
+    """
     if not channel_id:
         return ""
 
-    resp = slack.chat_post_message(channel_id, msg, username = p.real_name, icon_url = p.image_48)
+    user = github_username_to_slack_user(github_user.login, github_owner)
+    if not user:
+        return ""
+
+    # TODO: Also post the reply in the log channel.
+    p = user.profile
+
+    thread_ts = _lookup_review_message(review_url)
+    if not thread_ts:
+        return ""
+
+    resp = slack.chat_post_message(channel_id, msg, thread_ts = thread_ts, username = p.real_name, icon_url = p.image_48)
     return resp.ts if resp.ok else ""
 
 def lookup_pr_channel(pr_url, state, wait = False):
@@ -230,18 +262,20 @@ def mention_user_in_message(channel_id, github_user, msg, github_owner = ""):
     Returns:
         Message's thread timestamp, or "" on errors.
     """
+    if not channel_id:
+        return ""
+
     msg %= resolve_github_user(github_user, github_owner)
 
     # TODO: Also post the message in the log channel.
-
-    if not channel_id:
-        return ""
 
     resp = slack.chat_post_message(channel_id, msg)
     return resp.ts if resp.ok else ""
 
 def mention_user_in_reply(channel_id, review_url, github_user, msg, github_owner = ""):
     """Post a reply to a Slack message (review comment), mentioning a user.
+
+    See also the "impersonate_user_in_reply" function above.
 
     Args:
         channel_id: ID of the channel to send the message to.
@@ -253,12 +287,19 @@ def mention_user_in_reply(channel_id, review_url, github_user, msg, github_owner
     Returns:
         Message's thread timestamp, or "" on errors.
     """
+    if not channel_id:
+        return ""
+
     msg %= resolve_github_user(github_user, github_owner)
-    thread_ts = _lookup_review_message(review_url)
-    if channel_id and thread_ts:
-        slack.chat_post_message(channel_id, msg, thread_ts = thread_ts)
 
     # TODO: Also post the reply in the log channel.
+
+    thread_ts = _lookup_review_message(review_url)
+    if not thread_ts:
+        return ""
+
+    resp = slack.chat_post_message(channel_id, msg, thread_ts = thread_ts)
+    return resp.ts if resp.ok else ""
 
 def normalize_channel_name(name):
     """Convert arbitrary text into a valid Slack channel name.

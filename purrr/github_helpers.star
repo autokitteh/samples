@@ -58,6 +58,7 @@ def create_review_comment_reply(owner, repo, pr, body, channel_id, thread_ts):
     """https://docs.github.com/en/rest/pulls/comments#create-a-reply-for-a-review-comment
 
     Create a review comment which is a reply to an existing review comment.
+    If the replied-to Slack message isn't a review comment, create a PR comment.
 
     Args:
         owner: Owner of the GitHub repository.
@@ -72,10 +73,15 @@ def create_review_comment_reply(owner, repo, pr, body, channel_id, thread_ts):
     """
     pr = int(pr)
 
+    # Create a review comment which is a reply to an existing review comment.
+    # This mapping is create by _on_pr_review_comment_created() in github_review_comment.star.
     # See: https://redis.io/commands/get/
-    gh_comment_id = redis.get("%s:%s" % (channel_id, thread_ts))
-    if not gh_comment_id:
-        debug("Couldn't find GitHub comment ID to sync Slack reply")
-        return None
+    gh_comment_id = redis.get("review_comment:%s:%s" % (channel_id, thread_ts))
+    if gh_comment_id:
+        return github.create_review_comment_reply(owner, repo, pr, int(gh_comment_id), body)
 
-    return github.create_review_comment_reply(owner, repo, pr, int(gh_comment_id), body)
+    # TODO: If the Slack reply is to a different type of Slack message, create a PR comment.
+
+    # Otherwise, this is a Slack reply to an unknown review comment.
+    debug("Couldn't find GitHub comment ID to sync Slack reply")
+    return None
