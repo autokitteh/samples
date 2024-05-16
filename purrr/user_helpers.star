@@ -50,6 +50,28 @@ def github_pr_participants(pr):
 
     return sorted(usernames)
 
+def github_username_to_slack_user(username, owner_org = ""):
+    """Convert a GitHub username into a Slack user object.
+
+    Args:
+        username: GitHub username.
+        owner_org: Optional, for GitHub org-specific visibility.
+
+    Returns:
+        Slack user object, or None if not found.
+    """
+    slack_user_id = github_username_to_slack_user_id(username, owner_org)
+    if not slack_user_id:
+        return None
+
+    # See: https://api.slack.com/methods/users.info
+    resp = slack.users_info(slack_user_id)
+    if not resp.ok:
+        debug("Get Slack user info for <@%s>: `%s`" % (slack_user_id, resp.error))
+        return None
+
+    return resp.user
+
 def github_username_to_slack_user_id(username, owner_org = ""):
     """Convert a GitHub username into a Slack user ID.
 
@@ -69,13 +91,13 @@ def github_username_to_slack_user_id(username, owner_org = ""):
 
     # Optimization: if we already have it cached, return it.
     # See: https://redis.io/commands/get/
-    slack_id = redis.get("github_user:" + username)
-    if slack_id:
+    slack_user_id = redis.get("github_user:" + username)
+    if slack_user_id:
         # Optimization: extend the TTL after a successful cache hit.
         # See: https://redis.io/commands/expire/
         redis.expire("github_user:" + username, _USER_CACHE_TTL)
-        return slack_id
-    if slack_id == "external user":
+        return slack_user_id
+    if slack_user_id == "external user":
         # Note: don't extend the TTL for external-user cache hits,
         # in order to reevaluate them on a daily basis.
         return ""
@@ -92,12 +114,12 @@ def github_username_to_slack_user_id(username, owner_org = ""):
     if not resp.email:
         debug("GitHub user %s: email address not found" % github_user_link)
     else:
-        slack_id = email_to_slack_user_id(resp.email)
-        if slack_id:
+        slack_user_id = email_to_slack_user_id(resp.email)
+        if slack_user_id:
             # Optimization: cache successful results for a day.
             # See: https://redis.io/commands/set/
-            redis.set("github_user:" + username, slack_id, _USER_CACHE_TTL)
-            return slack_id
+            redis.set("github_user:" + username, slack_user_id, _USER_CACHE_TTL)
+            return slack_user_id
 
     # Otherwise, try to match by the user's full name.
     if not resp.name:

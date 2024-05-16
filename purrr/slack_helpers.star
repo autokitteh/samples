@@ -4,7 +4,7 @@ load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
 load("env", "SLACK_CHANNEL_PREFIX", "SLACK_LOG_CHANNEL")  # Set in "autokitteh.yaml".
-load("user_helpers.star", "resolve_github_user")
+load("user_helpers.star", "github_username_to_slack_user", "resolve_github_user")
 
 _CHANNEL_MAX_METADATA_LENGTH = 250  # Characters.
 _CHANNEL_LOOKUP_TIMEOUT = 5  # Seconds.
@@ -135,6 +135,33 @@ def get_permalink(channel_id, message_ts):
         debug("Failed to get permalink for Slack message: `%s`" % resp.error)
         return "Slack"
 
+def impersonate_user_in_message(channel_id, github_user, msg, github_owner = ""):
+    """Post a message to a Slack channel, as a user.
+
+    See also the "mention_user_in_message" function below.
+
+    Args:
+        channel_id: ID of the channel to send the message to.
+        github_user: GitHub user object of the mentioned user.
+        msg: Message to send (not containing a "%s" placeholder).
+        github_owner: Optional, for GitHub org-specific visibility.
+
+    Returns:
+        Message's thread timestamp, or "" on errors.
+    """
+    user = github_username_to_slack_user(github_user.login, github_owner)
+    if not user:
+        return ""
+
+    # TODO: Also post the message in the log channel.
+    p = user.profile
+
+    if not channel_id:
+        return ""
+
+    resp = slack.chat_post_message(channel_id, msg, username = p.real_name, icon_url = p.image_48)
+    return resp.ts if resp.ok else ""
+
 def lookup_pr_channel(pr_url, state, wait = False):
     """Return the ID of a Slack channel representing a GitHub PR.
 
@@ -191,6 +218,8 @@ def _lookup_review_message(review_url):
 
 def mention_user_in_message(channel_id, github_user, msg, github_owner = ""):
     """Post a message to a Slack channel, mentioning a user.
+
+    See also the "impersonate_user_in_message" function above.
 
     Args:
         channel_id: ID of the channel to send the message to.

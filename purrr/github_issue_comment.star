@@ -4,7 +4,7 @@ load("@redis", "redis")
 load("debug.star", "debug")
 load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
-load("slack_helpers.star", "lookup_pr_channel", "mention_user_in_message")
+load("slack_helpers.star", "impersonate_user_in_message", "lookup_pr_channel")
 
 def on_github_issue_comment(data):
     """https://docs.github.com/webhooks/webhook-events-and-payloads#issue_comment
@@ -40,12 +40,11 @@ def _on_issue_comment_created(data):
     org = data.organization.login
     channel_id = lookup_pr_channel(pr_url, data.issue.state)
     if not channel_id:
-        debug("Can't announce this PR comment: " + data.comment.htmlurl)
+        debug("Can't sync this PR comment: " + data.comment.htmlurl)
         return
 
-    msg = "%%s <%s|commented on the PR>:\n\n" % data.comment.htmlurl
-    msg += github_markdown_to_slack(data.comment.body, pr_url, org)
-    thread_ts = mention_user_in_message(channel_id, data.sender, msg, org)
+    msg = github_markdown_to_slack(data.comment.body, pr_url, org)
+    thread_ts = impersonate_user_in_message(channel_id, data.sender, msg, org)
 
     # Remember the thread timestamp (message ID) of the message we posted.
     if thread_ts:
