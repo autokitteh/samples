@@ -40,11 +40,11 @@ def _on_pr_review_submitted(data):
     Args:
         data: GitHub event data.
     """
-    pr_url = data.pull_request.htmlurl
     org = data.organization.login
+    pr_url = data.pull_request.htmlurl
     channel_id = lookup_pr_channel(pr_url, data.pull_request.state)
     if not channel_id:
-        debug("Can't announce this PR review: " + data.review.htmlurl)
+        debug("Can't sync this PR review: " + data.review.htmlurl)
         return
 
     if data.review.state == "approved":
