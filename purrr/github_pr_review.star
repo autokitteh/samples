@@ -1,6 +1,8 @@
 """Handler for GitHub "pull_request_review" events."""
 
+load("@redis", "redis")
 load("debug.star", "debug")
+load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
 load(
     "slack_helpers.star",
