@@ -27,8 +27,6 @@ def _email_to_github_user_id(email, owner_org = ""):
         return resp.users[0].login
     else:
         debug("GitHub search results: %d users with the email address `%s`" % (resp.total, email))
-        for u in resp.users:
-            print("%s - %s" % (u.login, u.email))
         return ""
 
 def _email_to_slack_user_id(email):
