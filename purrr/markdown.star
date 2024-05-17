@@ -1,6 +1,6 @@
 """Markdown-related helper functions across GitHub and Slack."""
 
-load("user_helpers.star", "resolve_github_user")
+load("user_helpers.star", "resolve_github_user", "resolve_slack_user")
 
 def github_markdown_to_slack(text, pr_url, github_owner = ""):
     """Convert GitHub markdown text to Slack markdown text.
@@ -8,7 +8,7 @@ def github_markdown_to_slack(text, pr_url, github_owner = ""):
     References:
     - https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
     - https://api.slack.com/reference/surfaces/formatting
-    - https://qri.io/docs/reference/starlark-packages/re
+    - https://github.com/qri-io/starlib/tree/master/re
 
     Args:
         text: Text body, possibly containing GitHub markdown.
@@ -60,16 +60,17 @@ def github_markdown_to_slack(text, pr_url, github_owner = ""):
 
     return text
 
-def slack_markdown_to_github(text):
+def slack_markdown_to_github(text, github_owner = ""):
     """Convert Slack markdown text to GitHub markdown text.
 
     References:
     - https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
     - https://api.slack.com/reference/surfaces/formatting
-    - https://qri.io/docs/reference/starlark-packages/re
+    - https://github.com/qri-io/starlib/tree/master/re
 
     Args:
         text: Text body, possibly containing Slack markdown.
+        github_owner: Optional, for GitHub org-specific visibility.
 
     Returns:
         GitHub markdown text.
@@ -86,7 +87,10 @@ def slack_markdown_to_github(text):
     # (see https://api.slack.com/reference/deep-linking).
     text = re.sub(r"\[(.*?)\]\(#(.*?)\)", "[#$1](https://slack.com/app_redirect?channel=$2)", text)
 
-    # TODO: Users: "<@U...>" --> "@github-user".
+    # Users: "<@U...>" --> "@github-user".
+    for slack_user in re.findall(r"<@[UW][0-9A-Z]*?>", text):
+        github_user = resolve_slack_user(slack_user[2:-1], github_owner)
+        text = text.replace(slack_user, github_user)
 
     # TODO: Multiline code blocks: ```aaa\nbbb``` --> ```\naaa\nbbb\n```
 
