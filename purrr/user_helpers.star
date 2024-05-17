@@ -9,7 +9,27 @@ load("debug.star", "debug")
 # reduce the amount of API calls, especially to Slack.
 _USER_CACHE_TTL = "24h"
 
-def email_to_slack_user_id(email):
+def _email_to_github_user_id(email, owner_org = ""):
+    """Convert an email address into a GitHub user ID.
+
+    Args:
+        email: User's email address.
+        owner_org: Optional, for GitHub org-specific visibility.
+
+    Returns:
+        GitHub user ID, or "" if not found.
+    """
+
+    # See: https://docs.github.com/en/rest/search/search#search-users
+    # https://docs.github.com/en/search-github/searching-on-github/searching-users
+    resp = github.search_users(email + " in:email", owner = owner_org)
+    if resp.total == 1:
+        return resp.users[0].login
+    else:
+        debug("GitHub search results: %d users with the email address `%s`" % (resp.total, email))
+        return ""
+
+def _email_to_slack_user_id(email):
     """Convert an email address into a Slack user ID.
 
     Args:
@@ -114,7 +134,7 @@ def github_username_to_slack_user_id(username, owner_org = ""):
     if not resp.email:
         debug("GitHub user %s: email address not found" % github_user_link)
     else:
-        slack_user_id = email_to_slack_user_id(resp.email)
+        slack_user_id = _email_to_slack_user_id(resp.email)
         if slack_user_id:
             # Optimization: cache successful results for a day.
             # See: https://redis.io/commands/set/
@@ -202,18 +222,22 @@ def resolve_slack_user(slack_user_id, github_owner = ""):
         redis.set("slack_user:" + slack_user_id, bot_name, _USER_CACHE_TTL)
         return bot_name
 
-    # TODO: Try to match by the email address first.
+    # Try to match by the email address first.
     email = getattr(resp.user.profile, "email", "")  # May be None.
     if not email:
         debug("Slack user <@%s>: email address not found" % slack_user_id)
     else:
-        pass
-        # github_id = email_to_github_user_id(email)
-        # if github_id:
-        #     # Optimization: cache successful results for a day.
-        #     # See: https://redis.io/commands/set/
-        #     redis.set("slack_user:" + slack_user_id, github_id, _USER_CACHE_TTL)
-        #     return github_id
+        github_id = _email_to_github_user_id(email, github_owner)
+        if github_id:
+            # Optimization: cache successful results for a day.
+            # See: https://redis.io/commands/set/
+            github_id = "@" + github_id
+            redis.set("slack_user:" + slack_user_id, github_id, _USER_CACHE_TTL)
+            return github_id
+
+    # TODO: Otherwise, try to match by the user's full name?
+    # (Unlike Slack, where we limit the user list to a specific workspace,
+    # this potentially searches across all GitHub users, which is risky).
 
     # Otherwise, return the user's full name.
     return resp.user.real_name
