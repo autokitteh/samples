@@ -18,7 +18,7 @@ In this sample, we expect the slash command's text to be either:
 
 It also demonstrates using a custom builtin module
 (re) to extract the Google Spreadsheet ID from a URL with a
-regular expression (https://qri.io/docs/reference/starlark-packages/re).
+regular expression (https://github.com/qri-io/starlib/tree/master/re).
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
@@ -39,8 +39,7 @@ def on_slack_slash_command(data):
         data: Slack event data.
     """
 
-    # FYI - Qri's "re" documentation:
-    # https://qri.io/docs/reference/starlark-packages/re
+    # FYI - Qri's "re" implementation: https://github.com/qri-io/starlib/tree/master/re
     match = re.match(r"(.*/d/)?([^/]*)", data.text)
     if not match:
         msg = "Invalid Google Spreadsheet URL/ID: `%s`" % data.text

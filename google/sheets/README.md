@@ -24,7 +24,7 @@ In this sample, we expect the slash command's text to be either:
 
 It also demonstrates using a custom builtin module (`re`) to extract the
 Google Spreadsheet ID from a URL with a
-[regular expression](https://qri.io/docs/reference/starlark-packages/re).
+[regular expression](https://github.com/qri-io/starlib/tree/master/re).
 
 ## Instructions
 
