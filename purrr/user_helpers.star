@@ -164,11 +164,12 @@ def resolve_github_user(github_user, owner_org = ""):
         # Otherwise, fall-back to their GitHub profile link.
         return "<%s|%s>" % (github_user.htmlurl, github_user.login)
 
-def resolve_slack_user(slack_user_id):
+def resolve_slack_user(slack_user_id, github_owner = ""):
     """Convert a Slack user ID to a GitHub user reference.
 
     Args:
         slack_user_id: Slack user ID.
+        github_owner: Optional, for GitHub org-specific visibility.
 
     Returns:
         GitHub user reference, or the Slack user's full name, or "Someone".

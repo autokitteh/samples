@@ -28,18 +28,19 @@ def _on_slack_new_message(data):
     Args:
         data: Slack event data.
     """
-    github_user = resolve_slack_user(data.user)
 
     # See: https://redis.io/commands/get/
     owner, repo, pr = redis.get(data.channel).split(":")
     pr = int(pr)
+
+    github_user = resolve_slack_user(data.user, owner)
 
     # See subtype bug note in https://api.slack.com/events/message/message_replied
     if not data.thread_ts:
         # Slack message = GitHub review + single comment (we only need the comment
         # for correct 2-way syncs, but we can't have it without a parent review).
         review = "%s via %s" % (github_user, get_permalink(data.channel, data.ts))
-        comment = slack_markdown_to_github(data.text)
+        comment = slack_markdown_to_github(data.text, owner)
         create_review_comment(owner, repo, pr, review, comment, data.channel, data.ts)
     else:
         # Slack threaded reply = GitHub review comment.
@@ -49,7 +50,7 @@ def _on_slack_new_message(data):
         else:
             # Special case but same result: reply is broadcasted to the channel.
             body %= (github_user, get_permalink(data.channel, data.root.ts))
-        body += slack_markdown_to_github(data.text)
+        body += slack_markdown_to_github(data.text, owner)
 
         create_review_comment_reply(owner, repo, pr, body, data.channel, data.thread_ts)
 
