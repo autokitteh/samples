@@ -17,7 +17,7 @@ def on_slack_slash_command(data):
     """
 
     # Split the command string into normalized arguments.
-    # See: https://qri.io/docs/reference/starlark-packages/re
+    # See: https://github.com/qri-io/starlib/tree/master/re
     args = re.split(r"\s+", data.text.lower().strip())
 
     # No command? Nothing to do.
