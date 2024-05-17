@@ -18,9 +18,6 @@ def create_review_comment(owner, repo, pr, review, comment, channel_id, thread_t
         comment: Body of the review comment, possibly with markdown.
         channel_id: ID of the Slack channel where the comment originated.
         thread_ts: ID (timestamp) of the Slack thread where the comment originated.
-
-    Returns:
-        The response from the API.
     """
     pr = int(pr)
 
@@ -39,20 +36,20 @@ def create_review_comment(owner, repo, pr, review, comment, channel_id, thread_t
     # See: https://docs.github.com/en/rest/pulls/comments#create-a-review-comment-for-a-pull-request
     resp = github.create_review_comment(owner, repo, pr, comment, commit_id, path, subject_type = "file")
 
-    # Remember the Slack thread timestamp (message ID) of the message we posted.
+    # Remember the Slack thread timestamp (message ID) of the GitHub comment we created.
+    # Usage: syncing edits and deletes of review comments from GitHub to Slack.
     # See: https://redis.io/commands/set/
     redis_resp = redis.set(resp.htmlurl, thread_ts, REDIS_TTL)
     if redis_resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (resp.htmlurl, thread_ts, resp))
+        debug('Redis "set %s %s" failed: %s' % (resp.htmlurl, thread_ts, redis_resp))
 
-    # Also remember the GitHub comment ID, so we can reply to it later from Slack.
+    # Also remember the GitHub comment ID, so we can reply to it later from Slack
+    # (in create_review_comment_reply() below).
     # See: https://redis.io/commands/set/
-    channel_ts = "%s:%s" % (channel_id, thread_ts)
+    channel_ts = "review_comment:%s:%s" % (channel_id, thread_ts)
     redis_resp = redis.set(channel_ts, resp.id, REDIS_TTL)
     if redis_resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (channel_ts, resp.id, resp))
-
-    return resp
+        debug('Redis "set %s %s" failed: %s' % (channel_ts, resp.htmlurl, redis_resp))
 
 def create_review_comment_reply(owner, repo, pr, body, channel_id, thread_ts):
     """https://docs.github.com/en/rest/pulls/comments#create-a-reply-for-a-review-comment
@@ -67,21 +64,29 @@ def create_review_comment_reply(owner, repo, pr, body, channel_id, thread_ts):
         body: Body of the comment, possibly with markdown.
         channel_id: ID of the Slack channel where the comment originated.
         thread_ts: ID (timestamp) of the Slack thread where the comment originated.
-
-    Returns:
-        The response from the API.
     """
     pr = int(pr)
 
     # Create a review comment which is a reply to an existing review comment.
-    # This mapping is create by _on_pr_review_comment_created() in github_review_comment.star.
+    # This mapping is created by _on_pr_review_comment_created() in github_review_comment.star.
     # See: https://redis.io/commands/get/
-    gh_comment_id = redis.get("review_comment:%s:%s" % (channel_id, thread_ts))
-    if gh_comment_id:
-        return github.create_review_comment_reply(owner, repo, pr, int(gh_comment_id), body)
+    gh_review_comment = redis.get("review_comment:%s:%s" % (channel_id, thread_ts))
+    if gh_review_comment:
+        github.create_review_comment_reply(owner, repo, pr, int(gh_review_comment), body)
+        return
 
-    # TODO: If the Slack reply is to a different type of Slack message, create a PR comment.
+    # If the Slack reply is to a different type of Slack message, create a PR comment.
+    gh_issue_comment = redis.get("issue_comment:%s:%s" % (channel_id, thread_ts))
+    gh_review = redis.get("review:%s:%s" % (channel_id, thread_ts))
+    link = "to [this PR %s](%s) via"
+    if gh_issue_comment:
+        body = body.replace("via", link % ("comment", gh_issue_comment), 1)
+    elif gh_review:
+        body = body.replace("via", link % ("review", gh_review), 1)
+    else:
+        # Otherwise, this is a Slack reply to an unknown review comment.
+        debug("Couldn't find GitHub comment ID to sync Slack reply")
+        return
 
-    # Otherwise, this is a Slack reply to an unknown review comment.
-    debug("Couldn't find GitHub comment ID to sync Slack reply")
-    return None
+    # See: https://docs.github.com/en/rest/issues/comments#create-an-issue-comment
+    github.create_issue_comment(owner, repo, pr, body)

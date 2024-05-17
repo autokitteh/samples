@@ -73,7 +73,7 @@ def _on_pr_review_comment_created(data):
         thread_ts = impersonate_user_in_reply(channel_id, thread_url, data.sender, msg, org)
 
     # Remember the thread/reply timestamp (message ID) of the Slack message we posted.
-    # Usage: edit and delete below, mention_user_in_reply() for syncing replies.
+    # Usage: edit and delete below, impersonate_user_in_reply() for syncing replies.
     if thread_ts:
         # See: https://redis.io/commands/set/
         resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
