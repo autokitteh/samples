@@ -43,12 +43,13 @@ def _on_slack_new_message(data):
         create_review_comment(owner, repo, pr, review, comment, data.channel, data.ts)
     else:
         # Slack threaded reply = GitHub review comment.
-        body = "%s replied via %s:\n\n%s"
+        body = "%s replied via %s:\n\n"
         if not data.root:
-            body %= (github_user, get_permalink(data.channel, data.ts), data.text)
+            body %= (github_user, get_permalink(data.channel, data.ts))
         else:
             # Special case but same result: reply is broadcasted to the channel.
-            body %= (github_user, get_permalink(data.channel, data.root.ts), data.text)
+            body %= (github_user, get_permalink(data.channel, data.root.ts))
+        body += slack_markdown_to_github(data.text)
 
         resp = create_review_comment_reply(owner, repo, pr, body, data.channel, data.thread_ts)
         print(resp)  # TODO: Remove this line

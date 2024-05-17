@@ -2,7 +2,12 @@
 
 load("debug.star", "debug")
 load("markdown.star", "github_markdown_to_slack")
-load("slack_helpers.star", "lookup_pr_channel", "mention_user_in_message")
+load(
+    "slack_helpers.star",
+    "impersonate_user_in_message",
+    "lookup_pr_channel",
+    "mention_user_in_message",
+)
 
 def on_github_pull_request_review(data):
     """https://docs.github.com/webhooks/webhook-events-and-payloads#pull_request_review
@@ -48,16 +53,27 @@ def _on_pr_review_submitted(data):
         return
 
     if data.review.state == "approved":
-        msg = "%s approved this PR :+1:"
-        if data.review.body:
-            msg += "\n\n" + github_markdown_to_slack(data.review.body, pr_url, org)
+        if not data.review.body:
+            msg = "%s approved this PR :+1:"
+            mention_user_in_message(channel_id, data.sender, msg, org)
+            return
+        else:
+            msg = "<%s|PR approved> :+1:\n\n" % data.review.htmlurl
     elif data.review.body:
-        msg = "%%s submitted a <%s|PR review>:\n\n" % data.review.htmlurl
-        msg += github_markdown_to_slack(data.review.body, pr_url, org)
+        msg = "<%s|PR review>:\n\n" % data.review.htmlurl
     else:
         return
 
-    mention_user_in_message(channel_id, data.sender, msg, org)
+    msg += github_markdown_to_slack(data.review.body, pr_url, org)
+    thread_ts = impersonate_user_in_message(channel_id, data.sender, msg, org)
+    if not thread_ts:
+        return
+
+    # Remember the PR review's URL, in case people reply to it in Slack.
+    # See: https://redis.io/commands/set/
+    resp = redis.set(data.review.htmlurl, thread_ts, REDIS_TTL)
+    if resp != "OK":
+        debug('Redis "set %s %s" failed: %s' % (data.comment.htmlurl, thread_ts, resp))
 
 def _on_pr_review_edited(data):
     """The body comment on a pull request review was edited.
