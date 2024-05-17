@@ -71,11 +71,20 @@ def _on_pr_review_submitted(data):
     if not thread_ts:
         return
 
-    # Remember the PR review's URL, in case people reply to it in Slack.
+    # Remember the thread timestamp (message ID) of the Slack message we posted.
+    # Usage: syncing edits below to Slack.
     # See: https://redis.io/commands/set/
     resp = redis.set(data.review.htmlurl, thread_ts, REDIS_TTL)
     if resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (data.comment.htmlurl, thread_ts, resp))
+        debug('Redis "set %s %s" failed: %s' % (data.review.htmlurl, thread_ts, resp))
+
+    # Also remember the GitHub review URL, so we can reply to it later from Slack
+    # (in create_review_comment_reply() in github_helpers.star).
+    # See: https://redis.io/commands/set/
+    channel_ts = "review:%s:%s" % (channel_id, thread_ts)
+    resp = redis.set(channel_ts, data.review.htmlurl, REDIS_TTL)
+    if resp != "OK":
+        debug('Redis "set %s %s" failed: %s' % (channel_ts, data.review.htmlurl, resp))
 
 def _on_pr_review_edited(data):
     """The body comment on a pull request review was edited.

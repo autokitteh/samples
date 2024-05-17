@@ -46,13 +46,23 @@ def _on_issue_comment_created(data):
     msg = "<%s|PR comment>:\n\n" % data.comment.htmlurl
     msg += github_markdown_to_slack(data.comment.body, pr_url, org)
     thread_ts = impersonate_user_in_message(channel_id, data.sender, msg, org)
+    if not thread_ts:
+        return
 
-    # Remember the thread timestamp (message ID) of the message we posted.
-    if thread_ts:
-        # See: https://redis.io/commands/set/
-        resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
-        if resp != "OK":
-            debug('Redis "set %s %s" failed: %s' % (data.comment.htmlurl, thread_ts, resp))
+    # Remember the thread timestamp (message ID) of the Slack message we posted.
+    # Usage: syncing edits and deletes below to Slack.
+    # See: https://redis.io/commands/set/
+    resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
+    if resp != "OK":
+        debug('Redis "set %s %s" failed: %s' % (data.comment.htmlurl, thread_ts, resp))
+
+    # Also remember the GitHub comment URL, so we can reply to it later from Slack
+    # (in create_review_comment_reply() in github_helpers.star).
+    # See: https://redis.io/commands/set/
+    channel_ts = "issue_comment:%s:%s" % (channel_id, thread_ts)
+    resp = redis.set(channel_ts, data.comment.htmlurl, REDIS_TTL)
+    if resp != "OK":
+        debug('Redis "set %s %s" failed: %s' % (channel_ts, data.comment.htmlurl, resp))
 
 def _on_issue_comment_edited(data):
     """A comment on an issue or pull request was edited.

@@ -51,9 +51,7 @@ def _on_slack_new_message(data):
             body %= (github_user, get_permalink(data.channel, data.root.ts))
         body += slack_markdown_to_github(data.text)
 
-        resp = create_review_comment_reply(owner, repo, pr, body, data.channel, data.thread_ts)
-        print(resp)  # TODO: Remove this line
-        # TODO: Use Redis (resp.htmlurl, data.thread_ts?)
+        create_review_comment_reply(owner, repo, pr, body, data.channel, data.thread_ts)
 
 def _on_slack_message_changed(data):
     """https://api.slack.com/events/message/message_changed
