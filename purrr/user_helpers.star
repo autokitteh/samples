@@ -1,13 +1,15 @@
 """User-related helper functions across GitHub and Slack."""
 
 load("@github", "github")
-load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
-
-# Optimization: cache user lookup results for a day, to
-# reduce the amount of API calls, especially to Slack.
-_USER_CACHE_TTL = "24h"
+load(
+    "redis_helpers.star",
+    "cache_github_reference",
+    "cache_slack_user_id",
+    "cached_github_reference",
+    "cached_slack_user_id",
+)
 
 def _email_to_github_user_id(email, owner_org = ""):
     """Convert an email address into a GitHub user ID.
@@ -21,7 +23,7 @@ def _email_to_github_user_id(email, owner_org = ""):
     """
 
     # See: https://docs.github.com/en/rest/search/search#search-users
-    # https://docs.github.com/en/search-github/searching-on-github/searching-users
+    # And: https://docs.github.com/en/search-github/searching-on-github/searching-users
     resp = github.search_users(email + " in:email", owner = owner_org)
     if resp.total == 1:
         return resp.users[0].login
@@ -51,7 +53,7 @@ def github_pr_participants(pr):
     """Return all the participants in the given GitHub pull request.
 
     Args:
-        pr: GitHub pull request data.
+        pr: GitHub pull request object.
 
     Returns:
         List of usernames (author/reviewers/assignees),
@@ -92,7 +94,7 @@ def github_username_to_slack_user(username, owner_org = ""):
 
     return resp.user
 
-def github_username_to_slack_user_id(username, owner_org = ""):
+def github_username_to_slack_user_id(github_username, owner_org = ""):
     """Convert a GitHub username into a Slack user ID.
 
     This function tries to match the email address first, and then
@@ -102,32 +104,27 @@ def github_username_to_slack_user_id(username, owner_org = ""):
     to reduce the amount of API calls, especially to Slack.
 
     Args:
-        username: GitHub username.
+        github_username: GitHub username.
         owner_org: Optional, for GitHub org-specific visibility.
 
     Returns:
         Slack user ID, or "" if not found.
     """
 
-    # Optimization: if we already have it cached, return it.
-    # See: https://redis.io/commands/get/
-    slack_user_id = redis.get("github_user:" + username)
+    # Optimization: if we already have it cached, no need to look it up.
+    slack_user_id = cached_slack_user_id(github_username)
     if slack_user_id:
-        # Optimization: extend the TTL after a successful cache hit.
-        # See: https://redis.io/commands/expire/
-        redis.expire("github_user:" + username, _USER_CACHE_TTL)
+        if slack_user_id in ("bot", "not found"):
+            slack_user_id = ""
         return slack_user_id
-    if slack_user_id == "external user":
-        # Note: don't extend the TTL for external-user cache hits,
-        # in order to reevaluate them on a daily basis.
-        return ""
 
     # See: https://docs.github.com/en/rest/users#get-a-user
-    resp = github.get_user(username, owner = owner_org)
-    github_user_link = "<%s|%s>" % (resp.htmlurl, username)
+    resp = github.get_user(github_username, owner = owner_org)
+    github_user_link = "<%s|%s>" % (resp.htmlurl, github_username)
 
-    # Bots are not real users, so we can't match them to Slack users.
+    # Special case: GitHub bots can't have Slack identities.
     if resp.type == "Bot":
+        cache_slack_user_id(github_username, "bot")
         return ""
 
     # Try to match by the email address first.
@@ -136,9 +133,7 @@ def github_username_to_slack_user_id(username, owner_org = ""):
     else:
         slack_user_id = _email_to_slack_user_id(resp.email)
         if slack_user_id:
-            # Optimization: cache successful results for a day.
-            # See: https://redis.io/commands/set/
-            redis.set("github_user:" + username, slack_user_id, _USER_CACHE_TTL)
+            cache_slack_user_id(github_username, slack_user_id)
             return slack_user_id
 
     # Otherwise, try to match by the user's full name.
@@ -153,16 +148,12 @@ def github_username_to_slack_user_id(username, owner_org = ""):
             user.profile.real_name_normalized.lower(),
         )
         if gh_full_name in slack_names:
-            # Optimization: cache successful results for a day.
-            # See: https://redis.io/commands/set/
-            redis.set("github_user:" + username, user.id, _USER_CACHE_TTL)
+            cache_slack_user_id(github_username, user.id)
             return user.id
 
-    debug("GitHub user %s: email & name not found in Slack" % github_user_link)
-
     # Optimization: cache unsuccessful results too (i.e. external users).
-    # See: https://redis.io/commands/set/
-    redis.set("github_user:" + username, "external user", _USER_CACHE_TTL)
+    debug("GitHub user %s: email & name not found in Slack" % github_user_link)
+    cache_slack_user_id(github_username, "not found")
     return ""
 
 def resolve_github_user(github_user, owner_org = ""):
@@ -187,6 +178,9 @@ def resolve_github_user(github_user, owner_org = ""):
 def resolve_slack_user(slack_user_id, github_owner = ""):
     """Convert a Slack user ID to a GitHub user reference.
 
+    This function also caches successful results for a day,
+    to reduce the amount of API calls, especially to Slack.
+
     Args:
         slack_user_id: Slack user ID.
         github_owner: Optional, for GitHub org-specific visibility.
@@ -199,14 +193,10 @@ def resolve_slack_user(slack_user_id, github_owner = ""):
         debug("Slack user ID not found in Slack message event")
         return "Someone"
 
-    # Optimization: if we already have it cached, return it.
-    # See: https://redis.io/commands/get/
-    github_user = redis.get("slack_user:" + slack_user_id)
-    if github_user:
-        # Optimization: extend the TTL after a successful cache hit.
-        # See: https://redis.io/commands/expire/
-        redis.expire("slack_user:" + slack_user_id, _USER_CACHE_TTL)
-        return github_user
+    # Optimization: if we already have it cached, no need to look it up.
+    github_ref = cached_github_reference(slack_user_id)
+    if github_ref:
+        return github_ref
 
     # See: https://api.slack.com/methods/users.info
     resp = slack.users_info(slack_user_id)
@@ -216,10 +206,8 @@ def resolve_slack_user(slack_user_id, github_owner = ""):
 
     # Special case: Slack bots can't have GitHub identities.
     if resp.user.is_bot:
-        # Optimization: cache successful results for a day.
-        # See: https://redis.io/commands/set/
         bot_name = resp.user.real_name + " (Slack bot)"
-        redis.set("slack_user:" + slack_user_id, bot_name, _USER_CACHE_TTL)
+        cache_github_reference(slack_user_id, bot_name)
         return bot_name
 
     # Try to match by the email address first.
@@ -229,15 +217,13 @@ def resolve_slack_user(slack_user_id, github_owner = ""):
     else:
         github_id = _email_to_github_user_id(email, github_owner)
         if github_id:
-            # Optimization: cache successful results for a day.
-            # See: https://redis.io/commands/set/
-            github_id = "@" + github_id
-            redis.set("slack_user:" + slack_user_id, github_id, _USER_CACHE_TTL)
-            return github_id
+            github_ref = "@" + github_id
+            cache_github_reference(slack_user_id, github_ref)
+            return github_ref
 
     # TODO: Otherwise, try to match by the user's full name?
     # (Unlike Slack, where we limit the user list to a specific workspace,
-    # this potentially searches across all GitHub users, which is risky).
+    # this would search across all GitHub users, which is risky and inefficient).
 
     # Otherwise, return the user's full name.
     return resp.user.real_name
@@ -258,11 +244,11 @@ def _slack_users(cursor = ""):
 
     # See: https://api.slack.com/methods/users.list
     resp = slack.users_list(cursor, limit = 100)
-    if resp.ok:
-        users = resp.members
-        if resp.response_metadata.next_cursor:
-            users += _slack_users(resp.response_metadata.next_cursor)
-        return users
-    else:
-        debug('List Slack users (cursor `"%s"`): `%s`' % (cursor, resp.error))
+    if not resp.ok:
+        debug("List Slack users (cursor `%s`): `%s`" % (cursor, resp.error))
         return []
+
+    users = resp.members
+    if resp.response_metadata.next_cursor:
+        users += _slack_users(resp.response_metadata.next_cursor)
+    return users

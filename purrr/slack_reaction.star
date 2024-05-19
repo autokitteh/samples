@@ -1,7 +1,7 @@
 """Handler for Slack reaction events."""
 
-load("@redis", "redis")
 load("@slack", "slack")
+load("redis_helpers.star", "translate_slack_channel_id_to_pr_details")
 load("user_helpers.star", "resolve_slack_user")
 
 def on_slack_reaction_added(data):
@@ -10,7 +10,7 @@ def on_slack_reaction_added(data):
     Args:
         data: Slack event data.
     """
-    owner, _, _ = redis.get(data.item.channel).split(":")
+    owner, _, _ = translate_slack_channel_id_to_pr_details(data.item.channel)
     github_user = resolve_slack_user(data.user, owner)
     msg = ":point_up: TODO - add GitHub review comment: `%s` added reaction `%s` (channel = `%s`, TS = `%s`)"
     msg %= (github_user, data.reaction, data.item.channel, data.item.ts)

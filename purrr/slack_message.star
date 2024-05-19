@@ -1,9 +1,9 @@
 """Handler for Slack message events."""
 
-load("@redis", "redis")
 load("@slack", "slack")
 load("github_helpers.star", "create_review_comment", "create_review_comment_reply")
 load("markdown.star", "slack_markdown_to_github")
+load("redis_helpers.star", "translate_slack_channel_id_to_pr_details")
 load("slack_helpers.star", "get_permalink")
 load("user_helpers.star", "resolve_slack_user")
 
@@ -28,11 +28,7 @@ def _on_slack_new_message(data):
     Args:
         data: Slack event data.
     """
-
-    # See: https://redis.io/commands/get/
-    owner, repo, pr = redis.get(data.channel).split(":")
-    pr = int(pr)
-
+    owner, repo, pr = translate_slack_channel_id_to_pr_details(data.channel)
     github_user = resolve_slack_user(data.user, owner)
 
     # See subtype bug note in https://api.slack.com/events/message/message_replied

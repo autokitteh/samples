@@ -1,8 +1,12 @@
 """Handler for Slack slash-command events."""
 
-load("@redis", "redis")
 load("@slack", "slack")
-load("debug.star", "debug")
+load(
+    "redis_helpers.star",
+    "del_slack_opt_out",
+    "get_slack_opt_out",
+    "set_slack_opt_out",
+)
 
 WAKE_WORD = "purrr"
 HELP_CMD = "help"
@@ -84,16 +88,12 @@ def _opt_in(data, args):
         _error(data, args[0], "this command doesn't accept extra arguments")
         return
 
-    # See: https://redis.io/commands/get/
-    key_prefix = "slack_opt_out:"
-    opt_out = redis.get(key_prefix + data.user_id)
-    if not opt_out:
+    if not get_slack_opt_out(data.user_id):
         msg = ":bell: You're already opted into PuRRR"
         slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
         return
 
-    # See: https://redis.io/commands/del/
-    redis.delete(key_prefix + data.user_id)
+    del_slack_opt_out(data.user_id)
     msg = ":bell: You are now opted into PuRRR"
     slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
 
@@ -108,19 +108,13 @@ def _opt_out(data, args):
         _error(data, args[0], "this command doesn't accept extra arguments")
         return
 
-    # See: https://redis.io/commands/get/
-    key_prefix = "slack_opt_out:"
-    opt_out = redis.get(key_prefix + data.user_id)
-    if opt_out:
-        msg = ":no_bell: You're already opted out of PuRRR since: " + opt_out
+    opt_out_time = get_slack_opt_out(data.user_id)
+    if opt_out_time:
+        msg = ":no_bell: You're already opted out of PuRRR since: " + opt_out_time
         slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
         return
 
-    # See: https://redis.io/commands/set/
-    resp = redis.set(key_prefix + data.user_id, time.now())
-    if resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (key_prefix + data.user_id, time.now(), resp))
-    else:
+    if set_slack_opt_out(data.user_id):
         msg = ":no_bell: You are now opted out of PuRRR"
         slack.chat_post_ephemeral(data.channel_id, data.user_id, msg)
 
@@ -144,6 +138,25 @@ def _status(data, args):
         data: Slack event data.
         args: Tuple of normalized string arguments.
     """
+
+    # TODO: If the Slack channel belongs to a PR, the args are optional.
+    if len(args) != 2:
+        msg = "this command requires exactly 1 argument - an ID of a "
+        msg += "GitHub PR (`<org>/<repo>/<number>`), or its full URL"
+        _error(data, args[0], msg)
+        return
+
+    slack.chat_post_ephemeral(data.channel_id, data.user_id, "TODO: implement me!")
+
+def _approve(data, args):
+    """Approve command.
+
+    Args:
+        data: Slack event data.
+        args: Tuple of normalized string arguments.
+    """
+
+    # TODO: If the Slack channel belongs to a PR, the args are optional.
     if len(args) != 2:
         msg = "this command requires exactly 1 argument - an ID of a "
         msg += "GitHub PR (`<org>/<repo>/<number>`), or its full URL"
@@ -156,5 +169,6 @@ COMMANDS = [
     ("opt-in", "Opt into receiving notifications", _opt_in),
     ("opt-out", "Opt out of receiving notifications", _opt_out),
     ("list", "List all PRs you should pay attention to", _list),
-    ("status <PR>", "Check the status of a specific PR", _status),
+    ("status [PR]", "Check the status of a specific PR", _status),
+    ("approve [PR]", "Approve a specific PR", _approve),
 ]
