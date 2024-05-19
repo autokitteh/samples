@@ -2,7 +2,7 @@
 
 load("user_helpers.star", "resolve_github_user", "resolve_slack_user")
 
-def github_markdown_to_slack(text, pr_url, github_owner = ""):
+def github_markdown_to_slack(text, pr_url, github_owner_org):
     """Convert GitHub markdown text to Slack markdown text.
 
     References:
@@ -14,7 +14,7 @@ def github_markdown_to_slack(text, pr_url, github_owner = ""):
         text: Text body, possibly containing GitHub markdown.
         pr_url: URL of the PR we're working on, used to convert
             other PR references in the text ("#123") to links.
-        github_owner: Optional, for GitHub org-specific visibility.
+        github_owner_org: Required for GitHub org-specific visibility.
 
     Returns:
         Slack markdown text.
@@ -37,11 +37,10 @@ def github_markdown_to_slack(text, pr_url, github_owner = ""):
     text = re.sub(r"!<(.*?)>", "Image: <$1>", text)
 
     # "@..." --> "<@U...>" or "<https://github.com/...|...>".
-    # TODO: "https://github.com/" doesn't support GitHub Enterprise.
     for github_user in re.findall(r"@[\w-]+", text):
-        profile_link = "https://github.com/" + github_user[1:]
+        profile_link = pr_url.split(github_owner_org)[0] + github_user[1:]
         user_obj = struct(login = github_user[1:], htmlurl = profile_link)
-        slack_user = resolve_github_user(user_obj, github_owner)
+        slack_user = resolve_github_user(user_obj, github_owner_org)
         text = text.replace(github_user, slack_user)
 
     # "#123" --> "<PR URL|#123>".
@@ -60,7 +59,7 @@ def github_markdown_to_slack(text, pr_url, github_owner = ""):
 
     return text
 
-def slack_markdown_to_github(text, github_owner = ""):
+def slack_markdown_to_github(text, github_owner_org):
     """Convert Slack markdown text to GitHub markdown text.
 
     References:
@@ -70,7 +69,7 @@ def slack_markdown_to_github(text, github_owner = ""):
 
     Args:
         text: Text body, possibly containing Slack markdown.
-        github_owner: Optional, for GitHub org-specific visibility.
+        github_owner_org: Required for GitHub org-specific visibility.
 
     Returns:
         GitHub markdown text.
@@ -89,11 +88,11 @@ def slack_markdown_to_github(text, github_owner = ""):
 
     # Users: "<@U...>" --> "@github-user".
     for slack_user in re.findall(r"<@[UW][0-9A-Z]*?>", text):
-        github_user = resolve_slack_user(slack_user[2:-1], github_owner)
+        github_user = resolve_slack_user(slack_user[2:-1], github_owner_org)
         text = text.replace(slack_user, github_user)
 
     # TODO: Multiline code blocks: ```aaa\nbbb``` --> ```\naaa\nbbb\n```
 
-    # TODO: Quoted text not working?
+    # TODO: Quoted text: aaa\n> bbb\n> ccc\nddd --> aaa\n\n> bbb\n> ccc\n\nddd
 
     return text

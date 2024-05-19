@@ -430,10 +430,15 @@ def _on_pr_edited(data):
     # Update the first message if the PR description was changed.
     if data.changes.body:
         if data.pull_request.body:
+            msg = "%s updated the PR description:\n\n"
+            msg += github_markdown_to_slack(data.pull_request.body, data.pull_request.htmlurl, org)
+
             pass  # TODO: Update the first message.
         else:
+            msg = "%s deleted the PR description"
+
             pass  # TODO: Same, but without a body.
-        msg = "%s edited the PR description"
+
         mention_user_in_message(channel_id, data.sender, msg, org)
 
     # Rename the channel if the PR was renamed.
