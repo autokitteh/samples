@@ -205,7 +205,7 @@ def lookup_pr_channel(pr_url, state):
     Returns:
         Channel ID, or "" if not found.
     """
-    channel_id = lookup_github_link_details(pr_url, wait = True)
+    channel_id = lookup_github_link_details(pr_url)
     if not channel_id:
         debug("State of %s is `%s`, but Slack channel ID not found" % (pr_url, state))
     return channel_id
@@ -213,13 +213,16 @@ def lookup_pr_channel(pr_url, state):
 def _lookup_review_message(review_url):
     """Return the ID of a Slack message representing a GitHub PR review.
 
+    This function waits for the message to exist, if it doesn't already,
+    up to a timeout of a few seconds.
+
     Args:
         review_url: URL of the GitHub PR review to search for.
 
     Returns:
         Message's thread timestamp, or "" if not found.
     """
-    thread_ts = lookup_github_link_details(review_url, wait = False)
+    thread_ts = lookup_github_link_details(review_url)
     if not thread_ts:
         debug("Message mapping for %s not found" % review_url)
     return thread_ts

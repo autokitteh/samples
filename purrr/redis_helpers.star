@@ -86,8 +86,8 @@ def map_github_link_to_slack_channel_id(github_link, slack_channel_id):
     """Called in "github_pr.star", used by future GitHub events."""
     _set(github_link, slack_channel_id, REDIS_TTL)
 
-def lookup_github_link_details(github_link, wait):
-    return _get(github_link, wait)
+def lookup_github_link_details(github_link):
+    return _get(github_link, wait = True)
 
 def map_slack_channel_id_to_pr_details(slack_channel_id, org, repo, pr_number):
     """Called in "github_pr.star", used by future Slack events."""
