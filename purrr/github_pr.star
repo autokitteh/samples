@@ -1,10 +1,13 @@
 """Handler for GitHub "pull_request" events."""
 
-load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
-load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
+load(
+    "redis_helpers.star",
+    "map_github_link_to_slack_channel_id",
+    "map_slack_channel_id_to_pr_details",
+)
 load(
     "slack_helpers.star",
     "add_users_to_channel",
@@ -66,6 +69,8 @@ def on_github_pull_request(data):
     }
     if data.action in action_handlers:
         action_handlers[data.action](data)
+    else:
+        debug("Unrecognized GitHub PR action: `%s`" % data.action)
 
 def _on_pr_opened(data):
     """A new pull request was created.
@@ -107,17 +112,9 @@ def _on_pr_opened(data):
     title = "Diffs (+%d -%d)" % (pr.additions, pr.deletions)
     slack.bookmarks_add(channel_id, title, pr.htmlurl + ".diff")
 
-    # Remember the ID of the channel we just created, for other events.
-    # Also map the channel ID to the PR details for Slack-to-GitHub sync.
-    # See: https://redis.io/commands/set/
-    resp = redis.set(pr.htmlurl, channel_id, REDIS_TTL)
-    if resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (pr.htmlurl, channel_id, resp))
-
-    details = "%s:%s:%s" % (org, data.repo.name, pr.number)
-    resp = redis.set(channel_id, details, REDIS_TTL)
-    if resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (channel_id, details, resp))
+    # Map between the GitHub PR and the new Slack channel ID, for 2-way event syncs.
+    map_github_link_to_slack_channel_id(pr.htmlurl, channel_id)
+    map_slack_channel_id_to_pr_details(channel_id, org, data.repo.name, pr.number)
 
     # In case this is a replacement Slack channel, say so.
     msg = "Note: this is not a new PR, %%s %s now"
@@ -241,7 +238,7 @@ def _on_pr_review_requested(data):
         return
 
     url = data.pull_request.htmlurl
-    channel_id = lookup_pr_channel(url, data.action, wait = True)
+    channel_id = lookup_pr_channel(url, data.action)
     if not channel_id:
         return  # Unrecoverable error.
 
@@ -350,7 +347,7 @@ def _on_pr_assigned(data):
         return
 
     url = data.pull_request.htmlurl
-    channel_id = lookup_pr_channel(url, data.action, wait = True)
+    channel_id = lookup_pr_channel(url, data.action)
     if not channel_id:
         return  # Unrecoverable error.
 

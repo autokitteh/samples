@@ -1,14 +1,12 @@
 """Slack API helper functions."""
 
-load("@redis", "redis")
 load("@slack", "slack")
 load("debug.star", "debug")
 load("env", "SLACK_CHANNEL_PREFIX", "SLACK_LOG_CHANNEL")  # Set in "autokitteh.yaml".
+load("redis_helpers.star", "get_slack_opt_out", "lookup_github_link_details")
 load("user_helpers.star", "github_username_to_slack_user", "resolve_github_user")
 
 _CHANNEL_MAX_METADATA_LENGTH = 250  # Characters.
-_CHANNEL_LOOKUP_TIMEOUT = 5  # Seconds.
-_MESSAGE_LOOKUP_TIMEOUT = 5  # Seconds.
 
 def add_users_to_channel(channel_id, users):
     """Invite all the participants in a GitHub PR to a Slack channel.
@@ -22,8 +20,7 @@ def add_users_to_channel(channel_id, users):
     # mentioned in the channel, but as non-members they won't know it.
     opted_in = []
     for user_id in users.split(","):
-        # See: https://redis.io/commands/get/
-        if not redis.get("slack_opt_out:" + user_id):
+        if not get_slack_opt_out(user_id):
             opted_in.append(user_id)
     users = ",".join(opted_in)
 
@@ -194,40 +191,27 @@ def impersonate_user_in_reply(channel_id, review_url, github_user, msg, github_o
     resp = slack.chat_post_message(channel_id, msg, thread_ts = thread_ts, username = p.real_name, icon_url = p.image_48)
     return resp.ts if resp.ok else ""
 
-def lookup_pr_channel(pr_url, state, wait = False):
+def lookup_pr_channel(pr_url, state):
     """Return the ID of a Slack channel representing a GitHub PR.
 
-    This function can wait for the channel to exist, if it doesn't already,
-    up to a timeout of a few seconds. This is useful (only) when we want to
-    synchronize multiple events during channel creation, i.e. PR re/opening.
+    This function waits for the channel to exist, if it doesn't already,
+    up to a timeout of a few seconds. This is useful when we want to sync
+    multiple events during channel creation, i.e. PR re/opening.
 
     Args:
         pr_url: URL of the GitHub PR.
         state: GitHub event's action.
-        wait: Whether to wait for the channel to exist.
 
     Returns:
         Channel ID, or "" if not found.
     """
-    attempts = _CHANNEL_LOOKUP_TIMEOUT if wait else 1
-    for _ in range(attempts):
-        # See: https://redis.io/commands/get/
-        channel_id = redis.get(pr_url)
-        if channel_id:
-            return channel_id
-        else:
-            # Wait for the channel to exist.
-            sleep(1)
-
-    # Timeout.
-    debug("State of %s is `%s`, but Slack channel not found" % (pr_url, state))
-    return ""
+    channel_id = lookup_github_link_details(pr_url, wait = True)
+    if not channel_id:
+        debug("State of %s is `%s`, but Slack channel ID not found" % (pr_url, state))
+    return channel_id
 
 def _lookup_review_message(review_url):
     """Return the ID of a Slack message representing a GitHub PR review.
-
-    This function waits for the message to exist, if it doesn't already,
-    up to a timeout of a few seconds.
 
     Args:
         review_url: URL of the GitHub PR review to search for.
@@ -235,18 +219,10 @@ def _lookup_review_message(review_url):
     Returns:
         Message's thread timestamp, or "" if not found.
     """
-    for _ in range(_MESSAGE_LOOKUP_TIMEOUT):
-        # See: https://redis.io/commands/get/
-        thread_ts = redis.get(review_url)
-        if thread_ts:
-            return thread_ts
-        else:
-            # Wait for the message to exist.
-            sleep(1)
-
-    # Timeout.
-    debug("Message mapping for %s not found" % review_url)
-    return ""
+    thread_ts = lookup_github_link_details(review_url, wait = False)
+    if not thread_ts:
+        debug("Message mapping for %s not found" % review_url)
+    return thread_ts
 
 def mention_user_in_message(channel_id, github_user, msg, github_owner = ""):
     """Post a message to a Slack channel, mentioning a user.

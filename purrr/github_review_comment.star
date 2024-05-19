@@ -1,9 +1,12 @@
 """Handler for GitHub "pull_request_review_comment" events."""
 
-load("@redis", "redis")
 load("debug.star", "debug")
-load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
+load(
+    "redis_helpers.star",
+    "map_github_link_to_slack_message_ts",
+    "map_slack_message_ts_to_github_link",
+)
 load(
     "slack_helpers.star",
     "impersonate_user_in_message",
@@ -58,13 +61,10 @@ def _on_pr_review_comment_created(data):
         thread_ts = impersonate_user_in_message(channel_id, data.sender, msg, org)
 
         # Remember the GitHub comment ID, so we can reply to it later from Slack.
-        # See usage in create_review_comment_reply() in github_helpers.star.
-        # See: https://redis.io/commands/set/
+        # See usage in create_review_comment_reply() in "github_helpers.star".
         if thread_ts:
             channel_ts = "review_comment:%s:%s" % (channel_id, thread_ts)
-            resp = redis.set(channel_ts, data.comment.id, REDIS_TTL)
-            if resp != "OK":
-                debug('Redis "set %s %s" failed: %s' % (channel_ts, data.comment.id, resp))
+            map_slack_message_ts_to_github_link(channel_ts, data.comment.id)
     else:
         # Review comment in reply to another review comment.
         thread_url = "%s#discussion_r%d" % (pr_url, data.comment.in_reply_to)
@@ -75,10 +75,7 @@ def _on_pr_review_comment_created(data):
     # Remember the thread/reply timestamp (message ID) of the Slack message we posted.
     # Usage: edit and delete below, impersonate_user_in_reply() for syncing replies.
     if thread_ts:
-        # See: https://redis.io/commands/set/
-        resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
-        if resp != "OK":
-            debug('Redis "set %s %s" failed: %s' % (data.comment.htmlurl, thread_ts, resp))
+        map_github_link_to_slack_message_ts(data.comment.htmlurl, thread_ts)
 
 def _on_pr_review_comment_edited(data):
     """The content of a comment on a pull request diff was changed.

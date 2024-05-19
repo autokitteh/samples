@@ -1,9 +1,12 @@
 """Handler for GitHub "issue_comment" events."""
 
-load("@redis", "redis")
 load("debug.star", "debug")
-load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
 load("markdown.star", "github_markdown_to_slack")
+load(
+    "redis_helpers.star",
+    "map_github_link_to_slack_message_ts",
+    "map_slack_message_ts_to_github_link",
+)
 load("slack_helpers.star", "impersonate_user_in_message", "lookup_pr_channel")
 
 def on_github_issue_comment(data):
@@ -51,18 +54,12 @@ def _on_issue_comment_created(data):
 
     # Remember the thread timestamp (message ID) of the Slack message we posted.
     # Usage: syncing edits and deletes below to Slack.
-    # See: https://redis.io/commands/set/
-    resp = redis.set(data.comment.htmlurl, thread_ts, REDIS_TTL)
-    if resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (data.comment.htmlurl, thread_ts, resp))
+    map_github_link_to_slack_message_ts(data.comment.htmlurl, thread_ts)
 
     # Also remember the GitHub comment URL, so we can reply to it later from Slack
-    # (in create_review_comment_reply() in github_helpers.star).
-    # See: https://redis.io/commands/set/
+    # (in create_review_comment_reply() in "github_helpers.star").
     channel_ts = "issue_comment:%s:%s" % (channel_id, thread_ts)
-    resp = redis.set(channel_ts, data.comment.htmlurl, REDIS_TTL)
-    if resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (channel_ts, data.comment.htmlurl, resp))
+    map_slack_message_ts_to_github_link(channel_ts, data.comment.htmlurl)
 
 def _on_issue_comment_edited(data):
     """A comment on an issue or pull request was edited.

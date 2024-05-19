@@ -1,9 +1,14 @@
 """GitHub API helper functions."""
 
 load("@github", "github")
-load("@redis", "redis")
 load("debug.star", "debug")
-load("env", "REDIS_TTL")  # Set in "autokitteh.yaml".
+load(
+    "redis_helpers.star",
+    "map_github_link_to_slack_message_ts",
+    "map_slack_message_ts_to_github_link",
+    "translate_slack_message_to_github_link",
+    "translate_slack_review_comment_to_github_id",
+)
 
 def create_review_comment(owner, repo, pr, review, comment, channel_id, thread_ts):
     """Create a review on a pull request, with a single comment.
@@ -38,18 +43,12 @@ def create_review_comment(owner, repo, pr, review, comment, channel_id, thread_t
 
     # Remember the Slack thread timestamp (message ID) of the GitHub comment we created.
     # Usage: syncing edits and deletes of review comments from GitHub to Slack.
-    # See: https://redis.io/commands/set/
-    redis_resp = redis.set(resp.htmlurl, thread_ts, REDIS_TTL)
-    if redis_resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (resp.htmlurl, thread_ts, redis_resp))
+    map_github_link_to_slack_message_ts(resp.htmlurl, thread_ts)
 
     # Also remember the GitHub comment ID, so we can reply to it later from Slack
     # (in create_review_comment_reply() below).
-    # See: https://redis.io/commands/set/
     channel_ts = "review_comment:%s:%s" % (channel_id, thread_ts)
-    redis_resp = redis.set(channel_ts, resp.id, REDIS_TTL)
-    if redis_resp != "OK":
-        debug('Redis "set %s %s" failed: %s' % (channel_ts, resp.htmlurl, redis_resp))
+    map_slack_message_ts_to_github_link(channel_ts, resp.id)
 
 def create_review_comment_reply(owner, repo, pr, body, channel_id, thread_ts):
     """https://docs.github.com/en/rest/pulls/comments#create-a-reply-for-a-review-comment
@@ -68,16 +67,15 @@ def create_review_comment_reply(owner, repo, pr, body, channel_id, thread_ts):
     pr = int(pr)
 
     # Create a review comment which is a reply to an existing review comment.
-    # This mapping is created by _on_pr_review_comment_created() in github_review_comment.star.
-    # See: https://redis.io/commands/get/
-    gh_review_comment = redis.get("review_comment:%s:%s" % (channel_id, thread_ts))
+    # This mapping is created by _on_pr_review_comment_created() in "github_review_comment.star".
+    gh_review_comment = translate_slack_review_comment_to_github_id(channel_id, thread_ts)
     if gh_review_comment:
-        github.create_review_comment_reply(owner, repo, pr, int(gh_review_comment), body)
+        github.create_review_comment_reply(owner, repo, pr, gh_review_comment, body)
         return
 
     # If the Slack reply is to a different type of Slack message, create a PR comment.
-    gh_issue_comment = redis.get("issue_comment:%s:%s" % (channel_id, thread_ts))
-    gh_review = redis.get("review:%s:%s" % (channel_id, thread_ts))
+    gh_issue_comment = translate_slack_message_to_github_link("issue_comment", channel_id, thread_ts)
+    gh_review = translate_slack_message_to_github_link("review", channel_id, thread_ts)
     link = "to [this PR %s](%s) via"
     if gh_issue_comment:
         body = body.replace("via", link % ("comment", gh_issue_comment), 1)
