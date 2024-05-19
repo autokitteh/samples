@@ -91,8 +91,15 @@ def slack_markdown_to_github(text, github_owner_org):
         github_user = resolve_slack_user(slack_user[2:-1], github_owner_org)
         text = text.replace(slack_user, github_user)
 
-    # TODO: Multiline code blocks: ```aaa\nbbb``` --> ```\naaa\nbbb\n```
+    # Multiline code blocks: ```aaa\nbbb``` --> ```\naaa\nbbb\n```.
+    text = text.replace("```", "\n```\n")
 
-    # TODO: Quoted text: aaa\n> bbb\n> ccc\nddd --> aaa\n\n> bbb\n> ccc\n\nddd
+    # Split into lines (Qri's "re" module doesn't support the MULTILINE flag).
+    lines = text.replace("\r", "").split("\n")
+
+    # Quoted text: "&gt; aaa\n&gt; bbb\nccc" --> "> aaa\n> bbb\n\nccc".
+    lines = [re.sub(r"^&gt;(.*)", ">$1\n", line) for line in lines]
+    text = "\n".join(lines)
+    text = text.replace("\n\n>", "\n>")
 
     return text
