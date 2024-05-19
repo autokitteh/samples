@@ -11,12 +11,12 @@ load(
     "cached_slack_user_id",
 )
 
-def _email_to_github_user_id(email, owner_org = ""):
+def _email_to_github_user_id(email, github_owner_org):
     """Convert an email address into a GitHub user ID.
 
     Args:
         email: User's email address.
-        owner_org: Optional, for GitHub org-specific visibility.
+        github_owner_org: Required for GitHub org-specific visibility.
 
     Returns:
         GitHub user ID, or "" if not found.
@@ -24,7 +24,7 @@ def _email_to_github_user_id(email, owner_org = ""):
 
     # See: https://docs.github.com/en/rest/search/search#search-users
     # And: https://docs.github.com/en/search-github/searching-on-github/searching-users
-    resp = github.search_users(email + " in:email", owner = owner_org)
+    resp = github.search_users(email + " in:email", owner = github_owner_org)
     if resp.total == 1:
         return resp.users[0].login
     else:
@@ -72,17 +72,17 @@ def github_pr_participants(pr):
 
     return sorted(usernames)
 
-def github_username_to_slack_user(username, owner_org = ""):
+def github_username_to_slack_user(username, github_owner_org):
     """Convert a GitHub username into a Slack user object.
 
     Args:
         username: GitHub username.
-        owner_org: Optional, for GitHub org-specific visibility.
+        github_owner_org: Required for GitHub org-specific visibility.
 
     Returns:
         Slack user object, or None if not found.
     """
-    slack_user_id = github_username_to_slack_user_id(username, owner_org)
+    slack_user_id = github_username_to_slack_user_id(username, github_owner_org)
     if not slack_user_id:
         return None
 
@@ -94,7 +94,7 @@ def github_username_to_slack_user(username, owner_org = ""):
 
     return resp.user
 
-def github_username_to_slack_user_id(github_username, owner_org = ""):
+def github_username_to_slack_user_id(github_username, github_owner_org):
     """Convert a GitHub username into a Slack user ID.
 
     This function tries to match the email address first, and then
@@ -105,7 +105,7 @@ def github_username_to_slack_user_id(github_username, owner_org = ""):
 
     Args:
         github_username: GitHub username.
-        owner_org: Optional, for GitHub org-specific visibility.
+        github_owner_org: Required for GitHub org-specific visibility.
 
     Returns:
         Slack user ID, or "" if not found.
@@ -119,7 +119,7 @@ def github_username_to_slack_user_id(github_username, owner_org = ""):
         return slack_user_id
 
     # See: https://docs.github.com/en/rest/users#get-a-user
-    resp = github.get_user(github_username, owner = owner_org)
+    resp = github.get_user(github_username, owner = github_owner_org)
     github_user_link = "<%s|%s>" % (resp.htmlurl, github_username)
 
     # Special case: GitHub bots can't have Slack identities.
@@ -156,18 +156,18 @@ def github_username_to_slack_user_id(github_username, owner_org = ""):
     cache_slack_user_id(github_username, "not found")
     return ""
 
-def resolve_github_user(github_user, owner_org = ""):
+def resolve_github_user(github_user, github_owner_org):
     """Convert a GitHub username to a linkified user reference in Slack.
 
     Args:
         github_user: GitHub user object.
-        owner_org: Optional, for GitHub org-specific visibility.
+        github_owner_org: Required for GitHub org-specific visibility.
 
     Returns:
         Slack user reference, or GitHub profile link.
         Used for mentioning users in Slack messages.
     """
-    id = github_username_to_slack_user_id(github_user.login, owner_org)
+    id = github_username_to_slack_user_id(github_user.login, github_owner_org)
     if id:
         # Mention the user by their Slack ID, if possible.
         return "<@%s>" % id
@@ -175,7 +175,7 @@ def resolve_github_user(github_user, owner_org = ""):
         # Otherwise, fall-back to their GitHub profile link.
         return "<%s|%s>" % (github_user.htmlurl, github_user.login)
 
-def resolve_slack_user(slack_user_id, github_owner = ""):
+def resolve_slack_user(slack_user_id, github_owner):
     """Convert a Slack user ID to a GitHub user reference.
 
     This function also caches successful results for a day,
@@ -183,7 +183,7 @@ def resolve_slack_user(slack_user_id, github_owner = ""):
 
     Args:
         slack_user_id: Slack user ID.
-        github_owner: Optional, for GitHub org-specific visibility.
+        github_owner: Required for GitHub org-specific visibility.
 
     Returns:
         GitHub user reference, or the Slack user's full name, or "Someone".
