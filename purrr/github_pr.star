@@ -66,11 +66,15 @@ def on_github_pull_request(data):
         "edited": _on_pr_edited,
         # A pull request's head branch was updated.
         "synchronize": _on_pr_synchronized,
+
+        # Ignored actions:
+        # - auto_merge_enabled, auto_merge_disabled
+        # - enqueued, dequeued
+        # - labeled, unlabeled
+        # - milestoned, demilestoned
     }
     if data.action in action_handlers:
         action_handlers[data.action](data)
-    else:
-        debug("Unrecognized GitHub PR action: `%s`" % data.action)
 
 def _on_pr_opened(data):
     """A new pull request was created.
@@ -200,6 +204,7 @@ def _on_pr_converted_to_draft(data):
 
     msg = "%s converted this PR to a draft"
     mention_user_in_message(channel_id, data.sender, msg, org = data.organization.login)
+
     archive_channel(channel_id, data)
 
 def _on_pr_ready_for_review(data):
@@ -260,7 +265,7 @@ def _on_pr_review_requested_person(data, channel_id):
     mention_user_in_message(channel_id, data.sender, msg, org)
 
     if not reviewer.startswith("<@"):
-        return
+        return  # Not a real Slack user ID.
 
     reviewer = reviewer[2:-1]  # Remove "<@" and ">" from Slack user ID.
     add_users_to_channel(channel_id, reviewer)
@@ -313,7 +318,7 @@ def _on_pr_review_request_removed_person(data, channel_id):
     mention_user_in_message(channel_id, data.sender, msg, org)
 
     if not reviewer.startswith("<@"):
-        return
+        return  # Not a real Slack user ID.
 
     # TODO: Remove the review request DM.
     reviewer = reviewer[2:-1]  # Remove "<@" and ">" from Slack user ID.
@@ -361,7 +366,7 @@ def _on_pr_assigned(data):
     mention_user_in_message(channel_id, data.sender, msg, org)
 
     if not assignee.startswith("<@"):
-        return
+        return  # Not a real Slack user ID.
 
     assignee = assignee[2:-1]  # Remove "<@" and ">" from Slack user ID.
     add_users_to_channel(channel_id, assignee)

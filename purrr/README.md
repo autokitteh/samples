@@ -4,7 +4,7 @@ PuRRR streamlines code reviews, to cut down the turnaround time for
 merging pull requests.
 
 - Integrates GitHub and Slack seamlessly and efficiently
-- Provides real-time, relevant, informative, and bidirectional updates
+- Provides real-time, relevant, informative, 2-way updates
 - Enables better collaboration and faster execution
 
 No more:
@@ -18,16 +18,14 @@ actual code!
 
 ## Slack Usage
 
-Slack channels are created automatically for each PR, and stakeholders are
-added automatically to them. GitHub-to-Slack user matching is based on email
-addresses and case-insensitive full names. These channels are also un/archived
-automatically when the PR is closed/reopened.
+Event-based, 2-way synchronization:
 
-Other channels that this system may use (if configured in the
-`autokitteh.yaml` manifest file):
+- Slack channels are created and archived automatically for each PR
+- Stakeholders are added and removed automatically to/from them
+- Also: reviews, comments, threads, and emoji reactions
 
-- `#purrr-log` - aggregated log of all PR activity
-- `#purrr-debug` - system warnings and errors
+User matching between GitHub and Slack is based on email addresses and
+case-insensitive full names.
 
 Available Slack slash commands:
 
@@ -35,22 +33,19 @@ Available Slack slash commands:
 - `/ak purrr opt-in`
 - `/ak purrr opt-out`
 - `/ak purrr list`
-- `/ak purrr status <PR>`
+- `/ak purrr status [PR]`
+- `/ak purrr approve [PR]`
 
 ## Cache Considerations
 
-This project uses [Redis](https://redis.io/) as a NoSQL cache for:
+This project uses [Redis](https://redis.io/) or [Valkey](https://valkey.io/)
+as a NoSQL cache for:
 
-1. Mapping PRs to Slack channel ID strings
-2. Mapping reviews to Slack message ID strings
+1. Mapping between GitHub PRs and Slack channels
+2. Mapping between GitHub comments/reviews and Slack message threads
 3. Caching user IDs (optimization to reduce API calls)
 4. User opt-out database
 
 Use-cases 1 and 2 use a TTL of 30 days (configurable in the `autokitteh.yaml`
 manifest file). Use-case 3 uses a TTL of one day since the last cache hit.
 Use-case 4 is permanent (until the user opts back in).
-
-> [!NOTE]
-> For the purpose of the first two use-cases, PuRRR assumes that a PR's cache
-> doesn't expire as long as that PR is active. Furthermore, PuRRR doesn't
-> perform any cleanup when PRs are closed (because they may be reopened).
