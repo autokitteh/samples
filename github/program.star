@@ -37,7 +37,7 @@ def on_github_issue_comment(data):
     # rand.intn: https://pkg.go.dev/math/rand#Rand.Intn.
     reaction = REACTIONS[rand.intn(len(REACTIONS))]
     my_github.create_reaction_for_issue_comment(
-        owner = data.organization.login,
+        owner = data.repo.owner.login,
         repo = data.repo.name,
         id = data.comment.id,
         content = reaction,
