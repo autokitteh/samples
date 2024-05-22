@@ -1,3 +1,7 @@
+"""Trigger GitHub Action workflows, and receive workflow events."""
+
+load("@github", "my_github")
+
 def start_github_action(data):
     """Start a GitHub action workflow.
 
@@ -27,3 +31,30 @@ def start_github_action(data):
 
     # https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event
     my_github.trigger_workflow(owner, repo.name, ref, workflow_file)
+
+def on_github_workflow_dispatch(data):
+    """https://docs.github.com/en/webhooks/webhook-events-and-payloads#workflow_dispatch
+
+    Args:
+        data: GitHub event data.
+    """
+    print("Workflow dispatch: " + data.workflow)
+    print(data.inputs)
+
+def on_github_workflow_job(data):
+    """https://docs.github.com/en/webhooks/webhook-events-and-payloads#workflow_job
+
+    Args:
+        data: GitHub event data.
+    """
+    print("Workflow job %s: %s" % (data.action, data.workflow_job.name))
+    print(data.workflow_job.htmlurl)
+
+def on_github_workflow_run(data):
+    """https://docs.github.com/en/webhooks/webhook-events-and-payloads#workflow_run
+
+    Args:
+        data: GitHub event data.
+    """
+    print("Workflow run %s: %s" % (data.action, data.workflow_run.name))
+    print(data.workflow_run.htmlurl)

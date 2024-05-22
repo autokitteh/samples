@@ -8,8 +8,8 @@ functions that are triggered by various GitHub webhook events, which are
 defined in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file. It also
 executes various GitHub API calls.
 
-The file [`workflow.star`](./workflow.star) demonstrates triggering a GitHub
-Action workflow.
+The file [`workflow.star`](./workflow.star) demonstrates triggering GitHub
+Action workflows, and receiving workflow events.
 
 GitHub API details:
 
