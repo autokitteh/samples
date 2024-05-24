@@ -1,9 +1,9 @@
 """This program demonstrates AutoKitteh's 2-way Slack integration.
 
 This program implements multiple entry-point functions that
-are triggered by Slack webhook events, which are defined in the
-"autokitteh-python.yaml" manifest file. These functions also
-execute various Slack API calls.
+are triggered by incoming Slack events, which are defined in
+the "autokitteh-python.yaml" manifest file. These functions
+also execute various Slack API calls.
 
 API details:
 - Web API reference: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html

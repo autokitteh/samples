@@ -7,7 +7,7 @@ It has two versions which are independent but equivalent: Python, and Starlark
 (which is a dialect of Python - see https://bazel.build/rules/language).
 
 The code files ([`program.py`](./program.py) or [`program.star`](./program.star))
-implement multiple entry-point functions that are triggered by Slack webhook
+implement multiple entry-point functions that are triggered by incoming Slack
 events, which are defined in the [`autokitteh-python.yaml`](./autokitteh-python.yaml)
 or [`autokitteh-starlark.yaml`](./autokitteh-starlark.yaml) manifest files.
 These functions also execute various Slack API calls.
