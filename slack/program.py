@@ -29,7 +29,7 @@ def _structify(event: dict, key: str = "") -> munch.Munch:
 def _slack_client() -> slack_sdk.WebClient:
     token = os.getenv("SLACK_TOKEN")
     if not token:
-        raise RuntimeError(f'Env variable "SLACK_TOKEN" not set')
+        raise RuntimeError('Env variable "SLACK_TOKEN" not set')
 
     # TODO: Also support Socket Mode as an optional configuration
     # (https://slack.dev/python-slack-sdk/api-docs/slack_sdk/socket_mode/).
