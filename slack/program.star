@@ -1,20 +1,22 @@
-"""This program demonstrates AutoKitteh's Slack integration.
+"""This program demonstrates AutoKitteh's 2-way Slack integration.
 
-This program implements multiple entry-point functions that are triggered by
-various Slack webhook events, which are defined in the "autokitteh.yaml"
-manifest file. It also executes various Slack API calls.
+This program implements multiple entry-point functions that
+are triggered by Slack webhook events, which are defined in the
+"autokitteh-starlark.yaml" manifest file. These functions also
+execute various Slack API calls.
 
 API details:
 - Web API reference: https://api.slack.com/methods
 - Events API reference: https://api.slack.com/events?filter=Events
 
-It also demonstrates using a custom builtin function (sleep) to sleep
-for a specified number of seconds.
+This program also demonstrates using a custom builtin function (sleep)
+to sleep for a specified number of seconds.
 
 This program isn't meant to cover all available functions and events.
 It merely showcases various illustrative, annotated, reusable examples.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
+Comapre this file with "program.py" that uses Python code.
 """
 
 load("@slack", "my_slack")
@@ -146,6 +148,7 @@ def on_slack_slash_command(data):
     text = "Email: " + profile.email
     my_slack.chat_post_message(data.user_id, text)
 
+    # TODO(ENG-802): Fix regression, use builtin store, and test.
     # Treat the text of the user's slash command as a message target (channel
     # ID/name or user ID), and send an interactive message to that target.
     title = "Question From %s" % data.user_id
@@ -162,6 +165,8 @@ def on_slack_interaction(data):
     Args:
         data: Slack event data.
     """
+
+    # TODO(ENG-802): Fix regression, use builtin store, and test.
 
     # The Slack ID of the user who sent the question.
     title_prefix = "Question From "

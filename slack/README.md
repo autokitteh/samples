@@ -1,38 +1,53 @@
 # Slack Sample Project
 
-This sample project demonstrates autokitteh's integration with
+This sample project demonstrates AutoKitteh's 2-way integration with
 [Slack](https://slack.com).
 
-The file [`program.star`](./program.star) implements multiple entry-point
-functions that are triggered by various Slack webhook events, which are
-defined in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file. It also
-executes various Slack API calls.
+It has two versions which are independent but equivalent: Python, and Starlark
+(which is a dialect of Python - see https://bazel.build/rules/language).
+
+The code files ([`program.py`](./program.py) or [`program.star`](./program.star))
+implement multiple entry-point functions that are triggered by Slack webhook
+events, which are defined in the [`autokitteh-python.yaml`](./autokitteh-python.yaml)
+or [`autokitteh-starlark.yaml`](./autokitteh-starlark.yaml) manifest files.
+These functions also execute various Slack API calls.
 
 API details:
 
 - [Web API reference](https://api.slack.com/methods)
+- [Python web API reference](https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html)
 - [Events API reference](https://api.slack.com/events?filter=Events)
 
-It also demonstrates using a custom builtin function (`sleep`) to sleep for a
-specified number of seconds.
-
-This project isn't meant to cover all available functions and events. it
+This project isn't meant to cover all available functions and events. It
 merely showcases a few illustrative, annotated, reusable examples.
 
 ## Instructions
 
-1. Create an AutoKitteh connection token
+1. Choose one of the implementation options of this project: Python or
+   Starlark
 
-   1. Open a browser, and go to the AutoKitteh server's URL
-   2. Create a Slack connection, and copy the resulting token
-   3. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
-      manifest file
+2. Deploy the manifest file which corresponds to your choice:
 
-3. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
-   `autokitteh.yaml` manifest file
+   ```shell
+   ak deploy --manifest samples/slack/autokitteh-python.yaml
+   ```
 
-## Connection Notes
+   or
 
-autokitteh connects to Slack via an
-[OAuth-based Slack app](https://api.slack.com/authentication/oauth-v2), which
-is installed and authorized in a Slack workspace in step 3 above.
+   ```shell
+   ak deploy --manifest samples/slack/autokitteh-starlark.yaml
+   ```
+
+3. Follow the instructions in the `ak` CLI tool's output:
+
+   ```
+   Connection created, but requires initialization.
+   Please run this to complete:
+
+   ak connection init <Slack connection ID>
+   ```
+
+Additional information about Slack in AutoKitteh:
+
+- [Configuring the Slack Integration](https://docs.autokitteh.com/config/integrations/slack)
+- [Creating a Socket-Mode Slack Connection](https://docs.autokitteh.com/tutorials/new_connections/slack)
