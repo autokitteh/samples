@@ -47,7 +47,8 @@ merely showcases a few illustrative, annotated, reusable examples.
    ak connection init <Slack connection ID>
    ```
 
-Additional information about Slack in AutoKitteh:
-
-- [Configuring the Slack Integration](https://docs.autokitteh.com/config/integrations/slack)
-- [Creating a Socket-Mode Slack Connection](https://docs.autokitteh.com/tutorials/new_connections/slack)
+> [!TIP]
+> Additional information about Slack in AutoKitteh:
+>
+> - [Configuring the Slack Integration](https://docs.autokitteh.com/config/integrations/slack)
+> - [Creating a Socket-Mode Slack Connection](https://docs.autokitteh.com/tutorials/new_connections/slack)
