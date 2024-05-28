@@ -1,0 +1,14 @@
+---
+version: v1
+
+project:
+  name: walking
+  connections:
+    - name: http_trigger
+      integration: http
+      token: event
+  triggers:
+    - name: events
+      connection: http_trigger
+      event_type: post
+      entrypoint: handler.py:on_event
