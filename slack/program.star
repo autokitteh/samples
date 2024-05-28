@@ -29,14 +29,15 @@ def on_slack_app_mention(data):
     """
 
     # Send messages in response to the event:
-    # - A DM to the user who triggered the event
+    # - DM to the user who triggered the event (channel ID = user ID)
     # - Two messages to the channel "#slack-test"
     # See: https://api.slack.com/methods/chat.postMessage
-    user = "<@" + data.user + ">"
-    channel = "<#" + data.channel + ">"
-    text = "You mentioned me in %s and wrote: `%s`" % (channel, data.text)
+    text = "You mentioned me in <#%s> and wrote: `%s`" % (data.channel, data.text)
     my_slack.chat_post_message(channel = data.user, text = text)
-    my_slack.chat_post_message("#slack-test", text.replace("You", user))
+
+    text = text.replace("You", "<@%s>" % data.user)
+    my_slack.chat_post_message("#slack-test", text)
+
     text = "Before update :crying_cat_face:"
     resp = my_slack.chat_post_message("#slack-test", text)
 
@@ -70,8 +71,7 @@ def on_slack_app_mention(data):
     # See: https://api.slack.com/methods/conversations.replies
     resp = my_slack.conversations_replies(channel = resp.channel, ts = resp.ts)
 
-    # For educational purposes, print all the reply objects
-    # in the AutoKitteh session's log.
+    # For educational purposes, print all the replies in the AutoKitteh session's log.
     if resp.ok:
         for msg in resp.messages:
             print(msg)
@@ -83,40 +83,43 @@ def on_slack_message(data):
         data: Slack event data.
     """
     if not data.subtype:
-        user = "<@" + data.user + ">"
+        user = "<@%s>" % data.user
         if not data.thread_ts:
             _on_slack_new_message(data, user)
         else:
             # https://api.slack.com/events/message/message_replied
             _on_slack_reply_message(data, user)
     elif data.subtype == "message_changed":
-        user = "<@" + data.message.user + ">"
+        user = "<@%s>" % data.message.user  # Not the same as above!
         _on_slack_message_changed(data, user)
 
 def _on_slack_new_message(data, user):
     """Someone wrote a new message."""
-    msg = ":point_up: %s wrote: `%s`" % (user, data.text)
-    my_slack.chat_post_message(data.channel, msg)
+    text = ":point_up: %s wrote: `%s`" % (user, data.text)
+    my_slack.chat_post_message(data.channel, text)
 
 def _on_slack_reply_message(data, user):
     """Someone wrote a reply in a thread."""
-    msg = ":point_up: %s wrote a reply to <@%s>: `%s`"
-    msg %= (user, data.parent_user_id, data.text)
-    my_slack.chat_post_message(data.channel, msg, thread_ts = data.thread_ts)
+    text = ":point_up: %s wrote a reply to <@%s>: `%s`"
+    text %= (user, data.parent_user_id, data.text)
+    my_slack.chat_post_message(data.channel, text, thread_ts = data.thread_ts)
 
 def _on_slack_message_changed(data, user):
     """Someone edited a message."""
-    msg = ":point_up: %s edited a message from `%s` to `%s`"
-    msg %= (user, data.previous_message.text, data.message.text)
+    text = ":point_up: %s edited a message from `%s` to `%s`"
+    text %= (user, data.previous_message.text, data.message.text)
 
     # Thread TS may or may not be empty, depending on the edited message.
-    my_slack.chat_post_message(data.channel, msg, thread_ts = data.thread_ts)
+    my_slack.chat_post_message(data.channel, text, thread_ts = data.thread_ts)
 
 def on_slack_reaction_added(data):
-    """https://api.slack.com/events/reaction_added"""
+    """https://api.slack.com/events/reaction_added
 
-    # For educational purposes, print the fields of the event object
-    # in the AutoKitteh session's log.
+    Args:
+        data: Slack event data.
+    """
+
+    # For educational purposes, print the event data in the AutoKitteh session's log.
     print(data.user)
     print(data.reaction)
     print(data.item)
