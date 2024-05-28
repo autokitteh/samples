@@ -11,6 +11,8 @@ def on_slack_reaction_added(data):
         data: Slack event data.
     """
     owner, _, _ = translate_slack_channel_id_to_pr_details(data.item.channel)
+    if not owner:
+        return  # This is not a PR channel.
     github_user = resolve_slack_user(data.user, owner)
     msg = ":point_up: TODO - add GitHub review comment: `%s` added reaction `%s` (channel = `%s`, TS = `%s`)"
     msg %= (github_user, data.reaction, data.item.channel, data.item.ts)

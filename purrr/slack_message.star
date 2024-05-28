@@ -29,6 +29,8 @@ def _on_slack_new_message(data):
         data: Slack event data.
     """
     owner, repo, pr = translate_slack_channel_id_to_pr_details(data.channel)
+    if not owner:
+        return  # This is not a PR channel.
     github_user = resolve_slack_user(data.user, owner)
 
     # See subtype bug note in https://api.slack.com/events/message/message_replied
