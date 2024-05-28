@@ -21,15 +21,16 @@ import slack_sdk
 
 
 def _structify(event: dict, key: str = "") -> munch.Munch:
+    """Convert a JSON-based dictionary to an object with attributes."""
     if key:
-        event = event[key]
+        event = event.get(key, {})
     return munch.Munch.fromDict(event)
 
 
 def _slack_client() -> slack_sdk.WebClient:
-    token = os.getenv("SLACK_TOKEN")
+    token = os.getenv("SLACK_BOT_TOKEN")
     if not token:
-        raise RuntimeError('Env variable "SLACK_TOKEN" not set')
+        raise RuntimeError('Env variable "SLACK_BOT_TOKEN" not set')
 
     # TODO: Also support Socket Mode as an optional configuration
     # (https://slack.dev/python-slack-sdk/api-docs/slack_sdk/socket_mode/).
@@ -46,18 +47,16 @@ def on_slack_app_mention(event: dict) -> None:
         event: Slack event data.
     """
     data = _structify(event, "data")
-    user = f"<@{data.user}>"
-    channel = f"<#{data.channel}>"
     slack = _slack_client()
 
     # Send messages in response to the event:
-    # - A DM to the user who triggered the event
+    # - DM to the user who triggered the event (channel ID = user ID)
     # - Two messages to the channel "#slack-test"
     # See: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html#slack_sdk.web.client.WebClient.chat_postMessage
-    text = f"You mentioned me in {channel} and wrote: `{data.text}`"
+    text = f"You mentioned me in <#{data.channel}> and wrote: `{data.text}`"
     slack.chat_postMessage(channel=data.user, text=text)
 
-    text = text.replace("You", user)
+    text = text.replace("You", f"<@{data.user}>")
     slack.chat_postMessage(channel="#slack-test", text=text)
 
     text = "Before update :crying_cat_face:"
@@ -97,7 +96,7 @@ def on_slack_app_mention(event: dict) -> None:
     # For educational purposes, print all the reply objects
     # in the AutoKitteh session's log.
     resp.validate()
-    for text in resp.get("messages"):
+    for text in resp.get("messages", default=[]):
         print(text)
 
 
@@ -128,8 +127,7 @@ def _on_slack_new_message(data: munch.Munch, user: str) -> None:
 
 def _on_slack_reply_message(data: munch.Munch, user: str) -> None:
     """Someone wrote a reply in a thread."""
-    text = ":point_up: %s wrote a reply to <@%s>: `%s`"
-    text %= (user, data.parent_user_id, data.text)
+    text = ":point_up: {user} wrote a reply to <@{data.parent_user_id}>: `{data.text}`"
     _slack_client().chat_postMessage(
         channel=data.channel, text=text, thread_ts=data.thread_ts
     )
@@ -137,8 +135,7 @@ def _on_slack_reply_message(data: munch.Munch, user: str) -> None:
 
 def _on_slack_message_changed(data: munch.Munch, user: str) -> None:
     """Someone edited a message."""
-    text = ":point_up: %s edited a message from `%s` to `%s`"
-    text %= (user, data.previous_message.text, data.message.text)
+    text = ":point_up: {user} edited a message from `{data.previous_message.text}` to `{data.message.text}`"
 
     # Thread TS may or may not be empty, depending on the edited message.
     _slack_client().chat_postMessage(
@@ -172,8 +169,7 @@ def on_slack_slash_command(event: dict) -> None:
     # See: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html#slack_sdk.web.client.WebClient.users_info
     user_info = slack.users_info(user=data.user_id)
 
-    # Encountered an error? Print debugging information
-    # in the AutoKitteh session's log, and finish.
+    # Encountered an error? Print debugging information in the AutoKitteh session's log, and finish.
     user_info.validate()
 
     profile = _structify(user_info.data).user.profile

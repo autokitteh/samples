@@ -15,7 +15,7 @@ These functions also execute various Slack API calls.
 API details:
 
 - [Web API reference](https://api.slack.com/methods)
-- [Python web API reference](https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html)
+- [Python Slack web API reference](https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html)
 - [Events API reference](https://api.slack.com/events?filter=Events)
 
 This project isn't meant to cover all available functions and events. It

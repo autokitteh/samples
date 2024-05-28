@@ -2,7 +2,8 @@
 # of an AutoKitteh sample project that demonstrates 2-way integration
 # with Slack (https://slack.com), using Python code.
 #
-# Before applying this file, set the SLACK_TOKEN value in the "vars" section.
+# Before applying this file, set the "SLACK_BOT_TOKEN" value
+# in the projects "vars" section.
 #
 # After applying this file, initialize the AutoKitteh connection to Slack.
 
@@ -11,8 +12,9 @@ version: v1
 project:
   name: slack_sample
   vars:
-    - name: SLACK_TOKEN
-      value: TODO # Replace this with a Slack token ("xoxb").
+    - name: SLACK_BOT_TOKEN
+      value: TODO # Replace this with a Slack bot token ("xoxb").
+      is_secret: true
   connections:
     - name: my_slack
       integration: slack
