@@ -20,3 +20,19 @@ It then will update a Google Sheet with these values.
     - `ak var set --secret --env walking/default GOOGLE_CREDS < credentials.json`
 - Update `sheet_id` in `walking.py` with your sheet ID
     - If the sheet URL is `https://docs.google.com/spreadsheets/d/1JW_WmNcuGlLnRPlt-kvjdX0flM3l7ScnDKAIkGJ3NYE/edit` then the ID is `1JW_WmNcuGlLnRPlt-kvjdX0flM3l7ScnDKAIkGJ3NYE`
+
+Now you're ready to deploy, make sure that AutoKitteh is running and then:
+
+```shell
+ak deploy --manifest ./autokitteh.yaml --file handler.py
+```
+
+After the workflow is deployed, you can trigger the workflow with an HTTP call:
+
+```shell
+curl -i -X POST -d'{"date": "2024-03-14", "distance": 5.9}' http://localhost:9980/http/walking/
+```
+
+You can check the logs with `ak session log`
+
+Head up to your Google Sheet and see the added entry.
