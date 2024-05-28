@@ -301,7 +301,9 @@ def normalize_channel_name(name):
     # leave room for a PR number prefix and a uniqueness suffix.
     name = name[:50]
 
-    # Cosmetic tweak: remove trailing hyphens.
+    # Cosmetic tweak: remove leading/trailing hyphens.
+    if name[0] == "-":
+        name = name[1:]
     if name[-1] == "-":
         name = name[:-1]
 
