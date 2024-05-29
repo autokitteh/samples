@@ -1,46 +1,26 @@
-""" This program illustrates Autokitteh's usage with Slack and HTTP
+"""This program queries a server and posts a message to a Slack channel.
 
-This program queries a server for a list of nodes and posts a message to
-a Slack channel when new nodes are added or removed.
-
-API details:
-- Web API reference: https://api.slack.com/methods
-- Events API reference: https://api.slack.com/events?filter=Events
-
-This program also demonstrates using a custom builtin function (sleep)
-to sleep for a specified number of seconds.
-
-This program isn't meant to cover all available functions and events.
-It merely showcases various illustrative, annotated, reusable examples.
+An HTTP GET request triggers this program to query a server for a list 
+of nodes. It then posts a message to a Slack channel when nodes are 
+added or removed.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
 load("@http", "http_no_auth")
 load("@slack", "my_slack")
-load("env", "SERVER")
-load("env", "ENDPOINT")
-load("env", "SLACK_CHANNEL")
+load("env", "SLEEP_SECONDS","SLACK_CHANNEL", "URL")
 
-def get_node_list():
-    node_ids = []
-    next_token = None
+def on_http_get():
+    all_nodes = []
     while True:
-        full_endpoint = SERVER + ENDPOINT
-        if next_token:
-            full_endpoint += "?next_token=" + next_token
-        response = http_no_auth.get(full_endpoint)
+        all_nodes, new_nodes, removed_nodes = check_node_state(all_nodes)
+        if new_nodes:
+            my_slack.chat_post_message(SLACK_CHANNEL, "New nodes: " + str(new_nodes))
+        if removed_nodes:
+            my_slack.chat_post_message(SLACK_CHANNEL, "Removed nodes: " + str(removed_nodes))
 
-        if response.status_code >= 400:
-            print("Error: ", response.status)
-            return node_ids
-
-        parsed_data = response.body.json()
-        for node in parsed_data["Nodes"]:
-            node_ids.append(node["Info"]["NodeID"])
-        next_token = parsed_data.get("NextToken")
-        if not next_token:
-            return node_ids
+        sleep(SLEEP_SECONDS)
 
 def check_node_state(previous_state):
     new_nodes = []
@@ -58,13 +38,22 @@ def check_node_state(previous_state):
 
     return all_nodes, new_nodes, removed_nodes
 
-def on_http_get():
-    all_nodes = []
+def get_node_list():
+    node_ids = []
+    next_token = None
     while True:
-        all_nodes, new_nodes, removed_nodes = check_node_state(all_nodes)
-        if new_nodes:
-            my_slack.chat_post_message(SLACK_CHANNEL, "New nodes: " + str(new_nodes))
-        if removed_nodes:
-            my_slack.chat_post_message(SLACK_CHANNEL, "Removed nodes: " + str(removed_nodes))
+        url = URL
+        if next_token:
+            url += "?next_token=" + next_token
+        response = http_no_auth.get(url)
 
-        sleep(10)
+        if response.status_code >= 400:
+            print("Error: ", response.status)
+            return node_ids
+
+        parsed_data = response.body.json()
+        for node in parsed_data["Nodes"]:
+            node_ids.append(node["Info"]["NodeID"])
+        next_token = parsed_data.get("NextToken")
+        if not next_token:
+            return node_ids
