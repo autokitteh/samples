@@ -5,26 +5,24 @@
 version: v1
 
 project:
-  name: http_sample
+  name: http2slack
   vars:
-    - name: SERVER
-      value: http://127.0.0.1:63365
-    - name: ENDPOINT
-      value: /api/v1/orchestrator/nodes
+    - name: URL
+      value: http://127.0.0.1:63365/api/v1/orchestrator/nodes
+    - name: SLEEP_SECONDS
+      value: 10
     - name: SLACK_CHANNEL
-      value: "#pasha-slack-test"
+      value: "#your-slack-channel"
   connections:
-    - name: http_no_auth
+    - name: my_http
       integration: http
     - name: my_slack
       integration: slack
   triggers:
-    - name: http_noauth_get
-      connection: http_no_auth
-      # More HTTP methods are supported as event types:
-      # head, put, delete, options, and patch.
+    - name: my_http_get
+      connection: my_http
       event_type: get
       data:
         path: get
-      # Triggered by GET request to http://localhost:9980/http/http_sample/get
+      # Triggered by GET request to http://localhost:9980/http/http2slack/get
       call: program.star:on_http_get
