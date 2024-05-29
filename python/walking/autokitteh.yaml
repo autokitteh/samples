@@ -11,4 +11,4 @@ project:
     - name: events
       connection: http_trigger
       event_type: post
-      entrypoint: handler.py:on_event
+      entrypoint: walking.py:on_event

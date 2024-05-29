@@ -3,6 +3,7 @@ from datetime import datetime, UTC
 from os import getenv
 from pathlib import Path
 
+import ak
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
@@ -25,7 +26,11 @@ def on_event(event):
     date = request.get('date') or datetime.now(UTC).strftime('%Y-%m-%d')
     day_of_year = datetime.strptime(date, '%Y-%m-%d').timetuple().tm_yday
     row = day_of_year + 1  # Skip header
+    update_sheet(row, date, distance)
 
+
+@ak.activity
+def update_sheet(row, date, distance):
     creds = load_creds()
     sheets = build('sheets', 'v4', credentials=creds).spreadsheets()
     cell_range = f'A{row}:B{row}'
@@ -38,7 +43,7 @@ def on_event(event):
         },
     ).execute()
 
-    print(f'{date} -> {distance}')
+    print(f'{row}: {date} -> {distance}')
 
 
 def load_creds():
