@@ -1,0 +1,30 @@
+# This YAML file is a declarative manifest that describes the setup
+# of an AutoKitteh sample project which demonstrates bidirectional
+# integration with HTTP and Slack.
+
+version: v1
+
+project:
+  name: http_sample
+  vars:
+    - name: SERVER
+      value: http://127.0.0.1:63365
+    - name: ENDPOINT
+      value: /api/v1/orchestrator/nodes
+    - name: SLACK_CHANNEL
+      value: "#pasha-slack-test"
+  connections:
+    - name: http_no_auth
+      integration: http
+    - name: my_slack
+      integration: slack
+  triggers:
+    - name: http_noauth_get
+      connection: http_no_auth
+      # More HTTP methods are supported as event types:
+      # head, put, delete, options, and patch.
+      event_type: get
+      data:
+        path: get
+      # Triggered by GET request to http://localhost:9980/http/http_sample/get
+      call: program.star:on_http_get
