@@ -1,10 +1,11 @@
 # This YAML file is a declarative manifest that describes the setup
-# of an AutoKitteh sample project that demonstrates bidirectional
-# integration with Slack (https://slack.com).
+# of an AutoKitteh sample project that demonstrates 2-way integration
+# with Slack (https://slack.com), using Starlark code, which is a
+# dialect of Python (see https://bazel.build/rules/language).
 #
-# Before applying this file:
-# - Create an AutoKitteh connection token for Slack,
-#   and replace the "TODO" line below
+# After applying this file, initialize the AutoKitteh connection to Slack.
+#
+# Compare this file with "autokitteh-python.yaml" that uses Python code.
 
 version: v1
 
@@ -13,7 +14,6 @@ project:
   connections:
     - name: my_slack
       integration: slack
-      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - name: slack_app_mention
       connection: my_slack
