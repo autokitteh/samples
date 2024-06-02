@@ -4,8 +4,14 @@
 #
 # Before applying this file:
 # - Set the "SLACK_CHANNEL" value in the "vars" section
-# - Create AutoKitteh connection tokens for the Scheduler (Cron) and Slack,
-#   and replace the "TODO" lines below
+# - Create autokitteh connection tokens for Slack  and replace the
+#   "TODO" lines below
+
+# Schedule specification format is one from the follows:
+# - standard 5 star cron spec
+# - extended 7 star cron spec (seconds, minutes, etc..)
+# - predefined, e.g. @yearly(@annually), @monthly, @weekly, @daily(@midnight), @hourly
+# - intervals, e.g. @every 1h30m10s
 
 version: v1
 
@@ -15,14 +21,10 @@ project:
     - name: SLACK_CHANNEL
       value: TODO # Replace this with a Slack channel name or ID.
   connections:
-    - name: my_scheduler
-      integration: scheduler
-      token: TODO # Replace this with an AutoKitteh connection token.
     - name: my_slack
       integration: slack
-      token: TODO # Replace this with an AutoKitteh connection token.
-  triggers:
-    - name: scheduler_cron_trigger
-      connection: my_scheduler
-      event_type: cron_trigger
+      token: TODO # Replace this with an autokitteh connection token.
+triggers:
+    - name: daily
+      schedule: "@daily" # the same as `@midnight', or `0 0 * * *',  or `@every 1d'
       call: program.star:on_cron_trigger
