@@ -1,7 +1,10 @@
 # This YAML file is a declarative manifest that describes the setup
 # of an AutoKitteh sample project that demonstrates integration with
 # a cron-like scheduler.
-#
+
+# The program will scan daily specific github repo for stalled PRs
+# and, fif found, will send a message specific Slack channel
+
 # Before applying this file:
 # - Set variables SLACK_CHANNEL, GITHUB_OWNER and GITHUB_REPO in the
 #   manifest "vars" section
