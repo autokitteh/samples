@@ -3,9 +3,9 @@
 # a cron-like scheduler.
 #
 # Before applying this file:
-# - Set the "SLACK_CHANNEL" value in the "vars" section
-# - Create autokitteh connection tokens for Slack  and replace the
-#   "TODO" lines below
+# - Set variables SLACK_CHANNEL, GITHUB_OWNER and GITHUB_REPO in the
+#   manifest "vars" section
+# - Create and initialize autokitteh connection for Slack and Github
 
 # Schedule specification format is one from the follows:
 # - standard 5 star cron spec
@@ -19,12 +19,17 @@ project:
   name: scheduler_sample
   vars:
     - name: SLACK_CHANNEL
-      value: TODO # Replace this with a Slack channel name or ID.
+      value: TODO # replace this with a Slack channel name or ID.
+    - name: GITHUB_OWNER
+      value: TODO: # replace with actual repo owner
+    - name: GITHUB_REPO
+      value: TODO # replace with actual repo name
   connections:
+    - name: my_github
+      integration: github
     - name: my_slack
       integration: slack
-      token: TODO # Replace this with an autokitteh connection token.
-triggers:
+  triggers:
     - name: daily
       schedule: "@daily" # the same as `@midnight', or `0 0 * * *',  or `@every 1d'
       call: program.star:on_cron_trigger

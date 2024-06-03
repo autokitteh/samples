@@ -10,8 +10,38 @@ Starlark is a dialect of Python (see https://bazel.build/rules/language).
 """
 
 load("@slack", "my_slack")
-load("env", "SLACK_CHANNEL")  # Set in "autokitteh.yaml".
+load("@github", "my_github")
 
-def on_cron_trigger(data):
+# Set in ""autokitteh.yaml"
+load("env", "SLACK_CHANNEL", "GITHUB_OWNER", "GITHUB_REPO")
+
+def on_cron_trigger():
     """An autokitteh cron schedule was triggered."""
-    my_slack.chat_post_message(SLACK_CHANNEL, "daily reminder about open PRs")
+    #my_slack.chat_post_message(SLACK_CHANNEL, "daily reminder about open PRs")
+
+    # fetch PRs
+    prs = my_github.list_pull_requests(owner=GITHUB_OWNER, repo=GITHUB_REPO, state="open")
+
+    # filter, skip DRAFT or WIP PRs
+    active_prs = []
+    for pr in prs:
+        if pr.draft or any([k in pr.title.lower() for k in ("draft", "wip")]):
+            continue
+        active_prs.append(pr)
+
+    now = time.now()
+    good_updated_at = time.from_timestamp(now.unix - 1 * 60 * 60 * 24) # a day
+    good_opened_at = time.from_timestamp(now.unix - 1 * 60 * 60 * 24 * 4) # 4 days
+
+    for pr in active_prs:
+        s = ""
+        # check whether this PR is stalled - either opened or updated a long ago
+        if pr.created_at.time > good_opened_at or pr.updated_at.time > good_updated_at:
+            s += "opened <%dh> ago, " % (now - pr.created_at.time).hours
+            s += "last updated <%dh> ago" % (now - pr.updated_at.time).hours
+
+        if len(s):
+            msg = "STALLED PR: `%s`\n" % pr.title
+            msg += "  %s\n" % pr.url
+            msg += "  %s\n" % s
+            my_slack.chat_post_message(SLACK_CHANNEL, msg)
