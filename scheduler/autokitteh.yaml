@@ -1,16 +1,16 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an AutoKitteh sample project that demonstrates integration with
-# a cron-like scheduler.
+# This YAML file is a declarative manifest that describes the setup of an
+# AutoKitteh sample project that demonstrates integration with a cron-like
+# scheduler.
 
-# The program will scan daily specific github repo for stalled PRs
-# and, if found, will send a message specific Slack channel
+# This program scans a specific github repo on a daily basis for stalled PRs
+# and, if found, sends a message to a specific Slack channel
 
 # Before applying this file:
 # - Set variables SLACK_CHANNEL, GITHUB_OWNER and GITHUB_REPO in the
 #   manifest "vars" section
 # - Create and initialize autokitteh connection for Slack and Github
 
-# Schedule specification format is one from the follows:
+# Schedule specification format is one from the following:
 # - standard 5 star cron spec
 # - extended 7 star cron spec (seconds, minutes, etc..)
 # - predefined, e.g. @yearly(@annually), @monthly, @weekly, @daily(@midnight), @hourly
