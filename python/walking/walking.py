@@ -49,7 +49,7 @@ def update_sheet(row, date, distance):
 def load_creds():
     """Load Google credentials"""
     if not Path(creds_file).exists():
-        data = getenv('GOOGLE_CREDS')
+        data = getenv('google__JSON')
         if not data:
             raise RuntimeError('GOOGLE_CREDS is not set')
 
