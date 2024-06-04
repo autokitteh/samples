@@ -28,7 +28,7 @@ environment in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file.
 
 Information about cron schedules:
 
-- [Cron expression format ("* * * * ")](https://pkg.go.dev/github.com/robfig/cron#hdr-CRONExpression_Format)
-- [Cron extended expression format ("* * * * * * ")](https://pkg.go.dev/github.com/robfig/cron/v3#hdr-AlternativeFormats)
+- [Cron expression format ("* * * * *")](https://pkg.go.dev/github.com/robfig/cron/v3#hdr-CRON_Expression_Format)
+- [Cron extended expression format ("* * * * * *")](https://pkg.go.dev/github.com/robfig/cron/v3#hdr-Alternative_Formats)
 - [Predefined schedules and intervals ("@" format)](https://pkg.go.dev/github.com/robfig/cron#hdr-Predefined_schedules)
 - [Crontab.guru - cron schedule expression editor](https://crontab.guru/)
