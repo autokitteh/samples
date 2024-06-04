@@ -1,9 +1,9 @@
 import json
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from os import getenv
 from pathlib import Path
 
-import ak
+import autokitteh
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
@@ -29,7 +29,7 @@ def on_event(event):
     update_sheet(row, date, distance)
 
 
-@ak.activity
+@autokitteh.activity
 def update_sheet(row, date, distance):
     creds = load_creds()
     sheets = build('sheets', 'v4', credentials=creds).spreadsheets()
