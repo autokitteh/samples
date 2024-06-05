@@ -5,7 +5,6 @@ project:
   connections:
     - name: http_trigger
       integration: http
-      token: event
     - name: google
       integration: google
   triggers:
