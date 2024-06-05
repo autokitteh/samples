@@ -1,6 +1,6 @@
 # Python + Google Sheets
 
-Say you'd like to keep track of how many miles you walk per day.
+You'd like to keep track of how many miles you walk per day.
 This workflow has an HTTP trigger that accepts a payload in the format:
 
 ```json
@@ -21,6 +21,7 @@ Make sure that AutoKitteh is running and then:
 - Create a new Google connection at http://localhost:9980/google/connect. Select `Service Account (JSON Key)` and enter the content of `credentials.json`. Click `Save connection`.
 - Update `sheet_id` in `walking.py` with your sheet ID
     - If the sheet URL is `https://docs.google.com/spreadsheets/d/1JW_WmNcuGlLnRPlt-kvjdX0flM3l7ScnDKAIkGJ3NYE/edit` then the ID is `1JW_WmNcuGlLnRPlt-kvjdX0flM3l7ScnDKAIkGJ3NYE`
+    - You can also set a variable in the workflow manifest and use it in the Python script.
 - Give the service account (`<name>@<project>.iam.gserviceaccount.com`) edit access to the document.
 
 Now you're ready to deploy:
