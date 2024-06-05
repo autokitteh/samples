@@ -1,7 +1,5 @@
 all:
 	$(error please pick a target)
-
-
 deploy-workflow:
 	ak deploy --manifest ./autokitteh.yaml --file walking.py
 
