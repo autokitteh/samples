@@ -40,7 +40,7 @@ def on_slack_slash_command(data):
     """
 
     # FYI - Qri's "re" implementation: https://github.com/qri-io/starlib/tree/master/re
-    match = re.match(r"(.*/d/)?([^/]*)", data.text)
+    match = re.match(r"(.*/d/)?([\w-]{20,})", data.text)
     if not match:
         msg = "Invalid Google Spreadsheet URL/ID: `%s`" % data.text
         my_slack.chat_post_message(data.user_id, msg)
