@@ -1,0 +1,19 @@
+version: v1
+
+project:
+  name: pipeline
+  connections:
+    - name: aws
+      integration: aws
+      token: bucket
+    - name: trigger
+      integration: http
+  triggers:
+    - name: s3
+      connection: aws
+      call: pipeline.py:on_new_s3_object
+    - name: http  # Used for testing
+      connection: trigger
+      call: pipeline.py:on_new_s3_object
+      event_type: get
+      # Triggered by GET request to http://localhost:9980/http/pipeline/get
