@@ -13,7 +13,6 @@ project:
   connections:
     - name: my_github
       integration: github
-      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - name: github_issue_comment
       connection: my_github

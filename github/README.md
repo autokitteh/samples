@@ -24,12 +24,7 @@ merely showcases a few illustrative, annotated, reusable examples.
 
 ## Instructions
 
-1. Create an AutoKitteh connection token
-
-   1. Open a browser, and go to the AutoKitteh server's URL
-   2. Create a GitHub connection, and copy the resulting token
-   3. Replace the `TODO` line in the [`autokitteh.yaml`](./autokitteh.yaml)
-      manifest file
+1. If you haven't already, follow the instructions to [configure your GitHub integration](https://docs.autokitteh.com/config/integrations/github).
 
 2. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
    `autokitteh.yaml` manifest file
@@ -46,6 +41,6 @@ AutoKitteh supports 2 connection modes with GitHub:
   - [Setting a PAT policy for your organization](https://docs.github.com/en/organizations/managing-programmatic-access-to-your-organization/setting-a-personal-access-token-policy-for-your-organization)
   - [Endpoints available for fine-grained PATs](https://docs.github.com/en/rest/authentication/endpoints-available-for-fine-grained-personal-access-tokens)
 
-- GitHub App (installed and authorized in step 3 above)
+- GitHub App (installed and authorized in step 1 above)
 
   - [About using GitHub Apps](https://docs.github.com/en/apps/using-github-apps/about-using-github-apps)
