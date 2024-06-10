@@ -24,7 +24,7 @@ merely showcases a few illustrative, annotated, reusable examples.
 
 ## Instructions
 
-1. If you haven't already, follow the instructions to [configure your GitHub integration](https://docs.autokitteh.com/config/integrations/github).
+1. [Configure your GitHub integration](https://docs.autokitteh.com/config/integrations/github).
 
 2. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
    `autokitteh.yaml` manifest file
