@@ -20,12 +20,7 @@ merely showcases a few illustrative, annotated, reusable examples.
 
 ## Instructions
 
-1. Create AutoKitteh connection tokens
-
-   1. Open a browser, and go to the AutoKitteh server's URL
-   2. Create ChatGPT and Slack connections, and copy the resulting tokens
-   3. Replace the `TODO` lines in the [`autokitteh.yaml`](./autokitteh.yaml)
-      manifest file
+1. Follow instructions [here](https://platform.openai.com/docs/quickstart) to setup your OpenAI API account.
 
 2. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
    `autokitteh.yaml` manifest file

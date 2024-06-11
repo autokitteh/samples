@@ -13,10 +13,8 @@ project:
   connections:
     - name: my_chatgpt
       integration: chatgpt
-      token: TODO # Replace this with an AutoKitteh connection token.
     - name: slack
       integration: my_slack
-      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - name: slack_slash_command
       connection: my_slack
