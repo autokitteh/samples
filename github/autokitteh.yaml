@@ -3,8 +3,7 @@
 # integration with GitHub (https://github.com).
 #
 # Before applying this file:
-# - Create an autokitteh connection token for GitHub,
-#   and replace the "TODO" line below
+#   Replace the "TODO" line below
 
 version: v1
 
