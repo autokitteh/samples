@@ -4,8 +4,6 @@
 #
 # Before applying this file:
 # - Set the "FROM_NUMBER" value in the "vars" section
-# - Create AutoKitteh connection tokens for Twilio and Slack,
-#   and replace the "TODO" lines below
 
 version: v1
 
