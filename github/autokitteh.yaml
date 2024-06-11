@@ -1,9 +1,6 @@
 # This YAML file is a declarative manifest that describes the setup
 # of an AutoKitteh sample project that demonstrates bidirectional
 # integration with GitHub (https://github.com).
-#
-# Before applying this file:
-#   Replace the "TODO" line below
 
 version: v1
 
