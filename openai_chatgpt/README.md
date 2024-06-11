@@ -22,7 +22,7 @@ merely showcases a few illustrative, annotated, reusable examples.
 
 1. Follow instructions [here](https://platform.openai.com/docs/quickstart) to setup your OpenAI API account.
 
-2. Initialize connection in the AutoKitteh WebUI and provide API key generated in step 1. 
+2. Via the `ak` CLI tool, or the AutoKitteh WebUI, initialize the OpenAI connection and provide API key generated in step 1. 
 
 3. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
    `autokitteh.yaml` manifest file
