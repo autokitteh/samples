@@ -1,6 +1,6 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an AutoKitteh sample project that demonstrates 2-way integration
-# with Slack (https://slack.com), using Python code.
+# This YAML file is a declarative manifest that describes the setup of
+# an AutoKitteh sample project that demonstrates 2-way integration with
+# Slack (https://slack.com), using Python.
 #
 # After applying this file, initialize this AutoKitteh project's
 # Slack connection.
