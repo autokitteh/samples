@@ -1,11 +1,12 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an AutoKitteh sample project that demonstrates integration with
+# This YAML file is a declarative manifest that describes the setup of
+# an AutoKitteh sample project that demonstrates 2-way integration with
 # Twilio (https://www.twilio.com).
 #
-# Before applying this file:
-# - Set the "FROM_NUMBER" value in the "vars" section
-# - Create AutoKitteh connection tokens for Twilio and Slack,
-#   and replace the "TODO" lines below
+# Before applying this file, set the "FROM_NUMBER" value in the
+# project's "vars" section.
+#
+# After applying this file, initialize this AutoKitteh project's
+# Slack and Twilio connections.
 
 version: v1
 

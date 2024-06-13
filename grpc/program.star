@@ -11,7 +11,8 @@ load("@grpc", "my_grpc")
 
 
 def on_http_get():
-    # equivalent to `grpcurl -plaintext localhost:9980 autokitteh.projects.v1.ProjectsService.List`
+    # The following is equivalent to running this command in the terminal:
+    # grpcurl -plaintext localhost:9980 autokitteh.projects.v1.ProjectsService.List
     response = my_grpc.call(
         host="localhost:9980",
         service="autokitteh.projects.v1.ProjectsService",

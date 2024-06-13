@@ -1,6 +1,5 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an AutoKitteh sample project which demonstrates bidirectional
-# integration with gRPC.
+# This YAML file is a declarative manifest that describes the setup of an
+# AutoKitteh sample project that demonstrates integration with gRPC.
 
 version: v1
 
@@ -15,7 +14,7 @@ project:
     - name: my_http_get
       connection: my_http
       event_type: get
+      # Triggered by GET request to http://localhost:9980/http/grpc/trigger
       data:
-        path: get
-      # Triggered by GET request to http://localhost:9980/http/grpc/get
+        path: trigger
       call: program.star:on_http_get
