@@ -1,6 +1,9 @@
 # This YAML file is a declarative manifest that describes the setup
 # of an AutoKitteh sample project that demonstrates integration with
 # Gmail (https://www.google.com/gmail/about/).
+#
+# After applying this file, initialize this AutoKitteh project's
+# Gmail and Slack connections.
 
 version: v1
 
