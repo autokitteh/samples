@@ -27,12 +27,7 @@ with these HTTP methods:
 1. Optional: prepare an HTTP server for testing (the default is
    <https://httpbin.org>)
 
-2. Create AutoKitteh connection tokens for authenticated HTTP
-
-   1. Open a browser, and go to the AutoKitteh server's URL
-   2. Create HTTP connections, and copy the resulting tokens
-   3. Replace the `TODO` lines in the [`autokitteh.yaml`](./autokitteh.yaml)
-      manifest file
+2. Via the `ak` CLI tool or WebUI initialize connections for authenticated HTTP
 
 3. Via the `ak` CLI tool, or the AutoKitteh VS Code extension, deploy the
    `autokitteh.yaml` manifest file

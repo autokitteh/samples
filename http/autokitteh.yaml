@@ -14,10 +14,8 @@ project:
       integration: http
     - name: http_with_basic_auth
       integration: http
-      token: TODO # Replace this with an autokitteh connection token.
     - name: http_with_bearer_token
       integration: http
-      token: TODO # Replace this with an autokitteh connection token.
   triggers:
     - name: http_noauth_get
       connection: http_no_auth

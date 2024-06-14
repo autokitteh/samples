@@ -18,10 +18,8 @@ project:
   connections:
     - name: my_slack
       integration: slack
-      token: TODO # Replace this with an AutoKitteh connection token.
     - name: my_twilio
       integration: twilio
-      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - name: slack_slash_command
       connection: my_slack

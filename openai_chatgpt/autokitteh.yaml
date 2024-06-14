@@ -2,9 +2,8 @@
 # of an AutoKitteh sample project that demonstrates integration with
 # OpenAI ChatGPT (https://chat.openai.com).
 #
-# Before applying this file:
-# - Create AutoKitteh connection tokens for ChatGPT and Slack,
-#   and replace the "TODO" lines below
+# After applying this file, initialize this AutoKitteh project's
+# ChatGPT and Slack connections.
 
 version: v1
 
@@ -13,10 +12,8 @@ project:
   connections:
     - name: my_chatgpt
       integration: chatgpt
-      token: TODO # Replace this with an AutoKitteh connection token.
     - name: slack
       integration: my_slack
-      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - name: slack_slash_command
       connection: my_slack
