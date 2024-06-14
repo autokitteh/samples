@@ -28,4 +28,4 @@ environment in the [`autokitteh.yaml`](./autokitteh.yaml) manifest file.
 
 AutoKitteh supports connecting to Twilio using either an auth token or an
 [API key](https://www.twilio.com/docs/glossary/what-is-an-api-key), which can
-configured in the AutoKitteh WebUI.
+be configured in the AutoKitteh WebUI.
