@@ -21,7 +21,7 @@ import types
 import slack_sdk
 
 
-AK_CONNECTION = "my_slack"
+AK_SLACK_CONNECTION = "my_slack"
 
 
 def _slack_client(connection, **kwargs):
@@ -60,7 +60,7 @@ def on_slack_app_mention(event):
     Args:
         event: Slack event data.
     """
-    slack = _slack_client(AK_CONNECTION)
+    slack = _slack_client(AK_SLACK_CONNECTION)
 
     # Send messages in response to the event:
     # - DM to the user who triggered the event (channel ID = user ID)
@@ -118,7 +118,7 @@ def on_slack_message(event):
     Args:
         event: Slack event data.
     """
-    slack = _slack_client(AK_CONNECTION)
+    slack = _slack_client(AK_SLACK_CONNECTION)
 
     if not event.data.subtype:
         user = f"<@{event.data.user}>"
@@ -183,7 +183,7 @@ def on_slack_slash_command(event):
     Args:
         event: Slack event data.
     """
-    slack = _slack_client(AK_CONNECTION)
+    slack = _slack_client(AK_SLACK_CONNECTION)
 
     # Retrieve the profile information of the user who triggered this event.
     # See: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html#slack_sdk.web.client.WebClient.users_info
