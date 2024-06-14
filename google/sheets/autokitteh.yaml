@@ -1,6 +1,9 @@
 # This YAML file is a declarative manifest that describes the setup
 # of an AutoKitteh sample project that demonstrates integration with
 # Google Sheets (https://www.google.com/sheets/about/).
+#
+# After applying this file, initialize this AutoKitteh project's
+# Google Sheets and Slack connections.
 
 version: v1
 
