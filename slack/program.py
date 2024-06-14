@@ -6,7 +6,7 @@ the "autokitteh-python.yaml" manifest file. These functions
 also execute various Slack API calls.
 
 API details:
-- Web API reference: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html
+- Python client API: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html
 - Events API reference: https://api.slack.com/events?filter=Events
 
 This program isn't meant to cover all available functions and events.
@@ -20,10 +20,10 @@ import types
 import slack_sdk
 
 
-def _slack_client() -> slack_sdk.WebClient:
-    token = os.getenv("SLACK_BOT_TOKEN")
+def _slack_client(ak_connection_name):
+    token = os.getenv(ak_connection_name + "__oauth_AccessToken")
     if not token:
-        raise RuntimeError('Env variable "SLACK_BOT_TOKEN" not set')
+        raise RuntimeError(f'Connection "{ak_connection_name}" not initialized')
 
     # TODO: Also support Socket Mode as an optional configuration
     # (https://slack.dev/python-slack-sdk/api-docs/slack_sdk/socket_mode/).
@@ -150,6 +150,14 @@ def on_slack_slash_command(event):
 
     See also: https://api.slack.com/interactivity/handling#message_responses
 
+    The text after the slash command is expected to be a valid target for a
+    Slack message (https://api.slack.com/methods/chat.postMessage#channels):
+    Slack user ID ("U"), user DM ID ("D"), multi-person/group DM ID ("G"),
+    channel ID ("C"), or channel name (with or without the "#" prefix).
+
+    Note that all targets except "U", "D" and public channels require
+    the Slack app to be added in advance.
+
     Args:
         event: Slack event data.
     """
@@ -171,8 +179,8 @@ def on_slack_slash_command(event):
     slack.chat_postMessage(channel=event.data.user_id, text=text)
 
     # TODO(ENG-802): Fix regression, use builtin store, and test.
-    # Treat the text of the user's slash command as a message target (channel
-    # ID/name or user ID), and send an interactive message to that target.
+    # Treat the text of the user's slash command as a message target (e.g.
+    # channel or user), and send an interactive message to that target.
 
 
 def on_slack_interaction(event):

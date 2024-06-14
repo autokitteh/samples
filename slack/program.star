@@ -129,6 +129,14 @@ def on_slack_slash_command(data):
 
     See also: https://api.slack.com/interactivity/handling#message_responses
 
+    The text after the slash command is expected to be a valid target for a
+    Slack message (https://api.slack.com/methods/chat.postMessage#channels):
+    Slack user ID ("U"), user DM ID ("D"), multi-person/group DM ID ("G"),
+    channel ID ("C"), or channel name (with or without the "#" prefix).
+
+    Note that all targets except "U", "D" and public channels require
+    the Slack app to be added in advance.
+
     Args:
         data: Slack event data.
     """
@@ -151,9 +159,8 @@ def on_slack_slash_command(data):
     text = "Email: " + profile.email
     my_slack.chat_post_message(data.user_id, text)
 
-    # TODO(ENG-802): Fix regression, use builtin store, and test.
-    # Treat the text of the user's slash command as a message target (channel
-    # ID/name or user ID), and send an interactive message to that target.
+    # Treat the text of the user's slash command as a message target (e.g.
+    # channel or user), and send an interactive message to that target.
     title = "Question From %s" % data.user_id
     msg = "Please select one of these options... :smiley_cat:"
     my_slack.send_approval_message(
@@ -168,8 +175,6 @@ def on_slack_interaction(data):
     Args:
         data: Slack event data.
     """
-
-    # TODO(ENG-802): Fix regression, use builtin store, and test.
 
     # The Slack ID of the user who sent the question.
     title_prefix = "Question From "
