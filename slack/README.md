@@ -15,8 +15,8 @@ These functions also execute various Slack API calls.
 API details:
 
 - [Web API reference](https://api.slack.com/methods)
-- [Python Slack web API reference](https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html)
 - [Events API reference](https://api.slack.com/events?filter=Events)
+- [Python client API](https://slack.dev/python-slack-sdk/api-docs/slack_sdk/)
 
 This project isn't meant to cover all available functions and events. It
 merely showcases a few illustrative, annotated, reusable examples.
@@ -50,5 +50,5 @@ merely showcases a few illustrative, annotated, reusable examples.
 > [!TIP]
 > Additional information about Slack in AutoKitteh:
 >
-> - [Configuring the Slack Integration](https://docs.autokitteh.com/config/integrations/slack)
-> - [Creating a Socket-Mode Slack Connection](https://docs.autokitteh.com/tutorials/new_connections/slack)
+> - [Configuring the Slack integration](https://docs.autokitteh.com/config/integrations/slack)
+> - [Creating a Socket-Mode Slack connection](https://docs.autokitteh.com/tutorials/new_connections/slack)
