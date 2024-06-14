@@ -176,8 +176,6 @@ def on_slack_interaction(data):
         data: Slack event data.
     """
 
-    # TODO(ENG-802): Fix regression, use builtin store, and test.
-
     # The Slack ID of the user who sent the question.
     title_prefix = "Question From "
     respond_to = data.message.text[len(title_prefix):]
