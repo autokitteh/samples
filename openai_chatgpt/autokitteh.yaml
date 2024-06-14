@@ -1,7 +1,9 @@
 # This YAML file is a declarative manifest that describes the setup
 # of an AutoKitteh sample project that demonstrates integration with
 # OpenAI ChatGPT (https://chat.openai.com).
-
+#
+# After applying this file, initialize this AutoKitteh project's
+# ChatGPT and Slack connections.
 
 version: v1
 
