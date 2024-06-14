@@ -24,7 +24,7 @@ import slack_sdk
 def _slack_client(ak_connection_name):
     token = os.getenv(ak_connection_name + "__oauth_AccessToken")
     if not token:
-        raise RuntimeError('Connection "{ak_connection_name}" not initialized')
+        raise RuntimeError(f'Connection "{ak_connection_name}" not initialized')
 
     token = os.getenv("SLACK_BOT_TOKEN")
     if not token:
