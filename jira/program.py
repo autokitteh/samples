@@ -31,6 +31,9 @@ def _jira_client_cloud_oauth2(ak_connection_name):
         raise ValueError("Invalid AutoKitteh connection name: " + ak_connection_name)
 
     expiry = os.getenv(ak_connection_name + "__oauth_Expiry")
+    if not expiry:
+        raise RuntimeError(f'Connection "{ak_connection_name}" not initialized')
+
     iso8601 = re.sub(r"[ A-Z]+$", "", expiry)  # Convert from Go's time string.
     if datetime.fromisoformat(iso8601) < datetime.now(UTC):
         raise RuntimeError("OAuth 2.0 access token expired on: " + expiry)
