@@ -17,7 +17,6 @@ import os
 import time
 import types
 
-import autokitteh
 import slack_sdk
 
 
@@ -25,10 +24,6 @@ def _slack_client(ak_connection_name):
     token = os.getenv(ak_connection_name + "__oauth_AccessToken")
     if not token:
         raise RuntimeError(f'Connection "{ak_connection_name}" not initialized')
-
-    token = os.getenv("SLACK_BOT_TOKEN")
-    if not token:
-        raise RuntimeError('Env variable "SLACK_BOT_TOKEN" not set')
 
     # TODO: Also support Socket Mode as an optional configuration
     # (https://slack.dev/python-slack-sdk/api-docs/slack_sdk/socket_mode/).
