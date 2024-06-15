@@ -1,18 +1,12 @@
 """This program demonstrates AutoKitteh's 2-way Google Sheets integration.
 
 TODO: More details.
-
-https://developers.google.com/sheets/api/quickstart/python
-https://developers.google.com/resources/api-libraries/documentation/sheets/v4/python/latest/index.html
-https://github.com/googleworkspace/python-samples/tree/main/sheets/snippets
-
 """
 
 from datetime import UTC, datetime
 import json
 import os
 import re
-import traceback
 
 import autokitteh
 from google.auth.transport.requests import Request
@@ -20,6 +14,10 @@ import google.oauth2.credentials as credentials
 import google.oauth2.service_account as service_account
 from googleapiclient.discovery import build
 import slack_sdk
+
+
+AK_SHEETS_CONNECTION = "my_sheets"
+AK_SLACK_CONNECTION = "my_slack"
 
 
 def on_slack_slash_command(event):
@@ -38,8 +36,9 @@ def on_slack_slash_command(event):
     """
     spreadsheet_id = _spreadsheet_id(event.data.text)
     if not spreadsheet_id:
+        slack = slack_client(AK_SLACK_CONNECTION)
         msg = f"Invalid Google Spreadsheet URL/ID: `{event.data.text}`"
-        _slack_client().chat_postMessage(channel=event.data.user_id, text=msg)
+        slack.chat_postMessage(channel=event.data.user_id, text=msg)
         return
 
     # TODO(ENG-981): spreadsheet_id = match.group(2)
@@ -65,8 +64,8 @@ def _write_cells(id):
 @autokitteh.activity
 def _read_cells(id):
     a1_range = "Sheet1!A1:B3"
-
-    result = _sheets_client().values().get(spreadsheetId=id, range=a1_range).execute()
+    sheets = google_sheets_client(AK_SHEETS_CONNECTION)
+    result = sheets.values().get(spreadsheetId=id, range=a1_range).execute()
     values = result.get("values", [])
     if not values:
         print("No data found")
@@ -74,63 +73,136 @@ def _read_cells(id):
     print(values)
 
 
-def _slack_client():
-    ak_connection_name = "my_slack"
-    token = os.getenv(ak_connection_name + "__oauth_AccessToken")
-    if not token:
-        raise RuntimeError('Connection "{ak_connection_name}" not initialized')
-
-    # TODO: Also support Socket Mode as an optional configuration
-    # (https://slack.dev/python-slack-sdk/api-docs/slack_sdk/socket_mode/).
-    client = slack_sdk.WebClient(token)
-
-    client.auth_test().validate()
-    return client
+# TODO: Remove all code below this line, after merging
+# https://github.com/autokitteh/autokitteh/pull/384
 
 
-def _sheets_client():
-    """Initialize a Google Sheets API client.
+def google_sheets_client(connection: str, **kwargs):
+    """Initialize a Google Sheets client, based on an AutoKitteh connection.
 
-    This function requires the name of an initialized AutoKitteh connection.
-    It supports both connection modes: users (with OAuth v2),
-    and GCP service accounts (with a JSON key).
+    API reference:
+    https://developers.google.com/resources/api-libraries/documentation/sheets/v4/python/latest/sheets_v4.spreadsheets.html
+
+    Code samples:
+    https://github.com/googleworkspace/python-samples/tree/main/sheets
+
+    Args:
+        connection: AutoKitteh connection name.
+
+    Returns:
+        Google Sheets client.
     """
-    ak_connection_name = "my_sheets"
-    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+    # https://developers.google.com/sheets/api/scopes
+    default_scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+    creds = google_creds(connection, default_scopes, **kwargs)
+    return build("sheets", "v4", credentials=creds, **kwargs)
 
-    json_key = os.getenv(ak_connection_name + "__JSON")
+
+def google_creds(connection: str, scopes: list[str], **kwargs):
+    """Initialize credentials for a Google APIs client, for service discovery.
+
+    This function supports both AutoKitteh connection modes:
+    users (with OAuth 2.0), and GCP service accounts (with a JSON key).
+
+    Code samples:
+    https://github.com/googleworkspace/python-samples
+
+    For subsequent usage details, see:
+    https://googleapis.github.io/google-api-python-client/docs/epy/googleapiclient.discovery-module.html#build
+
+    Args:
+        connection: AutoKitteh connection name.
+        scopes: List of OAuth permission scopes.
+
+    Returns:
+        Google API credentials, ready for usage
+        in "googleapiclient.discovery.build()".
+    """
+    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
+        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
+
+    json_key = os.getenv(connection + "__JSON")  # Service Account (JSON key)
     if json_key:
-        return _sheets_client_with_json_key(json_key, scopes)
+        info = json.loads(json_key)
+        # https://google-auth.readthedocs.io/en/stable/reference/google.oauth2.service_account.html#google.oauth2.service_account.Credentials.from_service_account_info
+        return service_account.Credentials.from_service_account_info(
+            info, scopes=scopes, **kwargs
+        )
 
-    refresh_token = os.getenv(ak_connection_name + "__oauth_RefreshToken")
+    refresh_token = os.getenv(connection + "__oauth_RefreshToken")  # User (OAuth 2.0)
     if refresh_token:
-        return _sheets_client_with_oauth(ak_connection_name, refresh_token, scopes)
+        return _google_creds_oauth2(connection, refresh_token, scopes)
 
-    raise RuntimeError(f'Connection "{ak_connection_name}" not initialized')
-
-
-def _sheets_client_with_json_key(json_key, scopes):
-    info = json.loads(json_key)
-    return service_account.Credentials.from_service_account_info(info, scopes=scopes)
+    raise RuntimeError(f'AutoKitteh connection "{connection}" not initialized')
 
 
-def _sheets_client_with_oauth(ak_connection_name, refresh_token, scopes):
-    # Normalize the expiry timestamp to a format that Credentials can parse.
-    expiry = os.getenv(ak_connection_name + "__oauth_Expiry").split(" ")
-    dt = datetime.fromisoformat(f"{expiry[0]}T{expiry[1]}{expiry[2]}")
-    expiry = dt.astimezone(UTC).replace(tzinfo=None).isoformat()
+def _google_creds_oauth2(connection: str, refresh_token: str, scopes: list[str]):
+    """Initialize user credentials for Google APIs using OAuth 2.0.
+
+    For more details, see:
+    https://google-auth.readthedocs.io/en/stable/reference/google.oauth2.credentials.html#google.oauth2.credentials.Credentials.from_authorized_user_info
+
+    Args:
+        connection: AutoKitteh connection name.
+        refresh_token: OAuth 2.0 refresh token.
+        scopes: List of OAuth permission scopes.
+
+    Returns:
+        Google API credentials, ready for usage
+        in "googleapiclient.discovery.build()".
+    """
+    expiry = os.getenv(connection + "__oauth_Expiry")
+    iso8601 = re.sub(r"[ A-Z]+$", "", expiry)  # Convert from Go's time string.
+    dt = datetime.fromisoformat(iso8601).astimezone(UTC)
+
+    client_id = os.getenv("GOOGLE_CLIENT_ID")
+    if not client_id:
+        raise RuntimeError('Environment variable "GOOGLE_CLIENT_ID" not set')
+
+    client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+    if not client_id:
+        raise RuntimeError('Environment variable "GOOGLE_CLIENT_SECRET" not set')
 
     creds = credentials.Credentials.from_authorized_user_info(
         {
-            "token": os.getenv(ak_connection_name + "__oauth_AccessToken"),
+            "token": os.getenv(connection + "__oauth_AccessToken"),
             "refresh_token": refresh_token,
-            "expiry": expiry,
-            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
-            "client_secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+            "expiry": dt.replace(tzinfo=None).isoformat(),
+            "client_id": client_id,
+            "client_secret": client_secret,
             "scopes": scopes,
         }
     )
     if creds.expired:
         creds.refresh(Request())
 
-    return build("sheets", "v4", credentials=creds).spreadsheets()
+    return creds
+
+
+def slack_client(connection: str, **kwargs):
+    """Initialize a Slack client, based on an AutoKitteh connection.
+
+    API reference:
+    https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html
+
+    This function doesn't initialize a Socket Mode client because the
+    AutoKitteh connection already has one to receive incoming events.
+
+    Args:
+        connection: AutoKitteh connection name.
+
+    Returns:
+        Slack SDK client.
+    """
+    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
+        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
+
+    bot_token = os.getenv(connection + "__oauth_AccessToken")  # OAuth v2
+    if not bot_token:
+        bot_token = os.getenv(connection + "__BotToken")  # Socket Mode
+    if not bot_token:
+        raise RuntimeError(f'AutoKitteh connection "{connection}" not initialized')
+
+    client = slack_sdk.web.client.WebClient(bot_token, **kwargs)
+    client.auth_test().validate()
+    return client

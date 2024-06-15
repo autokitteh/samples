@@ -24,43 +24,13 @@ import slack_sdk
 AK_SLACK_CONNECTION = "my_slack"
 
 
-def _slack_client(connection, **kwargs):
-    """Initialize a Slack client, based on an AutoKitteh connection.
-
-    API reference:
-    https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html
-
-    This function doesn't initialize a Socket Mode client because the
-    AutoKitteh connection already has one to receive incoming events.
-
-    Args:
-        connection: AutoKitteh connection name.
-        async: Use asyncio for the Slack client.
-
-    Returns:
-        Slack SDK client.
-    """
-    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
-        raise ValueError("Invalid AutoKitteh connection name: " + connection)
-
-    bot_token = os.getenv(connection + "__oauth_AccessToken")  # OAuth v2
-    if not bot_token:
-        bot_token = os.getenv(connection + "__BotToken")  # Socket Mode
-    if not bot_token:
-        raise RuntimeError(f'AutoKitteh connection "{connection}" not initialized')
-
-    client = slack_sdk.web.client.WebClient(bot_token, **kwargs)
-    client.auth_test().validate()
-    return client
-
-
 def on_slack_app_mention(event):
     """https://api.slack.com/events/app_mention
 
     Args:
         event: Slack event data.
     """
-    slack = _slack_client(AK_SLACK_CONNECTION)
+    slack = slack_client(AK_SLACK_CONNECTION)
 
     # Send messages in response to the event:
     # - DM to the user who triggered the event (channel ID = user ID)
@@ -118,7 +88,7 @@ def on_slack_message(event):
     Args:
         event: Slack event data.
     """
-    slack = _slack_client(AK_SLACK_CONNECTION)
+    slack = slack_client(AK_SLACK_CONNECTION)
 
     if not event.data.subtype:
         user = f"<@{event.data.user}>"
@@ -183,7 +153,7 @@ def on_slack_slash_command(event):
     Args:
         event: Slack event data.
     """
-    slack = _slack_client(AK_SLACK_CONNECTION)
+    slack = slack_client(AK_SLACK_CONNECTION)
 
     # Retrieve the profile information of the user who triggered this event.
     # See: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html#slack_sdk.web.client.WebClient.users_info
@@ -217,3 +187,36 @@ def on_slack_interaction(event):
 def _data(resp):
     """Convert a Slack response's data dictionary to an object with attributes."""
     return types.SimpleNamespace(**resp.data)
+
+
+# TODO: Remove all code below this line, after merging
+# https://github.com/autokitteh/autokitteh/pull/384
+
+
+def slack_client(connection, **kwargs):
+    """Initialize a Slack client, based on an AutoKitteh connection.
+
+    API reference:
+    https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html
+
+    This function doesn't initialize a Socket Mode client because the
+    AutoKitteh connection already has one to receive incoming events.
+
+    Args:
+        connection: AutoKitteh connection name.
+
+    Returns:
+        Slack SDK client.
+    """
+    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
+        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
+
+    bot_token = os.getenv(connection + "__oauth_AccessToken")  # OAuth v2
+    if not bot_token:
+        bot_token = os.getenv(connection + "__BotToken")  # Socket Mode
+    if not bot_token:
+        raise RuntimeError(f'AutoKitteh connection "{connection}" not initialized')
+
+    client = slack_sdk.web.client.WebClient(bot_token, **kwargs)
+    client.auth_test().validate()
+    return client
