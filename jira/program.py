@@ -21,20 +21,24 @@ def on_jira_comment_created(event):
 @autokitteh.activity
 def update_comment(data):
     """TODO..."""
-    jira = _jira_client(AK_JIRA_CONNECTION)
+    jira = jira_client(AK_JIRA_CONNECTION)
     issue_key = data["issue"]["key"]
     comment = data["comment"]
     update = f"{comment['body']} - added by {comment['author']['displayName']}"
     jira.issue_edit_comment(issue_key, comment["id"], update)
 
 
-def _jira_client(connection, **kwargs):
+# TODO: Remove all code below this line, after merging
+# https://github.com/autokitteh/autokitteh/pull/384
+
+
+def jira_client(connection: str, **kwargs):
     """Initialize a Jira client, based on an AutoKitteh connection.
 
     API reference:
     https://atlassian-python-api.readthedocs.io/jira.html
 
-    Code examples:
+    Code samples:
     https://github.com/atlassian-api/atlassian-python-api/tree/master/examples/jira
 
     Args:
@@ -44,7 +48,7 @@ def _jira_client(connection, **kwargs):
         Atlassian-Python-API Jira client.
     """
     if not re.fullmatch(r"[A-Za-z_]\w*", connection):
-        raise ValueError("Invalid AutoKitteh connection name: " + connection)
+        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
 
     if os.getenv(connection + "__oauth_AccessToken"):
         return _jira_client_cloud_oauth2(connection, **kwargs)
@@ -52,7 +56,7 @@ def _jira_client(connection, **kwargs):
     raise RuntimeError(f'AutoKitteh connection "{connection}" not initialized')
 
 
-def _jira_client_cloud_oauth2(connection, **kwargs):
+def _jira_client_cloud_oauth2(connection: str, **kwargs):
     """Initialize a Jira client for Atlassian Cloud using OAuth 2.0."""
     expiry = os.getenv(connection + "__oauth_Expiry")
     if not expiry:
