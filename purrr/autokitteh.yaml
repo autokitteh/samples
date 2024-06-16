@@ -1,9 +1,13 @@
+# This YAML file is a declarative manifest that describes the setup
+# of the AutoKitteh project "Pull Request Review Reminder" (PuRRR).
+# PuRRR integrates GitHub and Slack to streamline code reviews.
+#
 # Before applying this file:
-# - Modify the values in the project "vars" section, if desired
+# - Modify the values in the project's "vars" section, if desired
 # - Modify the Redis connection string, if needed
 #
-# After applying this file:
-# - Initialize the AutoKitteh connections to GitHub and Slack
+# After applying this file, initialize this AutoKitteh project's
+# GitHub and Slack connections.
 
 version: v1
 
