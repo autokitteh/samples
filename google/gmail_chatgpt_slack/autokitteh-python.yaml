@@ -13,9 +13,6 @@ version: v1
 project:
   name: gmail_chat_gpt_slack
   vars:
-    - name: SLACK_BOT_TOKEN
-      value: TODO # Replace this with a Slack bot token ("xoxb").
-      is_secret: true
     - name: OPENAI_API_KEY
       value: TODO # Replace this with your OpenAI API key ("sk-...").
       is_secret: true
