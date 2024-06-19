@@ -190,6 +190,6 @@ def on_slack_interaction(data):
         msg += " :-1:"
     my_slack.chat_post_message(channel = respond_to, text = msg)
 
-def post_message_with_blocks(data):
+def post_message_with_blocks(target):
     # "blocks" is loaded from a JSON file - see the relevant load() above.
-    my_slack.chat_post_message(data.user_id, blocks = blocks)
+    my_slack.chat_post_message(target, blocks = blocks)
