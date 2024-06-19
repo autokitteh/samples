@@ -142,33 +142,35 @@ def on_slack_slash_command(data):
         data: Slack event data.
     """
 
-    # Retrieve the profile information of the user who triggered this event.
-    # See: https://api.slack.com/methods/users.info
-    user_info = my_slack.users_info(data.user_id)
+    post_message_with_constructed_blocks(data.user_id)
 
-    # Encountered an error? Print debugging information
-    # in the AutoKitteh session's log, and finish.
-    if not user_info.ok:
-        print(user_info.error)
-        return
+    # # Retrieve the profile information of the user who triggered this event.
+    # # See: https://api.slack.com/methods/users.info
+    # user_info = my_slack.users_info(data.user_id)
 
-    profile = user_info.user.profile
-    text = "Slack mention: <@%s>" % data.user_id
-    my_slack.chat_post_message(data.user_id, text)
-    text = "Full name: " + profile.real_name
-    my_slack.chat_post_message(data.user_id, text)
-    text = "Email: " + profile.email
-    my_slack.chat_post_message(data.user_id, text)
+    # # Encountered an error? Print debugging information
+    # # in the AutoKitteh session's log, and finish.
+    # if not user_info.ok:
+    #     print(user_info.error)
+    #     return
 
-    # Treat the text of the user's slash command as a message target (e.g.
-    # channel or user), and send an interactive message to that target.
-    title = "Question From %s" % data.user_id
-    msg = "Please select one of these options... :smiley_cat:"
-    my_slack.send_approval_message(
-        target = data.text,
-        header = title,
-        message = msg,
-    )
+    # profile = user_info.user.profile
+    # text = "Slack mention: <@%s>" % data.user_id
+    # my_slack.chat_post_message(data.user_id, text)
+    # text = "Full name: " + profile.real_name
+    # my_slack.chat_post_message(data.user_id, text)
+    # text = "Email: " + profile.email
+    # my_slack.chat_post_message(data.user_id, text)
+
+    # # Treat the text of the user's slash command as a message target (e.g.
+    # # channel or user), and send an interactive message to that target.
+    # title = "Question From %s" % data.user_id
+    # msg = "Please select one of these options... :smiley_cat:"
+    # my_slack.send_approval_message(
+    #     target = data.text,
+    #     header = title,
+    #     message = msg,
+    # )
 
 def on_slack_interaction(data):
     """https://api.slack.com/reference/interaction-payloads/block-actions
@@ -192,6 +194,7 @@ def on_slack_interaction(data):
 
 def post_message_with_loaded_blocks(target):
     # "blocks" is loaded from a JSON file - see the relevant load() above.
+    blocks[0]["text"]["text"] = "This is a modified header :smile:"
     my_slack.chat_post_message(target, blocks = blocks)
 
 def post_message_with_constructed_blocks(target):
@@ -202,10 +205,10 @@ def post_message_with_constructed_blocks(target):
         "text": {
             "type": "plain_text",
             "text": "This is a header block",
-            "emoji": true,
+            "emoji": True,
         },
     }
-    header.text.text = "This is a modified header block :)"
+    header["text"]["text"] = "This is a modified header :smile:"
 
     # ...Or construct them all at once.
     blocks = [
@@ -224,7 +227,7 @@ def post_message_with_constructed_blocks(target):
                 "text": {
                     "type": "plain_text",
                     "text": "Click Me",
-                    "emoji": true,
+                    "emoji": True,
                 },
                 "value": "click_me_123",
                 "url": "https://google.com",
