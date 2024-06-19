@@ -6,7 +6,7 @@
 # project's "vars" section.
 #
 # After applying this file, initialize this AutoKitteh project's
-# ChatGPT, Gmail and Slack connections.
+# ChatGPT, Gmail, and Slack connections.
 
 version: v1
 
