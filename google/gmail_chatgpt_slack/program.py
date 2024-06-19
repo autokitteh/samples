@@ -193,11 +193,12 @@ def _categorize_email(email_content: str, channels: list[str]) -> str:
     Returns: The name of the Slasck channel to send a message to as a string.
     """
     try:
-        api_key = os.getenv("OPENAI_API_KEY")
-        client = OpenAI(
-            api_key=api_key,
-            organization="org-rAdQQpXI14g0xdoXiLk6btKc",
-        )
+        # api_key = os.getenv("OPENAI_API_KEY")
+        # client = OpenAI(
+        #     api_key=api_key,
+        #     organization="org-rAdQQpXI14g0xdoXiLk6btKc",
+        # )
+        client = _openai_client()
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -283,5 +284,15 @@ def _slack_client() -> slack_sdk.WebClient:
     # (https://slack.dev/python-slack-sdk/api-docs/slack_sdk/socket_mode/).
     client = slack_sdk.WebClient(token)
 
+    client.auth_test().validate()
+    return client
+
+
+def _openai_client() -> OpenAI:
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError('Env variable "OPENAI_API_KEY" not set')
+
+    client = OpenAI(api_key=api_key)
     client.auth_test().validate()
     return client
