@@ -20,6 +20,7 @@ Comapre this file with "program.py" that uses Python code.
 """
 
 load("@slack", "my_slack")
+load("message.json", "blocks")
 
 def on_slack_app_mention(data):
     """https://api.slack.com/events/app_mention
@@ -188,3 +189,7 @@ def on_slack_interaction(data):
     elif data.actions[0].style == "danger":  # Red button.
         msg += " :-1:"
     my_slack.chat_post_message(channel = respond_to, text = msg)
+
+def post_message_with_blocks(target):
+    # "blocks" is loaded from a JSON file - see the relevant load() above.
+    my_slack.chat_post_message(target, blocks = blocks)
