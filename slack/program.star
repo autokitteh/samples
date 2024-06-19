@@ -190,6 +190,46 @@ def on_slack_interaction(data):
         msg += " :-1:"
     my_slack.chat_post_message(channel = respond_to, text = msg)
 
-def post_message_with_blocks(target):
+def post_message_with_loaded_blocks(target):
     # "blocks" is loaded from a JSON file - see the relevant load() above.
+    my_slack.chat_post_message(target, blocks = blocks)
+
+def post_message_with_constructed_blocks(target):
+    # You may construct the blocks part-by-part, modify them,
+    # and then aggregate them...
+    header = {
+        "type": "header",
+        "text": {
+            "type": "plain_text",
+            "text": "This is a header block",
+            "emoji": true,
+        },
+    }
+    header.text.text = "This is a modified header block :)"
+
+    # ...Or construct them all at once.
+    blocks = [
+        header,
+        {
+            "type": "divider",
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "This is a section block with a button.",
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Click Me",
+                    "emoji": true,
+                },
+                "value": "click_me_123",
+                "url": "https://google.com",
+                "action_id": "button-action",
+            },
+        },
+    ]
     my_slack.chat_post_message(target, blocks = blocks)
