@@ -169,9 +169,9 @@ def on_slack_slash_command(data):
         header = title,
         message = msg,
     )
-    # Instead of calling "send_approval_message()", you can also call
-    # "chat_post_message()" with blocks instead of text - see the 2
-    # example functions at the end of this file.
+    # Instead of calling "send_approval_message()", you can
+    # also call "chat_post_message()" with blocks instead of
+    # text, e.g. see the 2 functions at the end of this file.
 
 def on_slack_interaction(data):
     """https://api.slack.com/reference/interaction-payloads/block-actions
