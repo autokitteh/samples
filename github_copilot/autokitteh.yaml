@@ -1,0 +1,24 @@
+version: v1
+
+project:
+  name: github_copilot
+  vars:
+    - name: ORG
+      value: "autokitteh"
+    - name: IDLE_USAGE_THRESHOLD
+      value: 10s
+    - name: LOGINS
+      value: "itayd"
+  connections:
+    - name: mygithub
+      integration: github
+    - name: myslack
+      integration: slack
+  triggers:
+    - name: check_daily
+      schedule: "@daily"
+      call: triggers.star:on_schedule
+    - name: check_now
+      connection: myslack
+      event_type: app_mention
+      call: triggers.star:on_slack_app_mention
