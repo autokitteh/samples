@@ -38,3 +38,20 @@ merely showcases a few illustrative, annotated, reusable examples.
 
    ak connection init <connection ID>
    ```
+
+3. Create a new issue in Jira, and check out its comments
+
+## Connection Notes
+
+AutoKitteh supports 3 connection modes with Atlassian APIs:
+
+- User impersonation with:
+
+  - [API token](https://id.atlassian.com/manage-profile/security/api-tokens)
+    (available only in Jira Cloud)
+
+  - [Personal Access Token (PAT)](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html)
+    (available only in on-prem servers)
+
+- [OAuth 2.0 app](https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/)
+  (the user authorizes it in step 2 above)
