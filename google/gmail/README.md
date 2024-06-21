@@ -24,7 +24,7 @@ API details:
 - [Go client API](https://pkg.go.dev/google.golang.org/api/gmail/v1)
 
 This project isn't meant to cover all available functions and events. It
-merely showcases various illustrative, annotated, reusable examples.
+merely showcases a few illustrative, annotated, reusable examples.
 
 ## Instructions
 

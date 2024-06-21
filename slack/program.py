@@ -10,7 +10,7 @@ API details:
 - Events API reference: https://api.slack.com/events?filter=Events
 
 This program isn't meant to cover all available functions and events.
-It merely showcases various illustrative, annotated, reusable examples.
+It merely showcases a few illustrative, annotated, reusable examples.
 """
 
 import os
