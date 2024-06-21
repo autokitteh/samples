@@ -6,7 +6,7 @@
 # After applying this file, initialize this AutoKitteh project's
 # Slack connection.
 #
-# Compare this file with "autokitteh-python.yaml" that uses Python.
+# Compare this file with "autokitteh-python.yaml", which uses Python.
 
 version: v1
 
