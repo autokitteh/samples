@@ -17,3 +17,7 @@ project:
       connection: my_jira
       event_type: comment_created
       call: program.py:on_jira_comment_created
+    - name: jira_issue_created
+      connection: my_jira
+      event_type: issue_created
+      call: program.py:on_jira_issue_created
