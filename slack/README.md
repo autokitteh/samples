@@ -12,7 +12,7 @@ events, as defined in the [`autokitteh-python.yaml`](./autokitteh-python.yaml)
 or [`autokitteh-starlark.yaml`](./autokitteh-starlark.yaml) manifest files.
 These functions also execute various Slack API calls.
 
-API documentation:
+Slack API documentation:
 
 - [Web API reference](https://api.slack.com/methods)
 - [Events API reference](https://api.slack.com/events?filter=Events)
@@ -52,9 +52,8 @@ merely showcases a few illustrative, annotated, reusable examples.
    - Mentions of the Slack app in messages (e.g. `Hi @autokitteh`)
    - Slash commands registered by the Slack app
      (`/autokitteh <channel name or ID>`)
-   - In all channels that the Slack app was added to:
-     - New and edited messages and replies
-     - New emoji reactions
+   - New and edited messages and replies
+   - New emoji reactions
 
 ## Connection Notes
 
