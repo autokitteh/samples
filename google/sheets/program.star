@@ -1,26 +1,19 @@
-"""This program demonstrates AutoKitteh's Google Sheets integration.
+"""This program demonstrates AutoKitteh's 2-way Google Sheets integration.
 
-This program implements a single entry-point function, which is
-configured in the "autokitteh.yaml" manifest file as the receiver
-of Slack "slash_command" events.
+This program implements an entry-point function that is triggered by incoming
+Slack events, as defined in the "autokitteh-starlark.yaml" manifest file.
+This function executes various read and write Google Sheets API calls.
 
-When triggered by a Slack user, it reads and writes in a Google Spreadsheet.
-
-API details:
+Google Sheets API documentation:
 - REST API reference: https://developers.google.com/sheets/api/reference/rest
 - Go client API: https://pkg.go.dev/google.golang.org/api/sheets/v4
 
-In this sample, we expect the slash command's text to be either:
-- A Google Spreadsheet ID
-  (https://developers.google.com/sheets/api/guides/concepts)
-- A full Google Spreadsheet URL
-  (which we parse with a regular expression)
-
-It also demonstrates using a custom builtin module
-(re) to extract the Google Spreadsheet ID from a URL with a
-regular expression (https://github.com/qri-io/starlib/tree/master/re).
+This program also demonstrates using a custom built-in module (re) to
+extract the Google Spreadsheet ID from a URL with a regular expression
+(https://github.com/qri-io/starlib/tree/master/re).
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
+Comapre this file with "program.py" - same logic, but using Python.
 """
 
 load("@googlesheets", "my_sheets")

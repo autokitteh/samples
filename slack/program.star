@@ -1,22 +1,27 @@
 """This program demonstrates AutoKitteh's 2-way Slack integration.
 
-This program implements multiple entry-point functions that
-are triggered by incoming Slack events, which are defined in
-the "autokitteh-starlark.yaml" manifest file. These functions
-also execute various Slack API calls.
+This program implements multiple entry-point functions that are triggered
+by incoming Slack events, as defined in the "autokitteh-starlark.yaml"
+manifest file. These functions also execute various Slack API calls.
 
-API details:
+Events that this program responds to:
+- Mentions of the Slack app in messages (e.g. "Hi @autokitteh")
+- Slash commands registered by the Slack app (`/autokitteh <channel name or ID>`)
+- New and edited messages and replies
+- New emoji reactions
+
+Slack API documentation:
 - Web API reference: https://api.slack.com/methods
 - Events API reference: https://api.slack.com/events?filter=Events
 
 This program also demonstrates using a custom builtin function (sleep)
-to sleep for a specified number of seconds.
+to slow down the workflow for a specified number of seconds.
 
 This program isn't meant to cover all available functions and events.
 It merely showcases a few illustrative, annotated, reusable examples.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
-Comapre this file with "program.py" that uses Python code.
+Comapre this file with "program.py" - same logic, but using Python.
 """
 
 load("@slack", "my_slack")

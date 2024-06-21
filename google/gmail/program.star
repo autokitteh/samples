@@ -1,13 +1,10 @@
-"""This program demonstrates AutoKitteh's Gmail integration.
+"""This program demonstrates AutoKitteh's 2-way Gmail integration.
 
-This program implements a single entry-point function, which is
-configured in the "autokitteh.yaml" manifest file as the receiver
-of Slack "slash_command" events.
+This program implements an entry-point function that is triggered by incoming
+Slack events, as defined in the "autokitteh-starlark.yaml" manifest file.
+This function executes various Gmail API calls, depending on user input.
 
-When triggered by a Slack user, it executes various Gmail API calls
-depending on the user's input, and posts the results back to the user.
-
-API details:
+API documentation:
 - API overview: https://developers.google.com/gmail/api/guides
 - REST API reference: https://developers.google.com/gmail/api/reference/rest
 - Go client API: https://pkg.go.dev/google.golang.org/api/gmail/v1
@@ -16,6 +13,7 @@ This program isn't meant to cover all available functions and events.
 It merely showcases a few illustrative, annotated, reusable examples.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
+Comapre this file with "program.py" - same logic, but using Python.
 """
 
 load("@gmail", "my_gmail")
