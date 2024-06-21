@@ -11,13 +11,13 @@ execute various Jira API calls.
 API documentation:
 
 - [REST API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/)
-- ["Atlassian Python API" library](https://atlassian-python-api.readthedocs.io/)
-- ["Jira" library](https://jira.readthedocs.io/)
+- ["Atlassian Python API" Python library](https://atlassian-python-api.readthedocs.io/)
+- ["Jira" Python library](https://jira.readthedocs.io/)
 
 Python code samples:
 
-- ["Atlassian Python API" library](https://github.com/atlassian-api/atlassian-python-api/tree/master/examples/jira)
-- ["Jira" library](https://github.com/pycontribs/jira/tree/main/examples)
+- [Atlassian Python API](https://github.com/atlassian-api/atlassian-python-api/tree/master/examples/jira)
+- [Jira](https://github.com/pycontribs/jira/tree/main/examples)
 
 This program isn't meant to cover all available functions and events. It
 merely showcases a few illustrative, annotated, reusable examples.
@@ -36,5 +36,5 @@ merely showcases a few illustrative, annotated, reusable examples.
    Connection created, but requires initialization.
    Please run this to complete:
 
-   ak connection init <Slack connection ID>
+   ak connection init <connection ID>
    ```

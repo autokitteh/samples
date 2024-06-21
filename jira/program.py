@@ -7,11 +7,11 @@ also execute various Jira API calls.
 
 API documentation:
 - REST: https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/
-- Atlassian Python API: https://atlassian-python-api.readthedocs.io/
-- Jira: https://jira.readthedocs.io/
+- "Atlassian Python API" Python library: https://atlassian-python-api.readthedocs.io/
+- "Jira" Python library: https://jira.readthedocs.io/
 
 Python code samples:
-- Atlassian Jira: https://github.com/atlassian-api/atlassian-python-api/tree/master/examples/jira
+- Atlassian Python API: https://github.com/atlassian-api/atlassian-python-api/tree/master/examples/jira
 - Jira: https://github.com/pycontribs/jira/tree/main/examples
 
 This program isn't meant to cover all available functions and events.
