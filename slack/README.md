@@ -44,7 +44,7 @@ merely showcases a few illustrative, annotated, reusable examples.
    Connection created, but requires initialization.
    Please run this to complete:
 
-   ak connection init <Slack connection ID>
+   ak connection init <connection ID>
    ```
 
 > [!TIP]
