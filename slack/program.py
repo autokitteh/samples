@@ -19,9 +19,9 @@ It merely showcases a few illustrative, annotated, reusable examples.
 """
 
 import os
+from pathlib import Path
 import re
 import time
-import types
 
 from slack_sdk.web.client import WebClient
 
@@ -57,16 +57,15 @@ def on_slack_app_mention(event):
     # Update the last sent message, after a few seconds.
     # See: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html#slack_sdk.web.client.WebClient.chat_update
     time.sleep(10)
-    resp = _data(resp)
+    resp = AttrDict(resp)
     text = "After update :smiley_cat:"
-    resp = _data(slack.chat_update(channel=resp.channel, ts=resp.ts, text=text))
+    resp = AttrDict(slack.chat_update(channel=resp.channel, ts=resp.ts, text=text))
 
     # Reply to the message's thread, after a few seconds.
     time.sleep(5)
     text = "Reply before update :crying_cat_face:"
-    resp = _data(
-        slack.chat_postMessage(channel=resp.channel, text=text, thread_ts=resp.ts)
-    )
+    resp = slack.chat_postMessage(channel=resp.channel, text=text, thread_ts=resp.ts)
+    resp = AttrDict(resp)
 
     # Update the threaded reply message, after a few seconds.
     time.sleep(5)
@@ -165,10 +164,11 @@ def on_slack_slash_command(event):
     # See: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html#slack_sdk.web.client.WebClient.users_info
     user_info = slack.users_info(user=event.data.user_id)
 
-    # Encountered an error? Print debugging information in the AutoKitteh session's log, and finish.
+    # Encountered an error? Print debugging information
+    # in the AutoKitteh session's log, and finish.
     user_info.validate()
 
-    profile = _data(user_info).user.profile
+    profile = AttrDict(user_info.data).user.profile
     text = f"Slack mention: <@{event.data.user_id}>"
     slack.chat_postMessage(channel=event.data.user_id, text=text)
     text = "Full name: " + profile.real_name
@@ -176,9 +176,18 @@ def on_slack_slash_command(event):
     text = "Email: " + profile.email
     slack.chat_postMessage(channel=event.data.user_id, text=text)
 
-    # TODO:
     # Treat the text of the user's slash command as a message target (e.g.
     # channel or user), and send an interactive message to that target.
+    blocks = Path("code/approval_message.json.txt").read_text()
+    changes = [
+        ("Title", "Question From " + profile.real_name),
+        ("Message", "Please select one of these options... :smiley_cat:"),
+        ("ActionID", event.data.user_id),
+    ]
+    for old, new in changes:
+        blocks = blocks.replace(old, new)
+
+    slack.chat_postMessage(channel=event.data.text, blocks=blocks)
 
 
 def on_slack_interaction(event):
@@ -187,16 +196,50 @@ def on_slack_interaction(event):
     Args:
         event: Slack event data.
     """
-    pass  # TODO: Implement!
+    # The Slack ID of the user who sent the question
+    # (we stored this in the buttons' action IDs).
+    action = AttrDict(event.data.actions[0])
+    origin = action.action_id.split()[-1]
 
+    # User selection = action value = button text
+    # (our convention, not Slack's, alternatives: action style/text).
+    text = f"<@{event.data.user.id}> clicked the `{action.value}` button"
+    if action.style == "primary":  # Green button.
+        text += " :+1:"
+    elif action.style == "danger":  # Red button.
+        text += " :-1:"
 
-def _data(resp):
-    """Convert a Slack response's data dictionary to an object with attributes."""
-    return types.SimpleNamespace(**resp.data)
+    slack = slack_client(AK_SLACK_CONNECTION)
+    slack.chat_postMessage(channel=origin, text=text)
 
 
 # TODO: Remove all code below this line, after merging
 # https://github.com/autokitteh/autokitteh/pull/384
+
+
+class AttrDict(dict):
+    """Allow attribute access to dictionary keys.
+
+    >>> config = AttrDict({'server': {'port': 8080}, 'debug': True})
+    >>> config.server.port
+    8080
+    >>> config.debug
+    True
+    """
+
+    def __getattr__(self, name: str):
+        try:
+            value = self[name]
+            if isinstance(value, dict):
+                value = AttrDict(value)
+            return value
+        except KeyError:
+            raise AttributeError(name)
+
+    def __setattr__(self, name: str, value):
+        # The default __getattr__ doesn't fail but also don't change values.
+        cls = self.__class__.__name__
+        raise NotImplementedError(f"{cls} does not support setting attributes")
 
 
 class ConnectionInitError(Exception):
