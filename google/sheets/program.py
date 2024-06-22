@@ -1,6 +1,15 @@
 """This program demonstrates AutoKitteh's 2-way Google Sheets integration.
 
-TODO: More details.
+This program implements an entry-point function that is triggered by incoming
+Slack events, as defined in the "autokitteh-python.yaml" manifest file.
+This function executes various read and write Google Sheets API calls.
+
+Google Sheets API documentation:
+- REST API reference: https://developers.google.com/sheets/api/reference/rest
+- Python client API: https://developers.google.com/resources/api-libraries/documentation/sheets/v4/python/latest/sheets_v4.spreadsheets.html
+
+Python code samples:
+https://github.com/googleworkspace/python-samples/tree/main/sheets
 """
 
 from datetime import UTC, datetime
@@ -26,10 +35,8 @@ def on_slack_slash_command(event):
     See also: https://api.slack.com/interactivity/handling#message_responses
 
     In this sample, we expect the slash command's text to be either:
-    - A Google Spreadsheet ID
-      (https://developers.google.com/sheets/api/guides/concepts)
-    - A full Google Spreadsheet URL
-      (which we parse with a regular expression)
+    - A Google Spreadsheet ID (https://developers.google.com/sheets/api/guides/concepts)
+    - A full Google Spreadsheet URL (which we parse with a regular expression)
 
     Args:
         event: Slack event data.

@@ -1,11 +1,16 @@
 """This program demonstrates AutoKitteh's 2-way Slack integration.
 
-This program implements multiple entry-point functions that
-are triggered by incoming Slack events, which are defined in
-the "autokitteh-python.yaml" manifest file. These functions
-also execute various Slack API calls.
+This program implements multiple entry-point functions that are triggered
+by incoming Slack events, as defined in the "autokitteh-python.yaml"
+manifest file. These functions also execute various Slack API calls.
 
-API details:
+Events that this program responds to:
+- Mentions of the Slack app in messages (e.g. "Hi @autokitteh")
+- Slash commands registered by the Slack app (`/autokitteh <channel name or ID>`)
+- New and edited messages and replies
+- New emoji reactions
+
+Slack API documentation:
 - Python client API: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html
 - Events API reference: https://api.slack.com/events?filter=Events
 
