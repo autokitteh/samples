@@ -124,10 +124,11 @@ def _on_slack_message_changed(slack, data, user):
     """Someone edited a message."""
     old, new = data.previous_message.text, data.message.text
     text = f":point_up: {user} edited a message from `{old}` to `{new}`"
-    ts = data.message.ts
 
     # Thread TS may or may not be empty, depending on the edited message.
-    slack.chat_postMessage(channel=data.channel, text=text, thread_ts=ts)
+    thread = data.message.thread_ts
+
+    slack.chat_postMessage(channel=data.channel, text=text, thread_ts=thread)
 
 
 def on_slack_reaction_added(event):

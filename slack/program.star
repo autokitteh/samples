@@ -116,7 +116,9 @@ def _on_slack_message_changed(data, user):
     text %= (user, data.previous_message.text, data.message.text)
 
     # Thread TS may or may not be empty, depending on the edited message.
-    my_slack.chat_post_message(data.channel, text, thread_ts = data.thread_ts)
+    thread = data.message.thread_ts
+
+    my_slack.chat_post_message(data.channel, text, thread_ts = thread)
 
 def on_slack_reaction_added(data):
     """https://api.slack.com/events/reaction_added
