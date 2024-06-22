@@ -23,7 +23,7 @@ import re
 import time
 import types
 
-import slack_sdk
+from slack_sdk.web.client import WebClient
 
 
 AK_SLACK_CONNECTION = "my_slack"
@@ -198,7 +198,27 @@ def _data(resp):
 # https://github.com/autokitteh/autokitteh/pull/384
 
 
-def slack_client(connection, **kwargs):
+class ConnectionInitError(Exception):
+    """A required AutoKitteh connection was not initialized yet."""
+
+    def __init__(self, connection: str):
+        super().__init__(f'AutoKitteh connection "{connection}" not initialized')
+
+
+def check_connection_name(connection: str) -> None:
+    """Check that the given AutoKitteh connection name is valid.
+
+    Args:
+        connection: AutoKitteh connection name.
+
+    Raises:
+        ValueError: The connection name is invalid.
+    """
+    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
+        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
+
+
+def slack_client(connection: str, **kwargs) -> WebClient:
     """Initialize a Slack client, based on an AutoKitteh connection.
 
     API reference:
@@ -212,16 +232,20 @@ def slack_client(connection, **kwargs):
 
     Returns:
         Slack SDK client.
+
+    Raises:
+        ValueError: AutoKitteh connection name is invalid.
+        ConnectionInitError: AutoKitteh connection was not initialized yet.
+        SlackApiError: Connection attempt failed, or connection is unauthorized.
     """
-    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
-        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
+    check_connection_name(connection)
 
     bot_token = os.getenv(connection + "__oauth_AccessToken")  # OAuth v2
     if not bot_token:
         bot_token = os.getenv(connection + "__BotToken")  # Socket Mode
     if not bot_token:
-        raise RuntimeError(f'AutoKitteh connection "{connection}" not initialized')
+        raise ConnectionInitError(connection)
 
-    client = slack_sdk.web.client.WebClient(bot_token, **kwargs)
+    client = WebClient(bot_token, **kwargs)
     client.auth_test().validate()
     return client

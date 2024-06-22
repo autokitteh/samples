@@ -22,7 +22,7 @@ from google.auth.transport.requests import Request
 import google.oauth2.credentials as credentials
 import google.oauth2.service_account as service_account
 from googleapiclient.discovery import build
-import slack_sdk
+from slack_sdk.web.client import WebClient
 
 
 AK_SHEETS_CONNECTION = "my_sheets"
@@ -84,6 +84,33 @@ def _read_cells(id):
 # https://github.com/autokitteh/autokitteh/pull/384
 
 
+class ConnectionInitError(Exception):
+    """A required AutoKitteh connection was not initialized yet."""
+
+    def __init__(self, connection: str):
+        super().__init__(f'AutoKitteh connection "{connection}" not initialized')
+
+
+class EnvVarError(Exception):
+    """A required environment variable is missing or invalid."""
+
+    def __init__(self, env_var: str, desc: str):
+        super().__init__(f'Environment variable "{env_var}" is {desc}')
+
+
+def check_connection_name(connection: str) -> None:
+    """Check that the given AutoKitteh connection name is valid.
+
+    Args:
+        connection: AutoKitteh connection name.
+
+    Raises:
+        ValueError: The connection name is invalid.
+    """
+    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
+        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
+
+
 def google_sheets_client(connection: str, **kwargs):
     """Initialize a Google Sheets client, based on an AutoKitteh connection.
 
@@ -98,6 +125,11 @@ def google_sheets_client(connection: str, **kwargs):
 
     Returns:
         Google Sheets client.
+
+    Raises:
+        ValueError: AutoKitteh connection name is invalid.
+        ConnectionInitError: AutoKitteh connection was not initialized yet.
+        EnvVarError: Required environment variable is missing or invalid.
     """
     # https://developers.google.com/sheets/api/scopes
     default_scopes = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -124,9 +156,13 @@ def google_creds(connection: str, scopes: list[str], **kwargs):
     Returns:
         Google API credentials, ready for usage
         in "googleapiclient.discovery.build()".
+
+    Raises:
+        ValueError: AutoKitteh connection name is invalid.
+        ConnectionInitError: AutoKitteh connection was not initialized yet.
+        EnvVarError: Required environment variable is missing or invalid.
     """
-    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
-        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
+    check_connection_name(connection)
 
     json_key = os.getenv(connection + "__JSON")  # Service Account (JSON key)
     if json_key:
@@ -138,12 +174,12 @@ def google_creds(connection: str, scopes: list[str], **kwargs):
 
     refresh_token = os.getenv(connection + "__oauth_RefreshToken")  # User (OAuth 2.0)
     if refresh_token:
-        return _google_creds_oauth2(connection, refresh_token, scopes)
+        return __google_creds_oauth2(connection, refresh_token, scopes)
 
-    raise RuntimeError(f'AutoKitteh connection "{connection}" not initialized')
+    raise ConnectionInitError(connection)
 
 
-def _google_creds_oauth2(connection: str, refresh_token: str, scopes: list[str]):
+def __google_creds_oauth2(connection: str, refresh_token: str, scopes: list[str]):
     """Initialize user credentials for Google APIs using OAuth 2.0.
 
     For more details, see:
@@ -157,18 +193,27 @@ def _google_creds_oauth2(connection: str, refresh_token: str, scopes: list[str])
     Returns:
         Google API credentials, ready for usage
         in "googleapiclient.discovery.build()".
+
+    Raises:
+        ConnectionInitError: AutoKitteh connection was not initialized yet.
+        EnvVarError: Required environment variable is missing or invalid.
     """
     expiry = os.getenv(connection + "__oauth_Expiry")
-    iso8601 = re.sub(r"[ A-Z]+$", "", expiry)  # Convert from Go's time string.
-    dt = datetime.fromisoformat(iso8601).astimezone(UTC)
+    if not expiry:
+        raise ConnectionInitError(connection)
+
+    # Convert Go's time string (e.g. "2024-06-20 19:18:17 +0700 PDT") to
+    # an ISO-8601 string that Python can parse with timezone awareness.
+    timestamp = re.sub(r"[ A-Z]+.*", "", expiry)
+    dt = datetime.fromisoformat(timestamp).astimezone(UTC)
 
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     if not client_id:
-        raise RuntimeError('Environment variable "GOOGLE_CLIENT_ID" not set')
+        raise EnvVarError("GOOGLE_CLIENT_ID", "missing")
 
     client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
     if not client_id:
-        raise RuntimeError('Environment variable "GOOGLE_CLIENT_SECRET" not set')
+        raise EnvVarError("GOOGLE_CLIENT_SECRET", "missing")
 
     creds = credentials.Credentials.from_authorized_user_info(
         {
@@ -186,7 +231,7 @@ def _google_creds_oauth2(connection: str, refresh_token: str, scopes: list[str])
     return creds
 
 
-def slack_client(connection: str, **kwargs):
+def slack_client(connection: str, **kwargs) -> WebClient:
     """Initialize a Slack client, based on an AutoKitteh connection.
 
     API reference:
@@ -200,16 +245,20 @@ def slack_client(connection: str, **kwargs):
 
     Returns:
         Slack SDK client.
+
+    Raises:
+        ValueError: AutoKitteh connection name is invalid.
+        ConnectionInitError: AutoKitteh connection was not initialized yet.
+        SlackApiError: Connection attempt failed, or connection is unauthorized.
     """
-    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
-        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
+    check_connection_name(connection)
 
     bot_token = os.getenv(connection + "__oauth_AccessToken")  # OAuth v2
     if not bot_token:
         bot_token = os.getenv(connection + "__BotToken")  # Socket Mode
     if not bot_token:
-        raise RuntimeError(f'AutoKitteh connection "{connection}" not initialized')
+        raise ConnectionInitError(connection)
 
-    client = slack_sdk.web.client.WebClient(bot_token, **kwargs)
+    client = WebClient(bot_token, **kwargs)
     client.auth_test().validate()
     return client
