@@ -103,15 +103,15 @@ def atlassian_jira_client(connection: str, **kwargs):
         return _atlassian_jira_client_cloud_oauth2(connection, **kwargs)
 
     base_url = os.getenv(connection + "__BaseURL")
-    secret = os.getenv(connection + "__APIKeyOrPAT")
-    if secret:
+    token = os.getenv(connection + "__Token")
+    if token:
         email = os.getenv(connection + "__Email")
         if not email:
-            return Jira(url=base_url, token=secret, **kwargs)
+            return Jira(url=base_url, token=token, **kwargs)
         return Jira(
             url=base_url,
             username=email,
-            password=secret,
+            password=token,
             cloud=True,
             **kwargs,
         )
