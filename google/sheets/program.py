@@ -41,26 +41,28 @@ def on_slack_slash_command(event):
     Args:
         event: Slack event data.
     """
-    spreadsheet_id = _spreadsheet_id(event.data.text)
-    if not spreadsheet_id:
+    # Extract the Google Spreadsheet ID from the user's input.
+    # TODO(ENG-1056): Remove this workaround when fixed.
+    # match = re.match(r"(.*/d/)?([\w-]{20,})", event.data.text)
+    match = _spreadsheet_id(event.data.text)
+    if not match:
         slack = slack_client(AK_SLACK_CONNECTION)
         msg = f"Invalid Google Spreadsheet URL/ID: `{event.data.text}`"
         slack.chat_postMessage(channel=event.data.user_id, text=msg)
         return
 
-    # TODO(ENG-981): spreadsheet_id = match.group(2)
-
+    spreadsheet_id = match  # .group(2)  # TODO(ENG-1056): Uncomment.
     _write_cells(spreadsheet_id)
     _read_cells(spreadsheet_id)
 
     # TODO: Align with Starark features?
 
 
-# TODO(ENG-981): Remove this workaround.
+# TODO(ENG-1056): Delete this entire function.
 @autokitteh.activity
 def _spreadsheet_id(user_input):
     match = re.match(r"(.*/d/)?([\w-]{20,})", user_input)
-    return match.group(2) if match else ""
+    return match.group(2) if match else None
 
 
 @autokitteh.activity
@@ -71,7 +73,7 @@ def _write_cells(id):
 @autokitteh.activity
 def _read_cells(id):
     a1_range = "Sheet1!A1:B3"
-    sheets = google_sheets_client(AK_SHEETS_CONNECTION)
+    sheets = google_sheets_client(AK_SHEETS_CONNECTION).spreadsheets()
     result = sheets.values().get(spreadsheetId=id, range=a1_range).execute()
     values = result.get("values", [])
     if not values:
