@@ -52,10 +52,9 @@ def on_slack_slash_command(event):
         return
 
     spreadsheet_id = match  # .group(2)  # TODO(ENG-1056): Uncomment.
-    _write_cells(spreadsheet_id)
-    _read_cells(spreadsheet_id)
-
-    # TODO: Align with Starark features?
+    _write_values(spreadsheet_id, event.data.user_id)
+    _read_values(spreadsheet_id, event.data.user_id)
+    _read_formula(spreadsheet_id, event.data.user_id)
 
 
 # TODO(ENG-1056): Delete this entire function.
@@ -66,24 +65,126 @@ def _spreadsheet_id(user_input):
 
 
 @autokitteh.activity
-def _write_cells(id):
-    pass  # TODO: Implement this function.
+def _write_values(spreadsheet_id, slack_target):
+    """Write multiple cell values, with different data types."""
+    sheets = google_sheets_client(AK_SHEETS_CONNECTION).spreadsheets().values()
+    resp = AttrDict(
+        sheets.update(
+            spreadsheetId=spreadsheet_id,
+            # Explanation of the A1 notation for cell ranges:
+            # https://developers.google.com/sheets/api/guides/concepts#expandable-1
+            range="Sheet1!A1:B7",
+            # Value input options:
+            # https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
+            valueInputOption="USER_ENTERED",
+            body={
+                "values": [
+                    ["String", "Hello, world!"],
+                    ["Number", -123.45],
+                    ["Also number", "-123.45"],
+                    ["Percent", "10.12%"],
+                    ["Boolean", True],
+                    ["Date", "2022-12-31"],
+                    ["Formula", "=B2*B3"],
+                ]
+            },
+        ).execute()
+    )
+
+    slack = slack_client(AK_SLACK_CONNECTION)
+    text = f"Updated: range `{resp.updatedRange!r}`, `{resp.updatedRows}` rows, "
+    text += f"`{resp.updatedColumns}` columns, `{resp.updatedCells}` cells"
+    slack.chat_postMessage(channel=slack_target, text=text)
 
 
 @autokitteh.activity
-def _read_cells(id):
-    a1_range = "Sheet1!A1:B3"
-    sheets = google_sheets_client(AK_SHEETS_CONNECTION).spreadsheets()
-    result = sheets.values().get(spreadsheetId=id, range=a1_range).execute()
-    values = result.get("values", [])
-    if not values:
-        print("No data found")
+def _read_values(id, slack_target):
+    """Read multiple cell values from a Google Spreadsheet.
 
-    print(values)
+    Value render options:
+    https://developers.google.com/sheets/api/reference/rest/v4/ValueRenderOption
+    """
+    sheets = google_sheets_client(AK_SHEETS_CONNECTION).spreadsheets().values()
+    slack = slack_client(AK_SLACK_CONNECTION)
+
+    # Default value render option: "FORMATTED_VALUE".
+    resp = sheets.get(spreadsheetId=id, range="A1:B6").execute()
+    formatted_values = resp.get("values")
+
+    if not formatted_values:
+        slack.chat_postMessage(channel=slack_target, text="Error: no data found!")
+        return
+
+    ufv = "UNFORMATTED_VALUE"
+    resp = sheets.get(spreadsheetId=id, range="A1:B6", valueRenderOption=ufv).execute()
+    unformatted_values = resp.get("values")
+
+    for i, row in enumerate(formatted_values):
+        what, formatted = row
+        unformatted = unformatted_values[i][1]
+        text = f"Row {i+1}: {what} = `{formatted!r}` (unformatted: `{unformatted!r}`)"
+        slack.chat_postMessage(channel=slack_target, text=text)
+
+
+@autokitteh.activity
+def _read_formula(id, slack_target):
+    """Read a single cell value with a formula, and its evaluated result.
+
+    Value render options:
+    https://developers.google.com/sheets/api/reference/rest/v4/ValueRenderOption
+    """
+    sheets = google_sheets_client(AK_SHEETS_CONNECTION).spreadsheets().values()
+    slack = slack_client(AK_SLACK_CONNECTION)
+    range = "B7"
+
+    f = "FORMULA"
+    resp = sheets.get(spreadsheetId=id, range=range, valueRenderOption=f).execute()
+    values = resp.get("values")
+
+    if not values:
+        slack.chat_postMessage(channel=slack_target, text="Error: no data found!")
+        return
+
+    slack.chat_postMessage(channel=slack_target, text=f"Formula: `{values[0][0]!r}`")
+
+    # Default value render option: "FORMATTED_VALUE".
+    resp = sheets.get(spreadsheetId=id, range=range).execute()
+    value = resp["values"][0][0]
+    slack.chat_postMessage(channel=slack_target, text=f"Formatted: `{value!r}`")
+
+    ufv = "UNFORMATTED_VALUE"
+    resp = sheets.get(spreadsheetId=id, range=range, valueRenderOption=ufv).execute()
+    value = resp["values"][0][0]
+    slack.chat_postMessage(channel=slack_target, text=f"Unformatted: `{value!r}`")
 
 
 # TODO: Remove all code below this line, after merging
 # https://github.com/autokitteh/autokitteh/pull/384
+
+
+class AttrDict(dict):
+    """Allow attribute access to dictionary keys.
+
+    >>> config = AttrDict({'server': {'port': 8080}, 'debug': True})
+    >>> config.server.port
+    8080
+    >>> config.debug
+    True
+    """
+
+    def __getattr__(self, name: str):
+        try:
+            value = self[name]
+            if isinstance(value, dict):
+                value = AttrDict(value)
+            return value
+        except KeyError:
+            raise AttributeError(name)
+
+    def __setattr__(self, name: str, value):
+        # The default __getattr__ doesn't fail but also don't change values.
+        cls = self.__class__.__name__
+        raise NotImplementedError(f"{cls} does not support setting attributes")
 
 
 class ConnectionInitError(Exception):
