@@ -1,11 +1,10 @@
-"""This program demonstrates AutoKitteh's 2-way Jira integration.
+"""This program demonstrates AutoKitteh's 2-way Atlassian Jira integration.
 
-This program implements multiple entry-point functions that
-are triggered by incoming Jira events, as defined in the
-"autokitteh-python.yaml" manifest file. These functions
-also execute various Jira API calls.
+This program implements multiple entry-point functions that are triggered
+by incoming Jira events, as defined in the "autokitteh-python.yaml"
+manifest file. These functions also execute various Jira API calls.
 
-API documentation:
+Jira API documentation:
 - REST: https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/
 - "Atlassian Python API" Python library: https://atlassian-python-api.readthedocs.io/
 - "Jira" Python library: https://jira.readthedocs.io/
