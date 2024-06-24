@@ -29,7 +29,7 @@ project:
     - name: my_slack
       integration: slack
   triggers:
-    - name: http
+    - name: http_get
       connection: my_http
       event_type: get
       data:
