@@ -1,27 +1,21 @@
 # This YAML file is a declarative manifest that describes the setup of
 # an AutoKitteh sample project that demonstrates 2-way integration with
-# Twilio (https://www.twilio.com).
-#
-# Before applying this file, set the "FROM_NUMBER" value in the
-# project's "vars" section.
+# Google Sheets (https://www.google.com/sheets/about/), using Python.
 #
 # After applying this file, initialize this AutoKitteh project's
-# Slack and Twilio connections.
+# Google Sheets and Slack connections.
 
 version: v1
 
 project:
-  name: twilio_sample
-  vars:
-    - name: FROM_NUMBER
-      value: "+12345556789" # Replace this with a Twilio phone number.
+  name: google_sheets_sample
   connections:
+    - name: my_sheets
+      integration: googlesheets
     - name: my_slack
       integration: slack
-    - name: my_twilio
-      integration: twilio
   triggers:
     - name: slack_slash_command
       connection: my_slack
       event_type: slash_command
-      call: program.star:on_slack_slash_command
+      call: program.py:on_slack_slash_command

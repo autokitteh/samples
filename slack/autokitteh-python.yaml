@@ -1,20 +1,14 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an AutoKitteh sample project that demonstrates 2-way integration
-# with Slack (https://slack.com), using Python code.
+# This YAML file is a declarative manifest that describes the setup of
+# an AutoKitteh sample project that demonstrates 2-way integration with
+# Slack (https://slack.com), using Python.
 #
-# Before applying this file, set the "SLACK_BOT_TOKEN" value
-# in the projects "vars" section.
-#
-# After applying this file, initialize the AutoKitteh connection to Slack.
+# After applying this file, initialize this AutoKitteh project's
+# Slack connection.
 
 version: v1
 
 project:
   name: slack_sample
-  vars:
-    - name: SLACK_BOT_TOKEN
-      value: TODO # Replace this with a Slack bot token ("xoxb").
-      is_secret: true
   connections:
     - name: my_slack
       integration: slack

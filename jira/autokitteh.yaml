@@ -1,0 +1,23 @@
+# This YAML file is a declarative manifest that describes the setup of
+# an AutoKitteh sample project that demonstrates 2-way integration with
+# Atlassian Jira (https://www.atlassian.com/software/jira).
+#
+# After applying this file, initialize this AutoKitteh project's
+# Jira connection.
+
+version: v1
+
+project:
+  name: jira_sample
+  connections:
+    - name: my_jira
+      integration: jira
+  triggers:
+    - name: jira_comment_created
+      connection: my_jira
+      event_type: comment_created
+      call: program.py:on_jira_comment_created
+    - name: jira_issue_created
+      connection: my_jira
+      event_type: issue_created
+      call: program.py:on_jira_issue_created

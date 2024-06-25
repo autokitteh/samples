@@ -8,15 +8,15 @@ It has two versions which are independent but equivalent: Python, and Starlark
 
 The code files ([`program.py`](./program.py) or [`program.star`](./program.star))
 implement multiple entry-point functions that are triggered by incoming Slack
-events, which are defined in the [`autokitteh-python.yaml`](./autokitteh-python.yaml)
+events, as defined in the [`autokitteh-python.yaml`](./autokitteh-python.yaml)
 or [`autokitteh-starlark.yaml`](./autokitteh-starlark.yaml) manifest files.
 These functions also execute various Slack API calls.
 
-API details:
+Slack API documentation:
 
 - [Web API reference](https://api.slack.com/methods)
-- [Python Slack web API reference](https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html)
 - [Events API reference](https://api.slack.com/events?filter=Events)
+- [Python client API](https://slack.dev/python-slack-sdk/api-docs/slack_sdk/)
 
 This project isn't meant to cover all available functions and events. It
 merely showcases a few illustrative, annotated, reusable examples.
@@ -44,11 +44,25 @@ merely showcases a few illustrative, annotated, reusable examples.
    Connection created, but requires initialization.
    Please run this to complete:
 
-   ak connection init <Slack connection ID>
+   ak connection init <connection ID>
    ```
 
-> [!TIP]
-> Additional information about Slack in AutoKitteh:
->
-> - [Configuring the Slack Integration](https://docs.autokitteh.com/config/integrations/slack)
-> - [Creating a Socket-Mode Slack Connection](https://docs.autokitteh.com/tutorials/new_connections/slack)
+4. Events that this sample project responds to:
+
+   - Mentions of the Slack app in messages (e.g. `Hi @autokitteh`)
+   - Slash commands registered by the Slack app
+     (`/autokitteh <channel name or ID>`)
+   - New and edited messages and replies
+   - New emoji reactions
+
+## Connection Notes
+
+AutoKitteh supports 2 connection modes with Slack:
+
+- Slack app that uses
+  [OAuth v2](https://docs.autokitteh.com/config/integrations/slack)
+
+- Slack app that uses
+  [Socket Mode](https://docs.autokitteh.com/tutorials/new_connections/slack)
+
+In both cases, the user authorizes the Slack app in step 3 above.
