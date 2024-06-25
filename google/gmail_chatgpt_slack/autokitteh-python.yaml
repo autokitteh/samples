@@ -12,10 +12,6 @@ version: v1
 
 project:
   name: gmail_chat_gpt_slack
-  vars:
-    - name: OPENAI_API_KEY
-      value: TODO # Replace this with your OpenAI API key ("sk-...").
-      is_secret: true
   connections:
     - name: my_chatgpt
       integration: chatgpt
@@ -29,7 +25,5 @@ project:
     - name: http_get
       connection: my_http
       event_type: get
-      data:
-        path: get
-      # Triggered by GET request to http://localhost:9980/http/gmail_chatgpt_slack/get
+      # Triggered by GET request to http://localhost:9980/http/gmail_chat_gpt_slack/
       call: program.py:on_http_get
