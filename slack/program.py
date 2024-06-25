@@ -58,15 +58,16 @@ def on_slack_app_mention(event):
     # Update the last sent message, after a few seconds.
     # See: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html#slack_sdk.web.client.WebClient.chat_update
     time.sleep(10)
-    resp = autokitteh.AttrDict(resp)
+    resp = autokitteh.AttrDict(resp.data)
     text = "After update :smiley_cat:"
-    resp = autokitteh.AttrDict(slack.chat_update(channel=resp.channel, ts=resp.ts, text=text))
+    resp = slack.chat_update(channel=resp.channel, ts=resp.ts, text=text)
+    resp = autokitteh.AttrDict(resp.data)
 
     # Reply to the message's thread, after a few seconds.
     time.sleep(5)
     text = "Reply before update :crying_cat_face:"
     resp = slack.chat_postMessage(channel=resp.channel, text=text, thread_ts=resp.ts)
-    resp = autokitteh.AttrDict(resp)
+    resp = autokitteh.AttrDict(resp.data)
 
     # Update the threaded reply message, after a few seconds.
     time.sleep(5)
