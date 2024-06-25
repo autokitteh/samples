@@ -36,26 +36,17 @@ def on_slack_slash_command(event):
         event: Slack event data.
     """
     # Extract the Google Spreadsheet ID from the user's input.
-    # TODO(ENG-1056): Remove this workaround when fixed.
-    # match = re.match(r"(.*/d/)?([\w-]{20,})", event.data.text)
-    match = _spreadsheet_id(event.data.text)
+    match = re.match(r"(.*/d/)?([\w-]{20,})", event.data.text)
     if not match:
         slack = slack_client(AK_SLACK_CONNECTION)
         msg = f"Invalid Google Spreadsheet URL/ID: `{event.data.text}`"
         slack.chat_postMessage(channel=event.data.user_id, text=msg)
         return
 
-    spreadsheet_id = match  # .group(2)  # TODO(ENG-1056): Uncomment.
+    spreadsheet_id = match.group(2)
     _write_values(spreadsheet_id, event.data.user_id)
     _read_values(spreadsheet_id, event.data.user_id)
     _read_formula(spreadsheet_id, event.data.user_id)
-
-
-# TODO(ENG-1056): Delete this entire function.
-@autokitteh.activity
-def _spreadsheet_id(user_input):
-    match = re.match(r"(.*/d/)?([\w-]{20,})", user_input)
-    return match.group(2) if match else None
 
 
 @autokitteh.activity
