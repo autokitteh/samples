@@ -1,9 +1,11 @@
-from os import getenv
-import boto3
-from io import BytesIO
-import psycopg2
-from contextlib import closing
+import json
 import xml.etree.ElementTree as xml
+from contextlib import closing
+from io import BytesIO
+from os import getenv
+
+import boto3
+import psycopg2
 
 insert_sql = '''
 INSERT INTO points
@@ -27,8 +29,12 @@ def on_new_s3_object(event):
         aws_secret_access_key=secret_key,
     )
 
+    sns_event = json.loads(event.data.body)
+    # sns events encodes the `Message` field in JSON
+    s3_event = json.loads(sns_event['Message'])
+
     with psycopg2.connect(dsn) as conn:
-        for record in event['Records']:
+        for record in s3_event['Records']:
             bucket = record['s3']['bucket']['name']
             key = record['s3']['object']['key']
 
