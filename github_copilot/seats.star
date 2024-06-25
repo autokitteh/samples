@@ -1,25 +1,21 @@
-load("env", "ORG", "IDLE_USAGE_THRESHOLD", "LOGINS")
+load("env", "ORG", "IDLE_USAGE_THRESHOLD", "LOGINS", "LOG_CHANNEL")
 load("@github", "mygithub")
 load("@slack", "myslack")
 load("helpers.star", "github_username_to_slack_user_id")
+load("msg.json", "blocks")
 
 logins = LOGINS.split(",")
 idle_usage_threshold = time.parse_duration(IDLE_USAGE_THRESHOLD)
 
 def prune_idle_seats():
     seats = find_idle_seats()
+    new_idle_seats = []
     for seat in seats:
-        k = "users/%s/engaged" % seat.assignee.id
-
-        if store.get(k):
-            print("already egaged %s" % seat.assignee.login)
-            continue
-        
-        store.set(k, True)
+        new_idle_seats.append(seat)
 
         print("new idle: {}".format(seat))
         start("seats.star:engage_seat", {"seat": seat})
-    return seats
+    return new_idle_seats
 
 def _get_all_seats():
     # TODO: pagination.
@@ -47,33 +43,35 @@ def find_idle_seats():
     return idle_seats
 
 def engage_seat(seat):
+    log = lambda msg: myslack.chat_post_message(LOG_CHANNEL, "{}: {}".format(seat.assignee.login, msg))
+
+    log("engaging")
+
     github_login = seat.assignee.login
     slack_id = github_username_to_slack_user_id(github_login, ORG)
     if not slack_id:
         print("No slack user found for github user %s" % github_login)
         return
 
-    mygithub.remove_copilot_users(ORG, [github_user_id])
+    mygithub.remove_copilot_users(ORG, [github_login])
 
-    myslack.chat_post_message(
-        slack_id,
-        "You have been removed from the Copilot program due to inactivity. Reply with `reinstate` to resubscribe or `ok` to ignore.",
-    )
+    myslack.chat_post_message(slack_id, blocks=blocks)
 
-    s = subscribe('myslack', 'data.type == "message" && data.user == "{}" && data.channel_type == "im"'.format(slack_id))
+    s = subscribe('myslack', 'data.type == "block_actions" && data.user.id == "{}"'.format(slack_id))
 
     say = lambda msg: myslack.chat_post_message(slack_id, msg)
 
-    while True:
-        text = next_event(s)["text"]
-        if text == 'reinstate':
-            break
-        elif text == 'ok':
-            say("Okey dokey!")
-            return
-        
-        say("???")
+    value = next_event(s)["actions"][0].value
 
-    mygithub.add_copilot_users(ORG, [github_login])
+    if value == 'ok':
+        say("Okey dokey!")
+        log("ok")
+        return
 
-    say("You have been reinstated to the Copilot program.")
+    if value == 'reinstate':    
+        log("reinstate")
+        mygithub.add_copilot_users(ORG, [github_login])
+        say("You have been reinstated to the Copilot program.")
+        return
+
+    log("wierd response: {}".format(value))

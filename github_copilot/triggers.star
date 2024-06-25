@@ -5,15 +5,15 @@ def on_schedule():
     print(prune_idle_seats())
 
 def on_slack_app_mention(data):
-    reply = lambda msg: myslack.chat_post_message(data.channel, msg, thread_ts=data.ts)
-    logins = lambda seats: [seat.assignee.login for seat in seats]
-
     parts = data.text.split(" ")
     if len(parts) < 2:
         myslack.chat_post_message(data.channel, "???", thread_ts=data.ts)
         return
 
     cmd = parts[1].strip()
+
+    reply = lambda msg: myslack.chat_post_message(data.channel, msg, thread_ts=data.ts)
+    logins = lambda seats: [seat.assignee.login for seat in seats]
 
     if cmd == "prune-idle-copilot-seats":
         seats = prune_idle_seats()

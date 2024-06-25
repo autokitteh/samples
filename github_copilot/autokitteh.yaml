@@ -6,9 +6,11 @@ project:
     - name: ORG
       value: "autokitteh"
     - name: IDLE_USAGE_THRESHOLD
-      value: 10s
+      value: 3s
     - name: LOGINS
       value: "itayd"
+    - name: LOG_CHANNEL
+      value: "C05QU2J1YDS"
   connections:
     - name: mygithub
       integration: github
