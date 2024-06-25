@@ -23,7 +23,8 @@ from pathlib import Path
 import re
 import time
 
-from slack_sdk.web.client import WebClient
+import autokitteh
+from autokitteh.slack import slack_client
 
 
 AK_SLACK_CONNECTION = "my_slack"
@@ -57,15 +58,15 @@ def on_slack_app_mention(event):
     # Update the last sent message, after a few seconds.
     # See: https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html#slack_sdk.web.client.WebClient.chat_update
     time.sleep(10)
-    resp = AttrDict(resp)
+    resp = autokitteh.AttrDict(resp)
     text = "After update :smiley_cat:"
-    resp = AttrDict(slack.chat_update(channel=resp.channel, ts=resp.ts, text=text))
+    resp = autokitteh.AttrDict(slack.chat_update(channel=resp.channel, ts=resp.ts, text=text))
 
     # Reply to the message's thread, after a few seconds.
     time.sleep(5)
     text = "Reply before update :crying_cat_face:"
     resp = slack.chat_postMessage(channel=resp.channel, text=text, thread_ts=resp.ts)
-    resp = AttrDict(resp)
+    resp = autokitteh.AttrDict(resp)
 
     # Update the threaded reply message, after a few seconds.
     time.sleep(5)
@@ -168,7 +169,7 @@ def on_slack_slash_command(event):
     # in the AutoKitteh session's log, and finish.
     user_info.validate()
 
-    profile = AttrDict(user_info.data).user.profile
+    profile = autokitteh.AttrDict(user_info.data).user.profile
     text = f"Slack mention: <@{event.data.user_id}>"
     slack.chat_postMessage(channel=event.data.user_id, text=text)
     text = "Full name: " + profile.real_name
@@ -198,7 +199,7 @@ def on_slack_interaction(event):
     """
     # The Slack ID of the user who sent the question
     # (we stored this in the buttons' action IDs).
-    action = AttrDict(event.data.actions[0])
+    action = autokitteh.AttrDict(event.data.actions[0])
     origin = action.action_id.split()[-1]
 
     # User selection = action value = button text
@@ -211,85 +212,3 @@ def on_slack_interaction(event):
 
     slack = slack_client(AK_SLACK_CONNECTION)
     slack.chat_postMessage(channel=origin, text=text)
-
-
-# TODO: Remove all code below this line, after merging
-# https://github.com/autokitteh/autokitteh/pull/384
-
-
-class AttrDict(dict):
-    """Allow attribute access to dictionary keys.
-
-    >>> config = AttrDict({'server': {'port': 8080}, 'debug': True})
-    >>> config.server.port
-    8080
-    >>> config.debug
-    True
-    """
-
-    def __getattr__(self, name: str):
-        try:
-            value = self[name]
-            if isinstance(value, dict):
-                value = AttrDict(value)
-            return value
-        except KeyError:
-            raise AttributeError(name)
-
-    def __setattr__(self, name: str, value):
-        # The default __getattr__ doesn't fail but also don't change values.
-        cls = self.__class__.__name__
-        raise NotImplementedError(f"{cls} does not support setting attributes")
-
-
-class ConnectionInitError(Exception):
-    """A required AutoKitteh connection was not initialized yet."""
-
-    def __init__(self, connection: str):
-        super().__init__(f'AutoKitteh connection "{connection}" not initialized')
-
-
-def check_connection_name(connection: str) -> None:
-    """Check that the given AutoKitteh connection name is valid.
-
-    Args:
-        connection: AutoKitteh connection name.
-
-    Raises:
-        ValueError: The connection name is invalid.
-    """
-    if not re.fullmatch(r"[A-Za-z_]\w*", connection):
-        raise ValueError(f'Invalid AutoKitteh connection name: "{connection}"')
-
-
-def slack_client(connection: str, **kwargs) -> WebClient:
-    """Initialize a Slack client, based on an AutoKitteh connection.
-
-    API reference:
-    https://slack.dev/python-slack-sdk/api-docs/slack_sdk/web/client.html
-
-    This function doesn't initialize a Socket Mode client because the
-    AutoKitteh connection already has one to receive incoming events.
-
-    Args:
-        connection: AutoKitteh connection name.
-
-    Returns:
-        Slack SDK client.
-
-    Raises:
-        ValueError: AutoKitteh connection name is invalid.
-        ConnectionInitError: AutoKitteh connection was not initialized yet.
-        SlackApiError: Connection attempt failed, or connection is unauthorized.
-    """
-    check_connection_name(connection)
-
-    bot_token = os.getenv(connection + "__oauth_AccessToken")  # OAuth v2
-    if not bot_token:
-        bot_token = os.getenv(connection + "__BotToken")  # Socket Mode
-    if not bot_token:
-        raise ConnectionInitError(connection)
-
-    client = WebClient(bot_token, **kwargs)
-    client.auth_test().validate()
-    return client
