@@ -179,7 +179,7 @@ def on_slack_slash_command(event):
 
     # Treat the text of the user's slash command as a message target (e.g.
     # channel or user), and send an interactive message to that target.
-    blocks = Path("code/approval_message.json.txt").read_text()
+    blocks = Path("approval_message.json.txt").read_text()
     changes = [
         ("Title", "Question From " + profile.real_name),
         ("Message", "Please select one of these options... :smiley_cat:"),
