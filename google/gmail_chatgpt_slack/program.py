@@ -173,13 +173,7 @@ def _get_label_id(service, label_name: str) -> str:
 
 
 def _get_message_count(service) -> int:
-    """Get the total number of messages in the user's inbox.
-
-    Args:
-        service: An authorized Gmail API service instance.
-
-    Returns: The total number of messages as an integer.
-    """
+    """Returns The total number of messages in the user's inbox."""
     try:
         profile = service.users().getProfile(userId="me").execute()
         return profile["messagesTotal"]
