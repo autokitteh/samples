@@ -18,9 +18,7 @@ This program isn't meant to cover all available functions and events.
 It merely showcases a few illustrative, annotated, reusable examples.
 """
 
-import os
 from pathlib import Path
-import re
 import time
 
 import autokitteh

@@ -12,9 +12,6 @@ Python code samples:
 https://github.com/googleworkspace/python-samples/tree/main/sheets
 """
 
-from datetime import UTC, datetime
-import json
-import os
 import re
 
 import autokitteh

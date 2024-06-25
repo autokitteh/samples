@@ -17,10 +17,6 @@ This program isn't meant to cover all available functions and events.
 It merely showcases a few illustrative, annotated, reusable examples.
 """
 
-from datetime import UTC, datetime
-import os
-import re
-
 from autokitteh.atlassian import atlassian_jira_client
 
 
