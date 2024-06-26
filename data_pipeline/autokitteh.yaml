@@ -9,8 +9,8 @@ project:
     - name: trigger
       integration: http
   triggers:
-    - name: new
+    - name: new_object
       connection: trigger
       call: pipeline.py:on_new_s3_object
       event_type: post
-      # Triggered by GET request to http://localhost:9980/http/pipeline/new
+      # Triggered by GET request to http://localhost:9980/http/pipeline/new_object
