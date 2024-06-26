@@ -9,15 +9,18 @@ Workflow:
 """
 
 import base64
-from datetime import UTC, datetime
-import os.path
+import os
 import time
 
 import autokitteh
 from autokitteh import google, slack
 from openai import OpenAI
 
+
+GMAIL_CONNECTION_NAME = "my_gmail"
+OPENAI_CONNECTION_NAME = "my_chatgpt"
 SLACK_CHANNELS = ["demos", "engineering", "ui"]
+SLACK_CONNECTION_NAME = "my_slack"
 
 
 def on_http_get(data):
@@ -29,7 +32,7 @@ def on_http_get(data):
 
 @autokitteh.activity
 def _poll_inbox(prev_total_messages: int):
-    gmail = google.gmail_client("my_gmail").users()
+    gmail = google.gmail_client(GMAIL_CONNECTION_NAME).users()
     # TODO: fix: If user deletes emails before the next poll then new email messages will be missed.
     curr_total_messages = _get_message_count(gmail)
     if prev_total_messages and curr_total_messages > prev_total_messages:
@@ -45,24 +48,22 @@ def _process_email(gmail, message_id: str):
     message = gmail.messages().get(userId="me", id=message_id).execute()
     email_content = _parse_email(message)
     if email_content:
-        channel_name = _categorize_email(email_content, SLACK_CHANNELS)
-        print(f"Email categorized to channel: {channel_name}")
-        # TODO: Add verification of slack-channel?
-        _send_slack_message(channel_name)
+        channel = _categorize_email(email_content, SLACK_CHANNELS)
+        if channel:
+            client = slack.slack_client(SLACK_CONNECTION_NAME)
+            client.chat_postMessage(channel=channel, text=email_content)
 
         # Add label to email
-        label_id = _get_label_id(gmail, channel_name)
+        label_id = _get_label_id(gmail, channel)
         if not label_id:
-            created_label = _create_label(gmail, channel_name)
+            created_label = _create_label(gmail, channel)
             label_id = created_label["id"]
-        gmail.messages().modify(
-            userId="me", id=message_id, body={"addLabelIds": [label_id]}
-        ).execute()
+        body = {"addLabelIds": [label_id]}
+        gmail.messages().modify(userId="me", id=message_id, body=body).execute()
 
 
 def _get_latest_message_ids(gmail, new_email_count: int):
     """Get the latest email message_id from the user's inbox.
-
     Args:
         gmail: An authorized Gmail API service instance.
         new_email_count: The number of new email messages to retrieve.
@@ -75,10 +76,8 @@ def _get_latest_message_ids(gmail, new_email_count: int):
 
 def _parse_email(message: dict):
     """Parse provided email.
-
     Args:
         message: The email message to parse
-
     Returns: The email body as a string.
     """
     payload = message["payload"]
@@ -89,11 +88,9 @@ def _parse_email(message: dict):
 
 def _create_label(gmail, label_name: str) -> dict:
     """Create a new label in the user's gmail account.
-
     Args:
         gmail: An authorized Gmail API service instance.
         label_name: The name of the label to be created.
-
     Returns: The created label as a dictionary.
     https://developers.google.com/gmail/api/reference/rest/v1/users.labels#Label
     """
@@ -130,12 +127,12 @@ def _get_message_count(gmail) -> int:
 @autokitteh.activity
 def _categorize_email(email_content: str, channels: list[str]) -> str:
     """Prompt ChatGPT to categorize an email based on its content.
-
     Args:
         email_content: The content of the email as a string.
         channels: A list of channel names as strings.
-
-    Returns: The name of the Slasck channel to send a message to as a string.
+    Returns:
+        The name of the Slasck channel to send a message to as a string.
+        If the channel is not in the provided list, returns None.
     """
     client = _openai_client()
     response = client.chat.completions.create(
@@ -153,23 +150,13 @@ def _categorize_email(email_content: str, channels: list[str]) -> str:
             },
         ],
     )
-    response_content = response.choices[0].message.content
-    # TODO: Validate the response_content to ensure it's one of the provided channels.
-    return response_content
-
-
-def _send_slack_message(channel_name: str):
-    client = slack.client("my_slack")
-    # TODO: Replace generic 'Hello world' message with a more meaningful message.
-    response = client.chat_postMessage(channel=channel_name, text="Hello world")
-    response.validate()
+    channel = response.choices[0].message.content
+    return channel if channel in SLACK_CHANNELS else None
 
 
 def _openai_client() -> OpenAI:
-    ak_connection_name = "my_chatgpt"
-    api_key = os.getenv(ak_connection_name + "__api_key")
+    api_key = os.getenv(OPENAI_CONNECTION_NAME + "__api_key")
     if not api_key:
         raise RuntimeError('Env variable "OPENAI_API_KEY" not set')
 
-    client = OpenAI(api_key=api_key)
-    return client
+    return OpenAI(api_key=api_key)

@@ -11,7 +11,7 @@
 version: v1
 
 project:
-  name: gmail_chat_gpt_slack
+  name: categorize_notify
   connections:
     - name: my_chatgpt
       integration: chatgpt
