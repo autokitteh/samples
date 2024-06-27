@@ -4,48 +4,54 @@ import xml.etree.ElementTree as xml
 from contextlib import closing
 from io import BytesIO
 from os import getenv
-from pathlib import Path
 
 import autokitteh
 import boto3
 
-with open('insert.sql') as fp:
-    insert_sql = fp.read()
+insert_sql = """
+INSERT INTO points
+	(track_id, n, lat, lng, height)
+VALUES
+	(:track_id, :n, :lat, :lng, :height)
+;
+"""
 
-worflow_dir = Path(__file__).absolute().parent
-default_dsn = worflow_dir / 'hikes.db'
 
-
-# Connection secrets
-ACCESS_KEY = getenv('aws__AccessKeyID')
-SECRET_KEY = getenv('aws__SecretKey')
-# vars secret
-DB_DSN = getenv('DB_DSN')
+# From secret
+AWS_ACCESS_KEY_ID = getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_KEY = getenv("AWS_SECRET_KEY")
+DB_DSN = getenv("DB_DSN")
 
 
 def on_new_s3_object(event):
-    sns_event = json.loads(event.data.body)
+    event = json.loads(event.data.body)
+    print("event:", event)
+    if url := event.get("SubscribeURL"):
+        print(f"SNS Subscribe URL: {url}")
+        return
+
     # sns events encodes the `Message` field in JSON
-    s3_event = json.loads(sns_event['Message'])
-    for record in s3_event['Records']:
-        bucket = record['s3']['bucket']['name']
-        key = record['s3']['object']['key']
-        print(f'getting {bucket}/{key}')
+    s3_event = json.loads(event["Message"])
+    for record in s3_event["Records"]:
+        bucket = record["s3"]["bucket"]["name"]
+        key = record["s3"]["object"]["key"]
+        print(f"getting {bucket}/{key}")
         data = get_s3_object(bucket, key)
         records = parse_gpx(key, data)
         count = insert_records(DB_DSN, records)
-        print(f'inserted {count} records')
+        print(f"inserted {count} records")
 
 
 @autokitteh.activity
 def get_s3_object(bucket, key):
     s3_client = boto3.client(
-        's3',
-        aws_access_key_id=ACCESS_KEY,
-        aws_secret_access_key=SECRET_KEY,
+        "s3",
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_KEY,
+        region_name="eu-north-1",
     )
     response = s3_client.get_object(Bucket=bucket, Key=key)
-    return response['Body'].read().decode('utf-8')
+    return response["Body"].read()
 
 
 @autokitteh.activity
@@ -55,17 +61,19 @@ def insert_records(db_dsn, records):
     return cur.rowcount
 
 
-trkpt_tag = '{http://www.topografix.com/GPX/1/1}trkpt'
+trkpt_tag = "{http://www.topografix.com/GPX/1/1}trkpt"
 
-
+@autokitteh.activity
 def parse_gpx(track_id, data):
     io = BytesIO(data)
     root = xml.parse(io).getroot()
-    for i, elem in enumerate(root.findall('.//' + trkpt_tag)):
-        yield {
-            'track_id': track_id,
-            'n': i,
-            'lat': float(elem.get('lat')),
-            'lng': float(elem.get('lon')),
-            'height': float(elem.findtext('.//')),
+    return [
+        {
+            "track_id": track_id,
+            "n": i,
+            "lat": float(elem.get("lat")),
+            "lng": float(elem.get("lon")),
+            "height": float(elem.findtext(".//")),
         }
+        for i, elem in enumerate(root.findall(".//" + trkpt_tag))
+    ]
