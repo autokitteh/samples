@@ -106,6 +106,8 @@ ak session log --prints-only
 
 ## Local Development
 
+### Via `ak`
+
 There's a `Makefile` fore common operation
 
 You can run the pipeline locally and test it.
@@ -121,3 +123,29 @@ You can run the pipeline locally and test it.
     - `make trigger`
 - View the `ak` logs in its console and the workflow logs
     - `make logs`
+
+
+### Debugging
+
+You can set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_KEY`, and `DB_DSN` in the environment (or in your IDE)
+Then you can import `pipeline` and call `pipeline.on_new_s3_object` with the event JSON.
+
+For example:
+
+```python
+import pipeline
+import json
+from os import environ
+
+# Make sure to initialize hikes.db
+
+environ.update({
+    'AWS_ACCESS_KEY_ID': '...',
+    'AWS_SECRET_KEY': '...',
+    'DB_DSN': 'hikes.db',
+})
+
+with open('example-sns-event.json') as fp:
+    event = json.load(fp)
+pipline.on_new_s3_object(event)
+```
