@@ -10,4 +10,4 @@ project:
       connection: s3_trigger
       call: pipeline.py:on_new_s3_object
       event_type: post
-      # Triggered by GET request to http://localhost:9980/http/pipeline/new_object
+      # Triggered by POST request to http://localhost:9980/http/pipeline/new_object
