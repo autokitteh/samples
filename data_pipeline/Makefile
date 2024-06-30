@@ -1,9 +1,9 @@
-# Automation of some common operations
+# Automation of some common operations for local development
 
 all:
 	$(error please pick a target)
 
-db:
+init-db:
 	sqlite3 hikes.db < schema.sql
 
 deploy:
@@ -14,5 +14,8 @@ vars:
 	ak var set --secret --env pipeline/default AWS_ACCESS_KEY_ID $(AWS_ACCESS_KEY_ID)
 	ak var set --secret --env pipeline/default AWS_SECRET_KEY $(AWS_SECRET_KEY)
 
-log:
+trigger:
+	curl -d @example-sns-event.json http://localhost:9980/http/pipeline/new_object
+
+logs:
 	ak session log --prints-only

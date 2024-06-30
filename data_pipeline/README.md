@@ -3,6 +3,11 @@
 This is an example of a data pipeline workflow. The pipeline is triggered by a new GPX file on an S3 bucket.
 The pipeline code will parse the GPX file and insert it into a database.
 
+The event flow is:
+
+- S3 sends a new item notification to an SNS topic
+- SNS sends a notification to the AutoKitteh HTTP trigger
+
 ## Setting Up
 
 ### Starting `ak`
@@ -98,3 +103,21 @@ ak session log --prints-only
 [2024-06-27 14:15:46.087868363 +0000 UTC] [stderr] 
 [2024-06-27 14:15:46.098211513 +0000 UTC] [stdout] 
 ```
+
+## Local Development
+
+There's a `Makefile` fore common operation
+
+You can run the pipeline locally and test it.
+- Initialize the database
+    - `make init-db`
+- Run `ak --mode dev` and set the AWS keys and database DSN (see above)
+    - `make vars`
+- Deploy the workflow
+    - `make deploy`
+- Trigger the workflow
+    - Make sure there's a GPX file in your bucket. I'll assume the bucket name is `miki-hikes` and the file is `hike-1.gpx`
+    - Edit `example-sns-event.json` and set the bucket name and the file name in the embedded `Message` JSON.
+    - `make trigger`
+- View the `ak` logs in its console and the workflow logs
+    - `make logs`
