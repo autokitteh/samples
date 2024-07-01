@@ -5,6 +5,9 @@ In this sample AutoKitteh is querying itself for demonstration purposes,
 however this is not required. The host can be any gRPC server.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
+
+For detailed information on gRPC naming conventions see the following link:
+https://github.com/grpc/grpc/blob/master/doc/naming.md
 """
 
 load("@grpc", "my_grpc")
