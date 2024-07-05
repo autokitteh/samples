@@ -12,8 +12,8 @@ project:
   connections:
     - name: my_chatgpt
       integration: chatgpt
-    - name: slack
-      integration: my_slack
+    - name: my_slack
+      integration: slack
   triggers:
     - name: slack_slash_command
       connection: my_slack

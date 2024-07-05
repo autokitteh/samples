@@ -25,6 +25,10 @@ MODEL = "gpt-3.5-turbo"
 def on_slack_slash_command(data):
     """https://api.slack.com/interactivity/slash-commands
 
+    To use the slash command, simply type `/command-name` in the Slack message input,
+    where `command-name` is the name you have assigned to the command in your app.
+    This command does not require any additional text or arguments.
+    
     Args:
         data: Slack event data.
     """
