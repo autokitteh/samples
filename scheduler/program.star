@@ -36,9 +36,10 @@ def on_cron_trigger():
     for pr in active_prs:
         s = ""
         # check whether this PR is stalled - either opened or updated a long ago
-        if pr.created_at.time > good_opened_at or pr.updated_at.time > good_updated_at:
-            s += "opened <%dh> ago, " % (now - pr.created_at.time).hours
-            s += "last updated <%dh> ago" % (now - pr.updated_at.time).hours
+        print(pr)
+        if pr.created_at > good_opened_at or pr.updated_at > good_updated_at:
+            s += "opened <%dh> ago, " % (now - pr.created_at).hours
+            s += "last updated <%dh> ago" % (now - pr.updated_at).hours
 
         if len(s):
             msg += "\nPR: `%s`\n" % pr.title
