@@ -4,7 +4,7 @@
     <bounds maxlat="32.680672" maxlon="35.550432" minlat="32.66142" minlon="35.527852"></bounds>
   </metadata>
   <trk>
-    <name>מסלול 1</name>
+    <name>Track 1</name>
     <desc></desc>
     <extensions>
       <Color xmlns="">#0000FF</Color>
@@ -1132,3 +1132,5 @@
     </trkseg>
   </trk>
 </gpx>
+
+<!-- Hike info from https://www.yeledteva.com/ -->

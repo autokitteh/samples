@@ -8,7 +8,7 @@ from os import getenv
 import autokitteh
 import boto3
 
-insert_sql = """
+INSERT_SQL = """
 INSERT INTO points
 	(track_id, n, lat, lng, height)
 VALUES
@@ -21,6 +21,9 @@ VALUES
 AWS_ACCESS_KEY_ID = getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_KEY = getenv("AWS_SECRET_KEY")
 DB_DSN = getenv("DB_DSN")
+
+# From vars in manifest
+AWS_REGION = getenv("AWS_REGION")
 
 
 def on_new_s3_object(event):
@@ -48,7 +51,7 @@ def get_s3_object(bucket, key):
         "s3",
         aws_access_key_id=AWS_ACCESS_KEY_ID,
         aws_secret_access_key=AWS_SECRET_KEY,
-        region_name="eu-north-1",
+        region_name=AWS_REGION,
     )
     response = s3_client.get_object(Bucket=bucket, Key=key)
     return response["Body"].read()
@@ -57,7 +60,7 @@ def get_s3_object(bucket, key):
 @autokitteh.activity
 def insert_records(db_dsn, records):
     with closing(sqlite3.connect(db_dsn)) as conn, conn:
-        cur = conn.executemany(insert_sql, records)
+        cur = conn.executemany(INSERT_SQL, records)
     return cur.rowcount
 
 

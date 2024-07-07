@@ -10,4 +10,7 @@ project:
       connection: s3_trigger
       call: pipeline.py:on_new_s3_object
       event_type: post
+  vars:
+    - name: AWS_REGION
+      value: eu-north-1
       # Triggered by POST request to http://localhost:9980/http/pipeline/new_object
