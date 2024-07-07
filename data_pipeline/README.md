@@ -102,6 +102,9 @@ After the file is loaded, look at the session log:
 
 ```
 ak session log --prints-only
+```
+
+```json
 [2024-06-27 14:15:44.990824306 +0000 UTC] [stdout] event: {'Type': 'Notification', 'MessageId': 'e199ce57-86f5-59ba-a38a-90a0f0e190aa', 'TopicArn': 'arn:aws:sns:eu-north-1:975050051518:hikes', 'Subject': 'Amazon S3 Notification', 'Message': '{"Records":[{"eventVersion":"2.1","eventSource":"aws:s3","awsRegion":"eu-north-1","eventTime":"2024-06-27T14:14:44.418Z","eventName":"ObjectCreated:Put","userIdentity":{"principalId":"AWS:AROA6GBMDB67DH6QBEE75:miki"},"requestParameters":{"sourceIPAddress":"147.235.211.162"},"responseElements":{"x-amz-request-id":"2593RVSRRERSMWG4","x-amz-id-2":"h+wcGUnQUN/uIMMybLf+mQj9k0xeAuUWN6GZw9P2fTNXWtpYY4v76wnvtQ5EZI+epG32f0OFGeB64mQScVkYMTVLatKGvn06nC71SQPTP2s="},"s3":{"s3SchemaVersion":"1.0","configurationId":"new","bucket":{"name":"ak-miki-hikes","ownerIdentity":{"principalId":"A3RBVIBHMVQI0T"},"arn":"arn:aws:s3:::ak-miki-hikes"},"object":{"key":"hike11.gpx","size":31683,"eTag":"07618ea3c6e04cb24c80007a10d91438","sequencer":"00667D73D45F53EA22"}}}]}', 'Timestamp': '2024-06-27T14:14:44.924Z', 'SignatureVersion': '1', 'Signature': 'fpXoBYMe3pvs74mtXy7vKCi9DDmh7kPeecoGuqgsEuyBHLK40yzWaZDb/v71WfsDH/UOLOAWE/LyqkAmOj3xNQVlH9NYh+rRYjAw6YcrzjRvmd2GvRqG6ZCQIxUgrUmXGSibFIGnJeTTEuLdKiP+FDU26ZjvGcAt9ogC6no9MT2+mkPd+9z1Czs+JDEGBV7IgWwDKKQ51Rkt48+CzjYl9EBeQesn4EjTpdIckss3p0324hc6IZneQhLcqopaPNVMLPX83hlAFmCEMSoUxuMp+dyGMaXVG4PsmpP2I3M5lbdnHBk5bueneJRft8xAsLMkFt+tfdwpHbIakm2I14vEZQ==', 'SigningCertURL': 'https://sns.eu-north-1.amazonaws.com/SimpleNotificationService-60eadc530605d63b8e62a523676ef735.pem', 'UnsubscribeURL': 'https://sns.eu-north-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-north-1:975050051518:hikes:18b9ba01-43f1-4a6f-a5a1-95c76a68f760'}
 [2024-06-27 14:15:45.002167665 +0000 UTC] [stdout] getting ak-miki-hikes/hike11.gpx
 [2024-06-27 14:15:46.075361184 +0000 UTC] [stdout] inserted 358 records
@@ -136,9 +139,10 @@ Then you can import `pipeline` and call `pipeline.on_new_s3_object` with the eve
 For example:
 
 ```python
-import pipeline
-import json
 from os import environ
+import json
+
+import pipeline
 
 # Make sure to initialize hikes.db
 
