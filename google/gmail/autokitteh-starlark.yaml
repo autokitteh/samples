@@ -1,17 +1,17 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an AutoKitteh sample project that demonstrates integration with
-# OpenAI ChatGPT (https://chat.openai.com).
+# This YAML file is a declarative manifest that describes the setup of
+# an AutoKitteh sample project that demonstrates 2-way integration with
+# Gmail (https://www.google.com/gmail/about/).
 #
 # After applying this file, initialize this AutoKitteh project's
-# ChatGPT and Slack connections.
+# Gmail and Slack connections.
 
 version: v1
 
 project:
-  name: openai_chatgpt_sample
+  name: gmail_sample
   connections:
-    - name: my_chatgpt
-      integration: chatgpt
+    - name: my_gmail
+      integration: gmail
     - name: my_slack
       integration: slack
   triggers:

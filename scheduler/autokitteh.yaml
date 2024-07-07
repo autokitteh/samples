@@ -2,10 +2,21 @@
 # of an AutoKitteh sample project that demonstrates integration with
 # a cron-like scheduler.
 #
-# Before applying this file:
-# - Set the "SLACK_CHANNEL" value in the "vars" section
-# - Create AutoKitteh connection tokens for the Scheduler (Cron) and Slack,
-#   and replace the "TODO" lines below
+# This program scans a specific GitHub repo on a daily basis for stalled
+# PRs and, if found, sends a message to a specific Slack channel.
+#
+# Before applying this file, set the variables SLACK_CHANNEL, GITHUB_OWNER,
+# and GITHUB_REPO in the project's "vars" section.
+#
+# After applying this file, initialize this AutoKitteh project's
+# GitHub and Slack connections.
+#
+# Schedule specification format is one from the following:
+# - Standard 5 star cron spec
+# - Extended 7 star cron spec (seconds, minutes, etc.)
+# - Predefined, e.g. @yearly/@annually, @monthly, @weekly,
+#   @daily/@midnight, @hourly
+# - Intervals, e.g. @every 1h30m10s
 
 version: v1
 
@@ -13,16 +24,17 @@ project:
   name: scheduler_sample
   vars:
     - name: SLACK_CHANNEL
-      value: TODO # Replace this with a Slack channel name or ID.
+      value: TODO # Replace with a Slack channel name or ID.
+    - name: GITHUB_OWNER
+      value: TODO # Replace with an actual repo owner.
+    - name: GITHUB_REPO
+      value: TODO # Replace with an actual repo name.
   connections:
-    - name: my_scheduler
-      integration: scheduler
-      token: TODO # Replace this with an AutoKitteh connection token.
+    - name: my_github
+      integration: github
     - name: my_slack
       integration: slack
-      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
-    - name: scheduler_cron_trigger
-      connection: my_scheduler
-      event_type: cron_trigger
+    - name: daily
+      schedule: "@daily" # Same as `@midnight', `0 0 * * *', or `@every 1d'.
       call: program.star:on_cron_trigger

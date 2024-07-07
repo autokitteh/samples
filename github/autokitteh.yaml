@@ -1,10 +1,9 @@
-# This YAML file is a declarative manifest that describes the setup
-# of an AutoKitteh sample project that demonstrates bidirectional
-# integration with GitHub (https://github.com).
+# This YAML file is a declarative manifest that describes the setup of
+# an AutoKitteh sample project that demonstrates 2-way integration with
+# GitHub (https://github.com).
 #
-# Before applying this file:
-# - Create an autokitteh connection token for GitHub,
-#   and replace the "TODO" line below
+# After applying this file, initialize this AutoKitteh project's
+# GitHub connection.
 
 version: v1
 
@@ -13,7 +12,6 @@ project:
   connections:
     - name: my_github
       integration: github
-      token: TODO # Replace this with an AutoKitteh connection token.
   triggers:
     - name: github_issue_comment
       connection: my_github

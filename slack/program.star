@@ -1,23 +1,31 @@
-"""This program demonstrates AutoKitteh's Slack integration.
+"""This program demonstrates AutoKitteh's 2-way Slack integration.
 
-This program implements multiple entry-point functions that are triggered by
-various Slack webhook events, which are defined in the "autokitteh.yaml"
-manifest file. It also executes various Slack API calls.
+This program implements multiple entry-point functions that are triggered
+by incoming Slack events, as defined in the "autokitteh-starlark.yaml"
+manifest file. These functions also execute various Slack API calls.
 
-API details:
+Events that this program responds to:
+- Mentions of the Slack app in messages (e.g. "Hi @autokitteh")
+- Slash commands registered by the Slack app (`/autokitteh <channel name or ID>`)
+- New and edited messages and replies
+- New emoji reactions
+
+Slack API documentation:
 - Web API reference: https://api.slack.com/methods
 - Events API reference: https://api.slack.com/events?filter=Events
 
-It also demonstrates using a custom builtin function (sleep) to sleep
-for a specified number of seconds.
+This program also demonstrates using a custom builtin function (sleep)
+to slow down the workflow for a specified number of seconds.
 
 This program isn't meant to cover all available functions and events.
-It merely showcases various illustrative, annotated, reusable examples.
+It merely showcases a few illustrative, annotated, reusable examples.
 
 Starlark is a dialect of Python (see https://bazel.build/rules/language).
+Comapre this file with "program.py" - same logic, but using Python.
 """
 
 load("@slack", "my_slack")
+load("message.json", "blocks")
 
 def on_slack_app_mention(data):
     """https://api.slack.com/events/app_mention
@@ -27,14 +35,15 @@ def on_slack_app_mention(data):
     """
 
     # Send messages in response to the event:
-    # - A DM to the user who triggered the event
+    # - DM to the user who triggered the event (channel ID = user ID)
     # - Two messages to the channel "#slack-test"
     # See: https://api.slack.com/methods/chat.postMessage
-    user = "<@" + data.user + ">"
-    channel = "<#" + data.channel + ">"
-    text = "You mentioned me in %s and wrote: `%s`" % (channel, data.text)
+    text = "You mentioned me in <#%s> and wrote: `%s`" % (data.channel, data.text)
     my_slack.chat_post_message(channel = data.user, text = text)
-    my_slack.chat_post_message("#slack-test", text.replace("You", user))
+
+    text = text.replace("You", "<@%s>" % data.user)
+    my_slack.chat_post_message("#slack-test", text)
+
     text = "Before update :crying_cat_face:"
     resp = my_slack.chat_post_message("#slack-test", text)
 
@@ -68,8 +77,7 @@ def on_slack_app_mention(data):
     # See: https://api.slack.com/methods/conversations.replies
     resp = my_slack.conversations_replies(channel = resp.channel, ts = resp.ts)
 
-    # For educational purposes, print all the reply objects
-    # in the AutoKitteh session's log.
+    # For educational purposes, print all the replies in the AutoKitteh session's log.
     if resp.ok:
         for msg in resp.messages:
             print(msg)
@@ -81,40 +89,45 @@ def on_slack_message(data):
         data: Slack event data.
     """
     if not data.subtype:
-        user = "<@" + data.user + ">"
+        user = "<@%s>" % data.user
         if not data.thread_ts:
             _on_slack_new_message(data, user)
         else:
             # https://api.slack.com/events/message/message_replied
             _on_slack_reply_message(data, user)
     elif data.subtype == "message_changed":
-        user = "<@" + data.message.user + ">"
+        user = "<@%s>" % data.message.user  # Not the same as above!
         _on_slack_message_changed(data, user)
 
 def _on_slack_new_message(data, user):
     """Someone wrote a new message."""
-    msg = ":point_up: %s wrote: `%s`" % (user, data.text)
-    my_slack.chat_post_message(data.channel, msg)
+    text = ":point_up: %s wrote: `%s`" % (user, data.text)
+    my_slack.chat_post_message(data.channel, text)
 
 def _on_slack_reply_message(data, user):
     """Someone wrote a reply in a thread."""
-    msg = ":point_up: %s wrote a reply to <@%s>: `%s`"
-    msg %= (user, data.parent_user_id, data.text)
-    my_slack.chat_post_message(data.channel, msg, thread_ts = data.thread_ts)
+    text = ":point_up: %s wrote a reply to <@%s>: `%s`"
+    text %= (user, data.parent_user_id, data.text)
+    my_slack.chat_post_message(data.channel, text, thread_ts = data.thread_ts)
 
 def _on_slack_message_changed(data, user):
     """Someone edited a message."""
-    msg = ":point_up: %s edited a message from `%s` to `%s`"
-    msg %= (user, data.previous_message.text, data.message.text)
+    text = ":point_up: %s edited a message from `%s` to `%s`"
+    text %= (user, data.previous_message.text, data.message.text)
 
     # Thread TS may or may not be empty, depending on the edited message.
-    my_slack.chat_post_message(data.channel, msg, thread_ts = data.thread_ts)
+    thread = data.message.thread_ts
+
+    my_slack.chat_post_message(data.channel, text, thread_ts = thread)
 
 def on_slack_reaction_added(data):
-    """https://api.slack.com/events/reaction_added"""
+    """https://api.slack.com/events/reaction_added
 
-    # For educational purposes, print the fields of the event object
-    # in the AutoKitteh session's log.
+    Args:
+        data: Slack event data.
+    """
+
+    # For educational purposes, print the event data in the AutoKitteh session's log.
     print(data.user)
     print(data.reaction)
     print(data.item)
@@ -123,6 +136,14 @@ def on_slack_slash_command(data):
     """https://api.slack.com/interactivity/slash-commands
 
     See also: https://api.slack.com/interactivity/handling#message_responses
+
+    The text after the slash command is expected to be a valid target for a
+    Slack message (https://api.slack.com/methods/chat.postMessage#channels):
+    Slack user ID ("U"), user DM ID ("D"), multi-person/group DM ID ("G"),
+    channel ID ("C"), or channel name (with or without the "#" prefix).
+
+    Note that all targets except "U", "D" and public channels require
+    the Slack app to be added in advance.
 
     Args:
         data: Slack event data.
@@ -146,8 +167,8 @@ def on_slack_slash_command(data):
     text = "Email: " + profile.email
     my_slack.chat_post_message(data.user_id, text)
 
-    # Treat the text of the user's slash command as a message target (channel
-    # ID/name or user ID), and send an interactive message to that target.
+    # Treat the text of the user's slash command as a message target (e.g.
+    # channel or user), and send an interactive message to that target.
     title = "Question From %s" % data.user_id
     msg = "Please select one of these options... :smiley_cat:"
     my_slack.send_approval_message(
@@ -155,6 +176,9 @@ def on_slack_slash_command(data):
         header = title,
         message = msg,
     )
+    # Instead of calling "send_approval_message()", you can
+    # also call "chat_post_message()" with blocks instead of
+    # text, e.g. see the 2 functions at the end of this file.
 
 def on_slack_interaction(data):
     """https://api.slack.com/reference/interaction-payloads/block-actions
@@ -175,3 +199,48 @@ def on_slack_interaction(data):
     elif data.actions[0].style == "danger":  # Red button.
         msg += " :-1:"
     my_slack.chat_post_message(channel = respond_to, text = msg)
+
+def post_message_with_loaded_blocks(target):
+    # "blocks" is loaded from a JSON file - see the relevant load() above.
+    blocks[0]["text"]["text"] = "This is a modified header :smile:"
+    my_slack.chat_post_message(target, blocks = blocks)
+
+def post_message_with_constructed_blocks(target):
+    # You may construct the blocks part-by-part, modify them,
+    # and then aggregate them...
+    header = {
+        "type": "header",
+        "text": {
+            "type": "plain_text",
+            "text": "This is a header block",
+            "emoji": True,
+        },
+    }
+    header["text"]["text"] = "This is a modified header :smile:"
+
+    # ...Or construct them all at once.
+    blocks = [
+        header,
+        {
+            "type": "divider",
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "This is a section block with a button.",
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Click Me",
+                    "emoji": True,
+                },
+                "value": "click_me_123",
+                "url": "https://google.com",
+                "action_id": "button-action",
+            },
+        },
+    ]
+    my_slack.chat_post_message(target, blocks = blocks)
