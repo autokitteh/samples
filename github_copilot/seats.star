@@ -2,7 +2,7 @@ load("env", "ORG", "IDLE_USAGE_THRESHOLD", "LOGINS", "LOG_CHANNEL")
 load("@github", "mygithub")
 load("@slack", "myslack")
 load("helpers.star", "github_username_to_slack_user_id")
-load("msg.json", "blocks")
+load("msg.json", "blocks")  # Preview: https://app.slack.com/block-kit-builder/
 
 logins = LOGINS.split(",")
 idle_usage_threshold = time.parse_duration(IDLE_USAGE_THRESHOLD)
