@@ -40,7 +40,5 @@ Capabilities and API details of specific AutoKitteh integrations:
 - [Slack](./slack/)
 - [Twilio](./twilio/)
 
-Cross-functional and product-oriented, demonstrating the operation and value
-of the system as a whole:
-
-- [Pull Request Review Reminder (PuRRR)](./purrr/)
+For cross-functional and product-oriented, demonstrating the operation and value
+of the system as a whole, see [kittehub](https://github.com/autokitteh/kittehub).
