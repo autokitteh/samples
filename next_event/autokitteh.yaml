@@ -1,0 +1,14 @@
+version: v1
+
+project:
+  name: next_event
+  connections:
+    - name: myhttp
+      integration: http
+  triggers:
+    - name: http_get
+      connection: myhttp
+      event_type: get
+      data:
+        path: meow
+      call: program.star:on_http_get
