@@ -24,11 +24,11 @@ project:
   name: scheduler_sample
   vars:
     - name: SLACK_CHANNEL
-      value: TODO # Replace with a Slack channel name or ID.
+      value: 
     - name: GITHUB_OWNER
-      value: TODO # Replace with an actual repo owner.
+      value: 
     - name: GITHUB_REPO
-      value: TODO # Replace with an actual repo name.
+      value: 
   connections:
     - name: my_github
       integration: github
