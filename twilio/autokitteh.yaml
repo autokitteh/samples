@@ -14,7 +14,7 @@ project:
   name: twilio_sample
   vars:
     - name: FROM_NUMBER
-      value: "+12345556789" # Replace this with a Twilio phone number.
+      value: 
   connections:
     - name: my_slack
       integration: slack
