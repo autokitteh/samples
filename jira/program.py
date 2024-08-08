@@ -17,7 +17,7 @@ This program isn't meant to cover all available functions and events.
 It merely showcases a few illustrative, annotated, reusable examples.
 """
 
-from autokitteh.atlassian import atlassian_jira_client
+from autokitteh.atlassian import jira_client
 
 
 AK_JIRA_CONNECTION = "my_jira"
@@ -27,7 +27,7 @@ def on_jira_issue_created(event):
     issue_key = event.data.issue.key
     user_name = event.data.user.displayName
 
-    jira = atlassian_jira_client(AK_JIRA_CONNECTION)
+    jira = jira_client(AK_JIRA_CONNECTION)
     jira.issue_add_comment(issue_key, "This issue was created by " + user_name)
 
 
@@ -35,6 +35,6 @@ def on_jira_comment_created(event):
     issue_key = event.data.issue.key
     comment = event.data.comment
 
-    jira = atlassian_jira_client(AK_JIRA_CONNECTION)
+    jira = jira_client(AK_JIRA_CONNECTION)
     suffix = "\n\nThis comment was added by " + comment.author.displayName
     jira.issue_edit_comment(issue_key, comment.id, comment.body + suffix)
